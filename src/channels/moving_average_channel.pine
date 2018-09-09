@@ -1,0 +1,19 @@
+//@version=3
+// Copyright (c) 2017-present, Alex Orekhov (everget)
+// Moving Average Channel indicator script may be freely distributed under the MIT license.
+study("Moving Average Channel", shorttitle="MAC", overlay=true)
+
+upperSrc = input(title="Upper Source", type=source, defval=high)
+upperLength = input(title="Upper Length", type=integer, defval=20)
+upperOffset = input(title="Upper Offset", type=integer, defval=0)
+
+upperMA = sma(upperSrc, upperLength)
+
+lowerSrc = input(title="Lower Source", type=source, defval=low)
+lowerLength = input(title="Lower Length", type=integer, defval=20)
+lowerOffset = input(title="Lower Offset", type=integer, defval=0)
+
+lowerMA = sma(lowerSrc, lowerLength)
+
+plot(upperMA, title="Upper", color=#3c78d8, transp=0, offset=upperOffset)
+plot(lowerMA, title="Lower", color=#e69138, transp=0, offset=lowerOffset)

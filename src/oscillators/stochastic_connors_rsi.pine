@@ -1,0 +1,50 @@
+//@version=3
+// Copyright (c) 2017-present, Alex Orekhov (everget)
+// Stochastic Connors RSI indicator script may be freely distributed under the MIT license.
+study(title="Stochastic Connors RSI", shorttitle="Stoch CRSI")
+
+stochLength = input(title="Stochastic Length", type=integer, defval=3, minval=1)
+smoothK = input(title="K", type=integer, defval=3, minval=1, maxval=10000)
+smoothD = input(title="D", type=integer, defval=3, minval=1, maxval=10000)
+
+rsiLength = input(title="RSI Length", type=integer, defval=3, minval=1)
+updownLength = input(title="Updown RSI Length", type=integer, defval=2, minval=1)
+rocLength = input(title="ROC Length", type=integer, defval=100, minval=1)
+src = input(title="RSI Source", type=source, defval=close)
+
+updown = 0
+updown_calc(s, ud) =>
+	newupdown = 0
+	if s > s[1]
+		newupdown := nz(ud[1]) >= 0 ? nz(ud[1]) + 1 : 1
+	else
+		if s < s[1]
+			newupdown := nz(ud[1]) <= 0 ? nz(ud[1]) - 1 : -1
+		else
+			newupdown := 0
+
+updown := updown_calc(src, updown)
+
+updownrsi = rsi(updown, updownLength)
+
+rsi = rsi(src, rsiLength)
+
+percentrank = percentrank(roc(src, 1), rocLength)
+
+crsi = avg(rsi, updownrsi, percentrank)
+
+stochcalc = stoch(crsi, crsi, crsi, stochLength)
+
+band1 = hline(80, color=gray, linestyle=dashed)
+band2 = hline(20, color=gray, linestyle=dashed)
+fill(band1, band2, color=#f9cb9c0f)
+
+band3 = hline(70, color=gray, linestyle=dashed)
+band4 = hline(30, color=gray, linestyle=dashed)
+fill(band3, band4, color=#de9ba6)
+
+smaK = sma(stochcalc, smoothK)
+smaD = sma(smaK, smoothD)
+
+plot(smaK, title="K", color=#0094ff)
+plot(smaD, title="D", color=#ff6a00)

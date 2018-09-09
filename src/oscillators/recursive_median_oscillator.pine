@@ -1,0 +1,53 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Recursive Median Oscillator indicator script may be freely distributed under the MIT license.
+study("Recursive Median Oscillator", shorttitle="RMO")
+
+medianLength = input(title="Length", type=integer, defval=5, minval=1)
+lowpassLength = input(title="Lowpass Length", type=integer, defval=12, minval=1)
+highpassLength = input(title="Highpass Length", type=integer, defval=30, minval=1)
+src = input(title="Source", type=source, defval=close)
+
+sort(src, i) =>
+	min = -10000.0
+
+	for j = 0 to i - 1
+		min_local = 10000.0
+
+		for l = 0 to medianLength - 1
+			if (nz(src[l]) <= min)
+				continue
+
+			min_local := min(min_local, max(min, nz(src[l])))
+
+		if min_local != 10000
+			min := min_local
+	min
+
+median(src, length) =>
+	result = 0.0
+
+	if length % 2 == 0
+		result := (sort(src, length / 2) + sort(src, length / 2 + 1)) / 2
+	else
+		result := sort(src, ceil(length / 2))
+
+PI = 2 * asin(1)
+
+alpha1Arg = 2 * PI / lowpassLength
+alpha1 = (cos(alpha1Arg) + sin(alpha1Arg) - 1) / cos(alpha1Arg)
+
+rm = 0.0
+rm := alpha1 * median(src, medianLength) + (1 - alpha1) * nz(rm[1])
+
+alpha2Arg = 1 / sqrt(2) * 2 * PI / highpassLength
+alpha2 = (cos(alpha2Arg) + sin(alpha2Arg) - 1) / cos(alpha2Arg)
+
+rmo = 0.0
+rmo := pow(1 - alpha2 / 2, 2) * (rm - 2 * nz(rm[1]) + nz(rm[2])) + 2 * (1 - alpha2) * nz(rmo[1]) - pow(1 - alpha2, 2) * nz(rmo[2])
+
+rmoColor = rmo >= 0.0 ? #0ebb23 : #ff0000
+
+plot(rmo, title="RMO", linewidth=2, color=rmoColor, transp=0)
+
+hline(0, title="Zero Level", linestyle=dashed, color=#3c78d8)

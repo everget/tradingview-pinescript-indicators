@@ -1,0 +1,15 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// OSC Oscillator indicator script may be freely distributed under the MIT license.
+study("OSC Oscillator", shorttitle="OSC")
+
+slowLength = input(title="Slow Length", type=integer, defval=14, minval=1)
+fastLength = input(title="Fast Length", type=integer, defval=7, minval=1)
+src = input(title="Source", type=source, defval=close)
+
+osc = sma(src, slowLength) - sma(src, fastLength)
+
+oscColor = osc >= 0.0 ? #0ebb23 : #ff0000
+plot(osc, title="OSC", linewidth=2, color=oscColor, transp=0)
+
+hline(0, title="Zero Level", linestyle=dotted, color=#989898)

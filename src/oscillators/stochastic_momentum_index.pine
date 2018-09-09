@@ -1,0 +1,34 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Stochastic Momentum Index indicator script may be freely distributed under the MIT license.
+study("Stochastic Momentum Index", shorttitle="SMI")
+
+q = input(title="Length (Stochastic Lookback)", type=integer, defval=13, minval=1)
+r = input(title="First Smoothing Length", type=integer, defval=25, minval=1)
+s = input(title="Second Smoothing Length", type=integer, defval=2, minval=1)
+signalLength = input(title="Signal Length", type=integer, defval=12, minval=1)
+overboughtLevel = input(title="Overbought Level", type=integer, defval=40)
+oversoldLevel = input(title="Oversold Level", type=integer, defval=-40)
+applyFilling = input(title="Apply Filling ?", type=bool, defval=false)
+src = input(title="Source", type=source, defval=close)
+
+hhq = highest(high, q)
+llq = lowest(low, q)
+
+numerator = ema(ema(src - 0.5 * (hhq + llq), r), s)
+
+denominator = 0.5 * ema(ema(hhq - llq, r), s)
+
+smi = 100 * numerator / denominator
+
+signal = ema(smi, signalLength)
+
+smiPlot = plot(smi, title="SMI", color=#ff3e7d, transp=0)
+signalPlot = plot(signal, title="Signal", color=#3c78d8, transp=0)
+
+overbought = hline(title="Overbought Level", price=overboughtLevel, linestyle=dotted, color=#e69138)
+hline(title="Zero Level", price=0, linestyle=dashed, color=#989898)
+oversold = hline(title="Oversold Level", price=oversoldLevel, linestyle=dotted, color=#e69138)
+
+fillColor = applyFilling ? (smi > signal ? #0ebb23 : #cc0000) : color(white, 100)
+fill(smiPlot, signalPlot, color=fillColor, transp=0)

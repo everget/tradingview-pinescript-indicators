@@ -1,0 +1,33 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Kurtosis Indicator script may be freely distributed under the MIT license.
+study("Kurtosis Indicator", shorttitle="Kurtosis")
+
+momentumLength = input(title="Momentum Length", type=integer, defval=3, minval=1)
+fastMAInput = input(title="Fast MA", defval="EMA", options=["EMA", "SMA", "VWMA", "WMA"])
+fastLength = input(title="Fast Length", type=integer, defval=66, minval=1)
+fastSlowMAInput = input(title="Fast/Slow MA", defval="SMA", options=["EMA", "SMA", "VWMA", "WMA"])
+fastSlowLength = input(title="Fast/Slow Length", type=integer, defval=3, minval=1)
+src = input(title="Source", type=source, defval=close)
+
+// Kurtosis
+K = change(src, momentumLength) - change(src[1], momentumLength)
+
+// Fast Kurtosis
+FK = iff(fastMAInput == "EMA", ema(K, fastLength),
+	 iff(fastMAInput == "SMA", sma(K, fastLength),
+	 iff(fastMAInput == "VWMA", vwma(K, fastLength),
+	 iff(fastMAInput == "WMA", wma(K, fastLength),
+	 na))))
+
+// Fast / Slow Kurtosis
+FSK = iff(fastSlowMAInput == "EMA", ema(FK, fastSlowLength),
+	 iff(fastSlowMAInput == "SMA", sma(FK, fastSlowLength),
+	 iff(fastSlowMAInput == "VWMA", vwma(FK, fastSlowLength),
+	 iff(fastSlowMAInput == "WMA", wma(FK, fastSlowLength),
+	 na))))
+
+hline(title="Zero Level", price=0, linestyle=dotted, color=gray)
+
+plot(FK, title="Fast", linewidth=2, color=#ff9370, transp=0)
+plot(FSK, title="Fast / Slow", linewidth=2, color=#6d1e7f, transp=0)

@@ -1,0 +1,20 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ehlers Cyber Cycle indicator script may be freely distributed under the MIT license.
+study("Ehlers Cyber Cycle", shorttitle="ECC")
+
+length = input(title="Length", type=integer, defval=14, minval=1)
+alpha = input(title="Alpha", type=float, defval=0.7, step=0.1)
+applyFilling = input(title="Apply Filling ?", type=bool, defval=false)
+src = input(title="Source", type=source, defval=close)
+
+smooth = (src + 2 * nz(src[1]) + 2 * nz(src[2]) + nz(src[3])) / 6
+
+ecc = 0.0
+ecc := pow(1 - alpha / 2, 2) * (smooth - 2 * nz(smooth[1]) + nz(smooth[2])) + 2 * (1 - alpha) * nz(ecc[1]) - pow(1 - alpha, 2) * nz(ecc[2])
+
+eccPlot = plot(ecc, title="ECC", color=#3d85c6, transp=0)
+eccPrevPlot = plot(ecc[1], title="Trigger", color=#ff3e7d, transp=0)
+
+fillColor = applyFilling ? (ecc > ecc[1] ? #0ebb23 : #cc0000) : color(white, 100)
+fill(eccPlot, eccPrevPlot, color=fillColor, transp=0)

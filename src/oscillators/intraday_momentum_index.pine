@@ -1,0 +1,22 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Intraday Momentum Index indicator script may be freely distributed under the MIT license.
+study("Intraday Momentum Index", shorttitle="IMI")
+
+length = input(title="Length", type=integer, defval=14, minval=1)
+src = input(title="Source", type=source, defval=close)
+
+gain = (close > open) ? close - open : 0.0
+loss = (close > open) ? 0.0 : open - close
+
+upSum = sum(gain, length)
+downSum = sum(loss, length)
+
+imi = 100 * upSum / (upSum + downSum)
+
+plot(imi, title="IMI", linewidth=1, color=#cc0000, transp=0)
+
+overboughtLevel = hline(70, title="Overbought Level", linestyle=dashed, color=#b6b6b6)
+oversoldLevel = hline(30, title="Oversold Level", linestyle=dashed, color=#b6b6b6)
+
+fill(overboughtLevel, oversoldLevel, title="Background", color=color(#c27ba0, 90))

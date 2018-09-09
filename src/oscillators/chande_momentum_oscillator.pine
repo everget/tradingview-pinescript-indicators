@@ -1,7 +1,7 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
 // Chande Momentum Oscillator indicator script may be freely distributed under the MIT license.
-study(title="Chande Momentum Oscillator", shorttitle="ChandeMO")
+study("Chande Momentum Oscillator", shorttitle="ChandeMO")
 
 length = input(title="CMO Length", type=integer, defval=9, minval=1)
 overBoughtLevel = input(title="CMO Overbought", type=integer, defval=50)

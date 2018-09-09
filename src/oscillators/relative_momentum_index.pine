@@ -1,0 +1,19 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Relative Momentum Index indicator script may be freely distributed under the MIT license.
+study("Relative Momentum Index", shorttitle="RMI")
+
+length = input(title="Length", type=integer, defval=14, minval=1)
+momentumLength = input(title="Momentum Length", type=integer, defval=3, minval=1)
+src = input(title="Source", type=source, defval=close)
+
+up = rma(max(change(src, momentumLength), 0), length)
+down = rma(-min(change(src, momentumLength), 0), length)
+
+rmi = down == 0 ? 100 : up == 0 ? 0 : 100 - (100 / (1 + up / down))
+
+plot(rmi, title="RMI", linewidth=1, color=#6d1e7f, transp=0)
+
+overboughtLevel = hline(title="Overbought Level", price=70)
+oversoldLevel = hline(title="Oversold Level", price=30)
+fill(title="Background", hline1=overboughtLevel, hline2=oversoldLevel, color=purple, transp=90)

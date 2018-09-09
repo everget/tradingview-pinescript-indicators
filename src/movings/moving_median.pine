@@ -25,7 +25,7 @@ sort(src, i) =>
 median(src, length) =>
 	result = 0.0
 
-	if  length % 2 == 0
+	if length % 2 == 0
 		result := (sort(src, length / 2) + sort(src, length / 2 + 1)) / 2
 	else
 		result := sort(src, ceil(length / 2))

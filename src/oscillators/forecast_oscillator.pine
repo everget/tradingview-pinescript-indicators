@@ -1,0 +1,15 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Forecast Oscillator indicator script may be freely distributed under the MIT license.
+study("Forecast Oscillator", shorttitle="FOSC")
+
+length = input(title="Length", type=integer, defval=14, minval=1)
+src = input(title="Source", type=source, defval=close)
+
+fosc = 100 * (src - linreg(src, length, 0)) / src
+
+foscColor = fosc >= 0.0 ? #0ebb23 : #ff0000
+
+plot(fosc, title="FOSC", linewidth=2, color=foscColor, transp=0)
+
+hline(0, title="Zero Level", linestyle=dotted, color=#989898)

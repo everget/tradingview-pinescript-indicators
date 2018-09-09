@@ -1,0 +1,32 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ehlers Deviation-Scaled Moving Average indicator script may be freely distributed under the MIT license.
+study("Ehlers Deviation-Scaled Moving Average", shorttitle="EDSMA", overlay=true)
+
+length = input(title="Length", type=integer, defval=40, minval=2)
+src = input(title="Source", type=source, defval=close)
+
+PI = 2 * asin(1)
+
+// Compute Super Smoother coefficients
+a1 = exp(-sqrt(2) * PI / (0.5 * length))
+b1 = 2 * a1 * cos(sqrt(2) * PI / (0.5 * length))
+c2 = b1
+c3 = -a1 * a1
+c1 = 1 - c2 - c3
+
+zeros = src - nz(src[2])
+
+// Ehlers Super Smoother Filter
+ssf = 0.0
+ssf := c1 * (zeros + zeros[1]) / 2 + c2 * nz(ssf[1]) + c3 * nz(ssf[2])
+
+// Rescale filter in terms of Standard Deviations
+scaledFilter = ssf / stdev(ssf, length)
+
+alpha = abs(scaledFilter) * 5 / length
+
+edsma = 0.0
+edsma := alpha * src + (1 - alpha) * nz(edsma[1])
+
+plot(edsma, title="EDSMA", linewidth=2, color=#6d1e7f, transp=0)

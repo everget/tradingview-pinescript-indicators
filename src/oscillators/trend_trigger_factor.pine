@@ -1,0 +1,22 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Trend Trigger Factor indicator script may be freely distributed under the MIT license.
+study("Trend Trigger Factor", shorttitle="TTF")
+
+length = input(title="Lookback Length", type=integer, defval=15, minval=1)
+upperTriggerLevel = input(title="Upper Trigger Level", type=integer, defval=100, minval=1)
+lowerTriggerLevel = input(title="Lower Trigger Level", type=integer, defval=-100, minval=-1)
+src = input(title="Source", type=source, defval=close)
+
+buyPower = highest(high, length) - nz(lowest(low, length)[length])
+sellPower = nz(highest(high, length)[length]) - lowest(low, length)
+
+ttf = 100 * 2 * (buyPower - sellPower) / (buyPower + sellPower)
+
+ttfColor = ttf >= upperTriggerLevel ? #0ebb23 : ttf <= lowerTriggerLevel ? red : #674ea7
+
+plot(ttf, title="TTF", linewidth=2, color=ttfColor, transp=0)
+
+hline(upperTriggerLevel, title="Upper Trigger Level", linestyle=dotted, color=#e06666)
+hline(0, title="Zero Level", color=#b6b6b6)
+hline(lowerTriggerLevel, title="Lower Trigger Level", linestyle=dotted, color=#e06666)
