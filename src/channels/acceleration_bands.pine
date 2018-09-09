@@ -1,0 +1,26 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Acceleration Bands indicator script may be freely distributed under the MIT license.
+study(title="Acceleration Bands", shorttitle="ABANDS", overlay=true)
+
+length = input(title="Length", type=integer, defval=20)
+factor = input(title="Factor", type=float, defval=0.001, step=0.0001)
+src = input(title="Source", type=source, defval=close)
+
+mult = 4 * factor * 1000 * (high - low) / (high + low)
+
+upperBandSrc = high * (1 + mult)
+upperBand = sma(upperBandSrc, length)
+
+basis = sma(src, length)
+
+lowerBandSrc = low * (1 - mult)
+lowerBand = sma(lowerBandSrc, length)
+
+upperBandPlot = plot(upperBand, title="Upper", linewidth=1, color=#138484, transp=0)
+
+plot(basis, title="Basis", linewidth=1, color=#741b47, transp=0)
+
+lowerBandPlot = plot(lowerBand, title="Lower", linewidth=1, color=#138484, transp=0)
+
+fill(upperBandPlot, lowerBandPlot, title="Background", color=color(#ffd966, 84))

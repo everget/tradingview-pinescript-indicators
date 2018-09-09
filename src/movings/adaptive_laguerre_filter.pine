@@ -1,0 +1,66 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Adaptive Laguerre Filter indicator script may be freely distributed under the MIT license.
+study("Adaptive Laguerre Filter", shorttitle="ALF", overlay=true)
+
+length = input(title="Length", type=integer, defval=20, minval=1)
+medianLength = input(title="Median Length", type=integer, defval=5, minval=1)
+src = input(title="Source", type=source, defval=close)
+
+sort(src, i) =>
+	min = -10000.0
+
+	for j = 0 to i - 1
+		min_local = 10000.0
+
+		for l = 0 to medianLength - 1
+			if (nz(src[l]) <= min)
+				continue
+
+			min_local := min(min_local, max(min, nz(src[l])))
+
+		if min_local != 10000
+			min := min_local
+	min
+
+median(src, length) =>
+	result = 0.0
+
+	if  length % 2 == 0
+		result := (sort(src, length / 2) + sort(src, length / 2 + 1)) / 2
+	else
+		result := sort(src, ceil(length / 2))
+
+diff = 0.0
+HH = 0.0
+LL = 0.0
+
+alpha = 0.0
+L0 = 0.0
+L1 = 0.0
+L2 = 0.0
+L3 = 0.0
+alf = 0.0
+
+diff := abs(src - nz(alf[1]))
+
+HH := diff
+LL := diff
+
+for i = 0 to length - 1
+	if nz(diff[i]) > HH
+		HH := nz(diff[i])
+
+	if  nz(diff[i]) < LL
+		LL := nz(diff[i])
+
+alpha := HH - LL != 0 ? median((diff - LL) / (HH - LL), medianLength) : nz(alpha[1])
+
+L0 := alpha * src + (1 - alpha) * nz(L0[1])
+L1 := -(1 - alpha) * L0 + nz(L0[1]) + (1 - alpha) * nz(L1[1])
+L2 := -(1 - alpha) * L1 + nz(L1[1]) + (1 - alpha) * nz(L2[1])
+L3 := -(1 - alpha) * L2 + nz(L2[1]) + (1 - alpha) * nz(L3[1])
+
+alf := (L0 + 2 * L1 + 2 * L2 + L3) / 6
+
+plot(alf, title="ALF", linewidth=2, color=#741b47, transp=0)
