@@ -6,12 +6,6 @@ study("Geometric Mean", shorttitle="GM", overlay=true)
 length = input(title="Length", type=integer, defval=14, minval=1)
 src = input(title="Source", type=source, defval=close)
 
-// https://en.wikipedia.org/wiki/Nth_root_algorithm
-// https://en.wikipedia.org/wiki/Nth_root
-// http://www.calculator.net/root-calculator.html?cvar3=14&cvar4=5&ctype=3&x=77&y=23
-// https://www.rapidtables.com/calc/math/Root_Calculator.html
-// https://rosettacode.org/wiki/Nth_root#JavaScript
-
 precision = 0.00001
 
 nthRoot(value, degree) =>

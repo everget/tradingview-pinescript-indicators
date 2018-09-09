@@ -14,13 +14,13 @@ src = input(title="Source", type=source, defval=close)
 
 // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Two-pass_algorithm
 twoPassStdev(src, length) =>
-    dev = src - sma(src, length)
-    variance = sum(dev * dev, length) / (length - 1)
-    sqrt(variance)
+	dev = src - sma(src, length)
+	variance = sum(dev * dev, length) / (length - 1)
+	sqrt(variance)
 
 selectedStdev = iff(stdevInput == "Built-In (Naive)", stdev(src, stdevLength),
-     iff(stdevInput == "Two-Pass", twoPassStdev(src, stdevLength),
-     na))
+	 iff(stdevInput == "Two-Pass", twoPassStdev(src, stdevLength),
+	 na))
 
 // Relative Volatility Index
 up(src) => change(src) > 0 ? selectedStdev : 0
@@ -28,16 +28,16 @@ down(src) => change(src) > 0 ? 0 : selectedStdev
 
 // Original version (1993)
 rviOriginal(src) =>
-    upSum = if useWilderSmoothing
-        ema(up(src), 2 * emaLength - 1)
-    else
-        ema(up(src), emaLength)
+	upSum = if useWilderSmoothing
+		ema(up(src), 2 * emaLength - 1)
+	else
+		ema(up(src), emaLength)
 
-    downSum = if useWilderSmoothing
-        ema(down(src), 2 * emaLength - 1)
-    else
-        ema(down(src), emaLength)
-    100 * upSum / (upSum + downSum)
+	downSum = if useWilderSmoothing
+		ema(down(src), 2 * emaLength - 1)
+	else
+		ema(down(src), emaLength)
+	100 * upSum / (upSum + downSum)
 
 // Refined version (1995)
 rvi = useRefined ? (rviOriginal(high) + rviOriginal(low)) / 2 : rviOriginal(src)

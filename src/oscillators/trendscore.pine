@@ -9,6 +9,7 @@ src = input(title="Source", type=source, defval=close)
 
 trendscore(src, fromIndex, toIndex) =>
 	sum = 0.0
+
 	for i = fromIndex to toIndex
 		sum := src >= nz(src[i]) ? sum + 1 : sum - 1
 	sum

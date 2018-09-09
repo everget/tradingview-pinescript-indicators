@@ -11,8 +11,11 @@ swing_index(limit) =>
 	L2_C1 = abs(low - close[1])
 	H2_L2 = abs(high - low)
 	C1_O1 = abs(close[1] - open[1])
+
 	K = max(H2_C1, L2_C1)
+
 	R = iff(H2_C1 >= max(L2_C1, H2_L2), H2_C1 - 0.5 * L2_C1 + 0.25 * C1_O1, iff(L2_C1 >= max(H2_C1, H2_L2), L2_C1 - 0.5 * H2_C1 + 0.25 * C1_O1, H2_L2 + 0.25 * C1_O1))
+
 	result = 50 * ((close - close[1] + 0.5 * (close - open) + 0.25 * (close[1] - open[1])) / R) * K / limit
 	result
 
