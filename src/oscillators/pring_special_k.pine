@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Pring Special K indicator script may be freely distributed under the MIT license.
+// Pring Special K script may be freely distributed under the MIT license.
 study("Pring Special K", shorttitle="PSK")
 
 src = input(title="Source", type=source, defval=close)

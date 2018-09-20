@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Recursive Median Oscillator indicator script may be freely distributed under the MIT license.
+// Recursive Median Oscillator script may be freely distributed under the MIT license.
 study("Recursive Median Oscillator", shorttitle="RMO")
 
 medianLength = input(title="Length", type=integer, defval=5, minval=1)

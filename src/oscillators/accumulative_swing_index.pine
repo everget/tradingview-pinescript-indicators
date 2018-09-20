@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2017-present, Alex Orekhov (everget)
-// Accumulative Swing Index indicator script may be freely distributed under the MIT license.
+// Accumulative Swing Index script may be freely distributed under the MIT license.
 study("Accumulative Swing Index", shorttitle="ASI")
 
 limit = input(title="Limit Move Value", type=float, defval=10000, minval=0.1, maxval=100000)

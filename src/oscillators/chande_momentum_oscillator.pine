@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Chande Momentum Oscillator indicator script may be freely distributed under the MIT license.
+// Chande Momentum Oscillator script may be freely distributed under the MIT license.
 study("Chande Momentum Oscillator", shorttitle="ChandeMO")
 
 length = input(title="CMO Length", type=integer, defval=9, minval=1)

@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Laguerre RSI indicator script may be freely distributed under the MIT license.
+// Laguerre RSI script may be freely distributed under the MIT license.
 study("Laguerre RSI", shorttitle="LRSI")
 
 alpha = input(title="Alpha", type=float, defval=0.7, minval=0, step=0.1)

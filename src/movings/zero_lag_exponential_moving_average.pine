@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Zero Lag Exponential Moving Average indicator script may be freely distributed under the MIT license.
+// Zero Lag Exponential Moving Average script may be freely distributed under the MIT license.
 study("Zero Lag Exponential Moving Average", shorttitle="ZLEMA", overlay=true)
 
 length = input(title="Length", type=integer, defval=20, minval=1)

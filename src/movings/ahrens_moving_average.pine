@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Ahrens Moving Average indicator script may be freely distributed under the MIT license.
+// Ahrens Moving Average script may be freely distributed under the MIT license.
 study("Ahrens Moving Average", shorttitle="AhMA", overlay=true)
 
 length = input(title="Length", type=integer, defval=9, minval=1)

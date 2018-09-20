@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Multiple Hull Moving Average indicator script may be freely distributed under the MIT license.
+// Multiple Hull Moving Average script may be freely distributed under the MIT license.
 study("Multiple Hull Moving Average", shorttitle="Multiple HMA", overlay=true)
 
 len1 = input(title="1st Length", type=integer, defval=20, minval=1)

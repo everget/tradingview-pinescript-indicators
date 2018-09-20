@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Pretty Good Oscillator indicator script may be freely distributed under the MIT license.
+// Pretty Good Oscillator script may be freely distributed under the MIT license.
 study("Pretty Good Oscillator", shorttitle="PGO")
 
 length = input(title="Length", type=integer, defval=14, minval=1)

@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Adaptive Laguerre Filter indicator script may be freely distributed under the MIT license.
+// Adaptive Laguerre Filter script may be freely distributed under the MIT license.
 study("Adaptive Laguerre Filter", shorttitle="ALF", overlay=true)
 
 length = input(title="Length", type=integer, defval=20, minval=1)
