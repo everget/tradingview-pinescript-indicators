@@ -1,0 +1,14 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// McGinley Dynamic script may be freely distributed under the MIT license.
+study("McGinley Dynamic", shorttitle="MD", overlay=true)
+
+length = input(title="Length", type=integer, minval=1, defval=14)
+k = input(title="K", type=float, step=0.1, defval=0.6)
+src = input(title="Source", type=source, defval=close)
+
+md(src, length, k) =>
+	md = 0.0
+	md := na(md[1]) ? src : md[1] + (src - md[1]) / (k * length * pow(src / md[1], 4))
+
+plot(md(src, length, k), title="MD", linewidth=2, color=#6d1e7f, transp=0)

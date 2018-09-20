@@ -1,0 +1,29 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Kaufman Adaptive Moving Average script may be freely distributed under the MIT license.
+study("Kaufman Adaptive Moving Average", shorttitle="KAMA", overlay=true)
+
+length = input(title="Length", type=integer, minval=1, defval=14)
+fastLength = input(title="Fast MA Length", type=integer, minval=1, defval=2)
+slowLength = input(title="Slow MA Length", type=integer, minval=1, defval=30)
+src = input(title="Source", type=source, defval=close)
+
+kama(src, length, fastLength, slowLength) =>
+	change = abs(nz(src[1]) - nz(src[length]))
+	volatility = sum(abs(src - nz(src[1])), length)
+
+	// Efficiency Ratio
+	ER = volatility != 0
+		 ? change / volatility
+		 0
+
+	fastSC = 2 / (fastLength + 1)
+	slowSC = 2 / (slowLength + 1)
+
+	// Smoothing constant
+	SC = pow((ER * (fastSC - slowSC)) + slowSC, 2)
+
+	kama = 0.0
+	kama := SC * src + (1 - SC) * nz(kama[1])
+
+plot(kama(src, length, fastLength, slowLength), title="KAMA", linewidth=2, color=#e69138, transp=0)

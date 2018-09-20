@@ -3,13 +3,14 @@
 // Regularized Exponential Moving Average script may be freely distributed under the MIT license.
 study("Regularized Exponential Moving Average", shorttitle="REMA", overlay=true)
 
-length = input(title="Length", type=integer, defval=20, minval=1)
-lambda = input(title="Regularization Constant", type=float, defval=0.5, minval=0)
+length = input(title="Length", type=integer, minval=1, defval=20)
+lambda = input(title="Regularization Constant", type=float, minval=0, defval=0.5)
 src = input(title="Source", type=source, defval=close)
 
-alpha = 2 / (length + 1)
+rema(src, length, lambda) =>
+	alpha = 2 / (length + 1)
 
-rema = 0.0
-rema := (nz(rema[1]) + alpha * (src - nz(rema[1])) + lambda * (2 * nz(rema[1]) - nz(rema[2]))) / (lambda + 1)
+	rema = 0.0
+	rema := (nz(rema[1]) + alpha * (src - nz(rema[1])) + lambda * (2 * nz(rema[1]) - nz(rema[2]))) / (lambda + 1)
 
-plot(rema, title="REMA", linewidth=2, color=#741b47, transp=0)
+plot(rema(src, length, lambda), title="REMA", linewidth=2, color=#741b47, transp=0)

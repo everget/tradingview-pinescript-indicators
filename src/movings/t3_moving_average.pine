@@ -3,12 +3,14 @@
 // T3 script may be freely distributed under the MIT license.
 study(title="T3", shorttitle="T3", overlay=true)
 
-len = input(title="Length", type=integer, defval=5, minval=1)
-factor = input(title="Factor", type=float, defval=0.7, minval=0, maxval=1)
+length = input(title="Length", type=integer, minval=1, defval=5)
+alpha = input(title="Alpha", type=float, minval=0, maxval=1, defval=0.7)
 src = input(title="Source", type=source, defval=close)
 
-gd(series, length) => ema(series, length) * (1 + factor) - ema(ema(series, length), length) * factor
+gd(series, seriesLength, alpha) =>
+	ema(series, seriesLength) * (1 + alpha) - ema(ema(series, seriesLength), seriesLength) * alpha
 
-t3 = gd(gd(gd(src, len), len), len)
+t3(src, length, alpha) =>
+	gd(gd(gd(src, length, alpha), length, alpha), length, alpha)
 
-plot(t3, title="T3", color=#741b47, linewidth=2, transp=0)
+plot(t3(src, length, alpha), title="T3", color=#741b47, linewidth=2, transp=0)
