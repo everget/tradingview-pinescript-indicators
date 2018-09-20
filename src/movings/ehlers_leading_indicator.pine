@@ -1,0 +1,16 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ehlers Leading Indicator script may be freely distributed under the MIT license.
+study("Ehlers Leading Indicator", shorttitle="ELI", overlay=true)
+
+alpha1 = input(title="Alpha 1", type=float, step=0.1, defval=0.25)
+alpha2 = input(title="Alpha 2", type=float, step=0.1, defval=0.33)
+src = input(title="Source", type=source, defval=hl2)
+
+lead = 0.0
+lead := 2 * src + (alpha1 - 2) * nz(src[1]) + (1 - alpha1) * nz(lead[1])
+
+leadingIndicator = 0.0
+leadingIndicator := alpha2 * lead + (1 - alpha2) * nz(leadingIndicator[1])
+
+plot(leadingIndicator, title="ELI", linewidth=2, color=#741b47, transp=0)

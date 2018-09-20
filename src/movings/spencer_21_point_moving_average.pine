@@ -1,0 +1,67 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Spencer 21-Point Moving Average script may be freely distributed under the MIT license.
+study("Spencer 21-Point Moving Average", shorttitle="SpMA 21", overlay=true)
+
+src = input(title="Source", type=source, defval=close)
+
+getWeight(i) =>
+	weight = 0.0
+
+	if i == 0
+		weight := -1
+	if i == 1
+		weight := -3
+	if i == 2
+		weight := -5
+	if i == 3
+		weight := -5
+	if i == 4
+		weight := -2
+	if i == 5
+		weight := 6
+	if i == 6
+		weight := 18
+	if i == 7
+		weight := 33
+	if i == 8
+		weight := 47
+	if i == 9
+		weight := 57
+	if i == 10
+		weight := 60
+	if i == 11
+		weight := 57
+	if i == 12
+		weight := 47
+	if i == 13
+		weight := 33
+	if i == 14
+		weight := 18
+	if i == 15
+		weight := 6
+	if i == 16
+		weight := -2
+	if i == 17
+		weight := -5
+	if i == 18
+		weight := -5
+	if i == 19
+		weight := -3
+	if i == 20
+		weight := -1
+
+	weight
+
+spma21(src) =>
+	sum = 0.0
+	weightSum = 0.0
+
+	for i = 0 to 20
+		weight = getWeight(i)
+		sum := sum + nz(src[i]) * weight
+		weightSum := weightSum + weight
+
+	sum / weightSum
+
+plot(spma21(src), title="SpMA 21", linewidth=2, color=#741b47, transp=0)
