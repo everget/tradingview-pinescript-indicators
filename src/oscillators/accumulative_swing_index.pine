@@ -3,7 +3,7 @@
 // Accumulative Swing Index script may be freely distributed under the MIT license.
 study("Accumulative Swing Index", shorttitle="ASI")
 
-limit = input(title="Limit Move Value", type=float, defval=10000, minval=0.1, maxval=100000)
+limit = input(title="Limit Move Value", type=float, minval=0.1, maxval=100000, defval=10000)
 
 // Swing Index
 swing_index(limit) =>

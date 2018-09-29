@@ -3,7 +3,7 @@
 // Regression Oscillator script may be freely distributed under the MIT license.
 study("Regression Oscillator", shorttitle="ROSC")
 
-length = input(title="Length", type=integer, defval=63, minval=1)
+length = input(title="Length", type=integer, minval=1, defval=63)
 linregOffset = input(title="Linear Regression Offset", type=integer, defval=0)
 src = input(title="Source", type=source, defval=close)
 

@@ -3,7 +3,7 @@
 // Forecast Oscillator script may be freely distributed under the MIT license.
 study("Forecast Oscillator", shorttitle="FOSC")
 
-length = input(title="Length", type=integer, defval=14, minval=1)
+length = input(title="Length", type=integer, minval=1, defval=14)
 src = input(title="Source", type=source, defval=close)
 
 fosc = 100 * (src - linreg(src, length, 0)) / src

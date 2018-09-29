@@ -1,16 +1,17 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Harmonic Mean script may be freely distributed under the MIT license.
-study("Harmonic Mean", shorttitle="HM", overlay=true)
+// Moving Harmonic Mean script may be freely distributed under the MIT license.
+study("Moving Harmonic Mean", shorttitle="MHM", overlay=true)
 
 length = input(title="Length", type=integer, defval=14, minval=1)
 src = input(title="Source", type=source, defval=close)
 
-hm(src, length) =>
+mhm(src, length) =>
 	sum = 0.0
 
 	for i = 0 to length - 1
 		sum := sum + 1 / (na(src[i]) ? 1 : src[i])
+
 	length / sum
 
-plot(hm(src, length), title="HM", linewidth=2, color=#6d1e7f, transp=0)
+plot(mhm(src, length), title="MHM", linewidth=2, color=#6d1e7f, transp=0)

@@ -1,9 +1,8 @@
-__docs__/
+_dev/
 
 *.log
 *.tgz
 .npm
-.eslintcache
 .node_repl_history
 .yarn-integrity
 .idea

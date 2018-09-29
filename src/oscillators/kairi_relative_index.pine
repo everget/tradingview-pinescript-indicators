@@ -3,7 +3,7 @@
 // Kairi Relative Index script may be freely distributed under the MIT license.
 study("Kairi Relative Index", shorttitle="KRI")
 
-length = input(title="Length", type=integer, defval=14, minval=1)
+length = input(title="Length", type=integer, minval=1, defval=14)
 src = input(title="Source", type=source, defval=close)
 
 kri = 100 * (src - sma(src, length)) / sma(src, length)

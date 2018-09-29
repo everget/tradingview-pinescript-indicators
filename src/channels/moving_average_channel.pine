@@ -15,5 +15,5 @@ lowerOffset = input(title="Lower Offset", type=integer, defval=0)
 
 lowerMA = sma(lowerSrc, lowerLength)
 
-plot(upperMA, title="Upper", color=#3c78d8, transp=0, offset=upperOffset)
-plot(lowerMA, title="Lower", color=#e69138, transp=0, offset=lowerOffset)
+plot(upperMA, title="Upper", offset=upperOffset, color=#3c78d8, transp=0)
+plot(lowerMA, title="Lower", offset=lowerOffset, color=#e69138, transp=0)

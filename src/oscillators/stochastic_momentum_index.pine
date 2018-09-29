@@ -3,10 +3,10 @@
 // Stochastic Momentum Index script may be freely distributed under the MIT license.
 study("Stochastic Momentum Index", shorttitle="SMI")
 
-q = input(title="Length (Stochastic Lookback)", type=integer, defval=13, minval=1)
-r = input(title="First Smoothing Length", type=integer, defval=25, minval=1)
-s = input(title="Second Smoothing Length", type=integer, defval=2, minval=1)
-signalLength = input(title="Signal Length", type=integer, defval=12, minval=1)
+q = input(title="Length (Stochastic Lookback)", type=integer, minval=1, defval=13)
+r = input(title="First Smoothing Length", type=integer, minval=1, defval=25)
+s = input(title="Second Smoothing Length", type=integer, minval=1, defval=2)
+signalLength = input(title="Signal Length", type=integer, minval=1, defval=12)
 overboughtLevel = input(title="Overbought Level", type=integer, defval=40)
 oversoldLevel = input(title="Oversold Level", type=integer, defval=-40)
 applyFilling = input(title="Apply Filling ?", type=bool, defval=false)

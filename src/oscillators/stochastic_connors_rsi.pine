@@ -3,13 +3,13 @@
 // Stochastic Connors RSI script may be freely distributed under the MIT license.
 study(title="Stochastic Connors RSI", shorttitle="Stoch CRSI")
 
-stochLength = input(title="Stochastic Length", type=integer, defval=3, minval=1)
-smoothK = input(title="K", type=integer, defval=3, minval=1, maxval=10000)
-smoothD = input(title="D", type=integer, defval=3, minval=1, maxval=10000)
+stochLength = input(title="Stochastic Length", type=integer, minval=1, defval=3)
+smoothK = input(title="K", type=integer, minval=1, maxval=10000, defval=3)
+smoothD = input(title="D", type=integer, minval=1, maxval=10000, defval=3)
 
-rsiLength = input(title="RSI Length", type=integer, defval=3, minval=1)
-updownLength = input(title="Updown RSI Length", type=integer, defval=2, minval=1)
-rocLength = input(title="ROC Length", type=integer, defval=100, minval=1)
+rsiLength = input(title="RSI Length", type=integer, minval=1, defval=3)
+updownLength = input(title="Updown RSI Length", type=integer, minval=1, defval=2)
+rocLength = input(title="ROC Length", type=integer, minval=1, defval=100)
 src = input(title="RSI Source", type=source, defval=close)
 
 updown = 0

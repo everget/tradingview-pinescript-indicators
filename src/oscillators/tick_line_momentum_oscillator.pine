@@ -3,12 +3,12 @@
 // Tick Line Momentum Oscillator script may be freely distributed under the MIT license.
 study("Tick Line Momentum Oscillator", shorttitle="TLMO")
 
-cumoMALength = input(title="Cumo MA Length", type=integer, defval=10, minval=1)
+cumoMALength = input(title="Cumo MA Length", type=integer, minval=1, defval=10)
 cumoMAInput = input(title="Cumo MA", defval="EMA", options=["EMA", "SMA", "VWMA", "WMA"])
-rocLength = input(title="ROC Length", type=integer, defval=5, minval=1)
-smoothingLength = input(title="Smoothing Length", type=integer, defval=5, minval=1)
+rocLength = input(title="ROC Length", type=integer, minval=1, defval=5)
+smoothingLength = input(title="Smoothing Length", type=integer, minval=1, defval=5)
 smoothingMAInput = input(title="Smoothing MA", defval="EMA", options=["EMA", "SMA", "VWMA", "WMA"])
-obosLevel = input(title="Overbought / Oversold Level", type=integer, defval=5, minval=1)
+obosLevel = input(title="Overbought / Oversold Level", type=integer, minval=1, defval=5)
 src = input(title="Source", type=source, defval=close)
 
 cumoMA = iff(cumoMAInput == "EMA", ema(src, cumoMALength),
@@ -17,7 +17,11 @@ cumoMA = iff(cumoMAInput == "EMA", ema(src, cumoMALength),
 	 iff(cumoMAInput == "WMA", wma(src, cumoMALength),
 	 na))))
 
-cumoExpression = src > nz(cumoMA[1]) ? 1 : src < nz(cumoMA[1]) ? -1 : 0
+cumoExpression = src > nz(cumoMA[1])
+	 ? 1
+	 : src < nz(cumoMA[1])
+	 	 ? -1
+	 	 : 0
 
 tlmo = iff(smoothingMAInput == "EMA", ema(roc(cum(cumoExpression), rocLength), smoothingLength),
 	 iff(smoothingMAInput == "SMA", sma(roc(cum(cumoExpression), rocLength), smoothingLength),

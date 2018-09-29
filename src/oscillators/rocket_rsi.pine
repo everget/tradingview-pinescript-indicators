@@ -3,9 +3,9 @@
 // Rocket RSI script may be freely distributed under the MIT license.
 study("Rocket RSI", shorttitle="Rocket RSI")
 
-rsiLength = input(title="RSI Length", type=integer, defval=10, minval=1)
-smoothingLength = input(title="Smoothing Length", type=integer, defval=8, minval=1)
-obosLevel = input(title="Overbought / Oversold Level", type=float, defval=2.0, minval=0.0)
+rsiLength = input(title="RSI Length", type=integer, minval=1, defval=10)
+smoothingLength = input(title="Smoothing Length", type=integer, minval=1, defval=8)
+obosLevel = input(title="Overbought / Oversold Level", type=float, minval=0.0, defval=2.0)
 applyNormalization = input(title="Apply Normalization to [-100, 100] values ?", type=bool, defval=false)
 src = input(title="Source", type=source, defval=close)
 

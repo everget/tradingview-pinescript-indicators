@@ -3,9 +3,9 @@
 // Trend Trigger Factor script may be freely distributed under the MIT license.
 study("Trend Trigger Factor", shorttitle="TTF")
 
-length = input(title="Lookback Length", type=integer, defval=15, minval=1)
-upperTriggerLevel = input(title="Upper Trigger Level", type=integer, defval=100, minval=1)
-lowerTriggerLevel = input(title="Lower Trigger Level", type=integer, defval=-100, minval=-1)
+length = input(title="Lookback Length", type=integer, minval=1, defval=15)
+upperTriggerLevel = input(title="Upper Trigger Level", type=integer, minval=1, defval=100)
+lowerTriggerLevel = input(title="Lower Trigger Level", type=integer, minval=-1, defval=-100)
 src = input(title="Source", type=source, defval=close)
 
 buyPower = highest(high, length) - nz(lowest(low, length)[length])

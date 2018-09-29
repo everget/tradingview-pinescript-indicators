@@ -3,8 +3,8 @@
 // Trend Intensity Index script may be freely distributed under the MIT license.
 study("Trend Intensity Index", shorttitle="TII")
 
-majorLength = input(title="Major Length", type=integer, defval=60, minval=1)
-minorLength = input(title="Minor Length", type=integer, defval=30, minval=1)
+majorLength = input(title="Major Length", type=integer, minval=1, defval=60)
+minorLength = input(title="Minor Length", type=integer, minval=1, defval=30)
 upperLevel = input(title="Upper Level", type=integer, defval=80)
 lowerLevel = input(title="Lower Level", type=integer, defval=20)
 src = input(title="Source", type=source, defval=close)

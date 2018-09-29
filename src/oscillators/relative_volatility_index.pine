@@ -3,24 +3,23 @@
 // Relative Volatility Index script may be freely distributed under the MIT license.
 study("Relative Volatility Index", shorttitle="RVI")
 
-stdevLength = input(title="Standard Deviation Length", type=integer, defval=10, minval=0)
-stdevInput = input(title="Standard Deviation Algorithm", defval="Built-In (Naive)", options=["Built-In (Naive)", "Two-Pass"])
-emaLength = input(title="EMA Length", type=integer, defval=14, minval=1)
-highLevel = input(title="High Level", type=integer, defval=80, maxval=100)
-lowLevel = input(title="Low Level", type=integer, defval=20, minval=0)
+stdevLength = input(title="Standard Deviation Length", type=integer, minval=0, defval=10)
+stdevInput = input(title="Standard Deviation", defval="Sample", options=["Population", "Sample"])
+emaLength = input(title="EMA Length", type=integer, minval=1, defval=14)
+highBand = input(title="High Band", type=integer, maxval=100, defval=80)
+lowBand = input(title="Low Band", type=integer, minval=0, defval=20)
 useWilderSmoothing = input(title="Use Wilder's Smoothing ?", type=bool, defval=true)
 useRefined = input(title="Use refined RVI ?", type=bool, defval=true)
 src = input(title="Source", type=source, defval=close)
 
-// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Two-pass_algorithm
-twoPassStdev(src, length) =>
+sampleStdev(src, length) =>
 	dev = src - sma(src, length)
 	variance = sum(dev * dev, length) / (length - 1)
 	sqrt(variance)
 
-selectedStdev = iff(stdevInput == "Built-In (Naive)", stdev(src, stdevLength),
-	 iff(stdevInput == "Two-Pass", twoPassStdev(src, stdevLength),
-	 na))
+selectedStdev = stdevInput == "Sample"
+	 ? sampleStdev(src, stdevLength)
+	 : stdev(src, stdevLength)
 
 // Relative Volatility Index
 up(src) => change(src) > 0 ? selectedStdev : 0
@@ -28,15 +27,8 @@ down(src) => change(src) > 0 ? 0 : selectedStdev
 
 // Original version (1993)
 rviOriginal(src) =>
-	upSum = if useWilderSmoothing
-		ema(up(src), 2 * emaLength - 1)
-	else
-		ema(up(src), emaLength)
-
-	downSum = if useWilderSmoothing
-		ema(down(src), 2 * emaLength - 1)
-	else
-		ema(down(src), emaLength)
+	upSum = ema(up(src), emaLength)
+	downSum = ema(down(src), emaLength)
 	100 * upSum / (upSum + downSum)
 
 // Refined version (1995)
@@ -44,8 +36,8 @@ rvi = useRefined ? (rviOriginal(high) + rviOriginal(low)) / 2 : rviOriginal(src)
 
 plot(rvi, title="RVI", color=#008000, transp=0)
 
-highBand = hline(price=highLevel, linestyle=dashed)
+highBandPlot = hline(price=highBand, linestyle=dashed)
 hline(price=50, linestyle=dotted)
-lowBand = hline(price=lowLevel, linestyle=dashed)
+lowBandPlot = hline(price=lowBand, linestyle=dashed)
 
-fill(hline1=highBand, hline2=lowBand, color=#996a15, transp=90)
+fill(hline1=highBandPlot, hline2=lowBandPlot, color=#996a15, transp=90)

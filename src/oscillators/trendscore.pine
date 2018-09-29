@@ -3,8 +3,8 @@
 // Trendscore script may be freely distributed under the MIT license.
 study("Trendscore", shorttitle="Trendscore")
 
-fromIndex = input(title="From", type=integer, defval=11, minval=1)
-toIndex = input(title="To", type=integer, defval=20, minval=1)
+fromIndex = input(title="From", type=integer, minval=1, defval=11)
+toIndex = input(title="To", type=integer, minval=1, defval=20)
 src = input(title="Source", type=source, defval=close)
 
 trendscore(src, fromIndex, toIndex) =>

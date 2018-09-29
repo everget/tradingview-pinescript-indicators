@@ -3,7 +3,7 @@
 // CG Oscillator script may be freely distributed under the MIT license.
 study("CG Oscillator", shorttitle="CGO")
 
-length = input(title="Length", type=integer, defval=10, minval=1)
+length = input(title="Length", type=integer, minval=1, defval=10)
 applyFilling = input(title="Apply Filling ?", type=bool, defval=false)
 src = input(title="Source", type=source, defval=hl2)
 

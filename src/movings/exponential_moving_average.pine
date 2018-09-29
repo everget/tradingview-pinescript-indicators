@@ -1,0 +1,9 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Exponential Moving Average script may be freely distributed under the MIT license.
+study("Exponential Moving Average", shorttitle="EMA", overlay=true)
+
+length = input(title="Length", type=integer, minval=1, defval=14)
+src = input(title="Source", type=source, defval=close)
+
+plot(ema(src, length), title="EMA", linewidth=2, color=#6d1e7f, transp=0)

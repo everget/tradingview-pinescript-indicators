@@ -1,0 +1,10 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Least Squares Moving Average script may be freely distributed under the MIT license.
+study("Least Squares Moving Average", shorttitle="LSMA", overlay=true)
+
+length = input(title="Length", type=integer, minval=1, defval=14)
+offset = input(title="Offset", type=integer, defval=0)
+src = input(title="Source", type=source, defval=close)
+
+plot(linreg(src, length, offset), title="LSMA", linewidth=2, color=#6d1e7f, transp=0)

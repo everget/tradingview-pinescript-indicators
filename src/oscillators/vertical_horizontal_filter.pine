@@ -3,9 +3,9 @@
 // Vertical Horizontal Filter script may be freely distributed under the MIT license.
 study("Vertical Horizontal Filter", shorttitle="VHF")
 
-length = input(title="Length", type=integer, defval=28, minval=1)
+length = input(title="Length", type=integer, minval=1, defval=28)
 src = input(title="Source", type=source, defval=close)
 
 vhf = abs(highest(src, length) - lowest(src, length)) / sum(abs(change(src)), length)
 
-plot(vhf, title="VHF", linewidth=1, color=#674ea7, transp=0)
+plot(vhf, title="VHF", color=#674ea7, transp=0)

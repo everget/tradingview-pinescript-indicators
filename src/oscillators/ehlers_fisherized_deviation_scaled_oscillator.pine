@@ -3,11 +3,12 @@
 // Ehlers Fisherized Deviation-Scaled Oscillator script may be freely distributed under the MIT license.
 study("Ehlers Fisherized Deviation-Scaled Oscillator", shorttitle="EFDSO")
 
-length = input(title="Length", type=integer, defval=40, minval=1)
-ssfLength = input(title="Super Smoother Filter Length", type=integer, defval=20, minval=1)
+length = input(title="Length", type=integer, minval=1, defval=40)
+ssfLength = input(title="Super Smoother Filter Length", type=integer, minval=1, defval=20)
 numberOfPoles = input(title="Number of Poles", type=integer, defval=2, options=[2, 3])
-overboughtLevel = input(title="Overbought Level", type=float, defval=2, step=0.1)
-oversoldLevel = input(title="Oversold Level", type=float, defval=-2, step=0.1)
+stdevInput = input(title="Standard Deviation", defval="Sample", options=["Population", "Sample"])
+overboughtLevel = input(title="Overbought Level", type=float, step=0.1, defval=2)
+oversoldLevel = input(title="Oversold Level", type=float, step=0.1, defval=-2)
 src = input(title="Source", type=source, defval=close)
 
 PI = 2 * asin(1)
@@ -44,10 +45,14 @@ essf = numberOfPoles == 2
 	 ? twoPoleSuperSmootherFilter((zeros + zeros[1]) / 2, ssfLength)
 	 : threePoleSuperSmootherFilter((zeros + zeros[1]) / 2, ssfLength)
 
+selectedStdev = stdevInput == "Sample"
+	 ? sampleStdev(essf, length)
+	 : stdev(essf, length)
+
 // Rescale filter in terms of Standard Deviations
 scaledFilter = 0.0
-scaledFilter := stdev(essf, length) != 0
-	 ? essf / stdev(essf, length)
+scaledFilter := selectedStdev != 0
+	 ? essf / selectedStdev
 	 : nz(scaledFilter[1])
 
 // Apply Fisher Transform to establish real Gaussian Probability Distribution

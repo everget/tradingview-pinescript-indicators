@@ -6,28 +6,7 @@ study("Moving Median", shorttitle="MM", overlay=true)
 length = input(title="Length", type=integer, defval=14, minval=1)
 src = input(title="Source", type=source, defval=close)
 
-sort(src, i) =>
-	min = -10000.0
-
-	for j = 0 to i - 1
-		min_local = 10000.0
-
-		for l = 0 to length - 1
-			if (nz(src[l]) <= min)
-				continue
-
-			min_local := min(min_local, max(min, nz(src[l])))
-
-		if min_local != 10000
-			min := min_local
-	min
-
 median(src, length) =>
-	result = 0.0
-
-	if length % 2 == 0
-		result := (sort(src, length / 2) + sort(src, length / 2 + 1)) / 2
-	else
-		result := sort(src, ceil(length / 2))
+	percentile_nearest_rank(src, length, 50)
 
 plot(median(src, length), title="MM", linewidth=2, color=#6d1e7f, transp=0)

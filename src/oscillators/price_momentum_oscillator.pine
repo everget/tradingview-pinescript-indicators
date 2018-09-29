@@ -3,9 +3,9 @@
 // Price Momentum Oscillator script may be freely distributed under the MIT license.
 study("Price Momentum Oscillator", shorttitle="PMO")
 
-firstLength = input(title="1st Smoothing Length", type=integer, defval=35, minval=1)
-secondLength = input(title="2nd Smoothing Length", type=integer, defval=20, minval=1)
-signalLength = input(title="Signal Length", type=integer, defval=10, minval=1)
+firstLength = input(title="1st Smoothing Length", type=integer, minval=1, defval=35)
+secondLength = input(title="2nd Smoothing Length", type=integer, minval=1, defval=20)
+signalLength = input(title="Signal Length", type=integer, minval=1, defval=10)
 applyFilling = input(title="Apply Filling ?", type=bool, defval=false)
 src = input(title="Source", type=source, defval=close)
 
