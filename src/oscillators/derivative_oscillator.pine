@@ -1,0 +1,18 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Derivative Oscillator script may be freely distributed under the MIT license.
+study("Derivative Oscillator", shorttitle="DOSC")
+
+rsiLength = input(title="RSI Length", type=integer, defval=14)
+ema1Length = input(title="1st EMA Smoothing Length", type=integer, defval=5)
+ema2Length = input(title="2nd EMA Smoothing Length", type=integer, defval=3)
+smaLength = input(title="3rd SMA Smoothing Length", type=integer, defval=9)
+src = input(title="Source", type=source, defval=close)
+
+smoothedRSI = ema(ema(rsi(src, rsiLength), ema1Length), ema2Length)
+
+dosc = smoothedRSI - sma(smoothedRSI, smaLength)
+
+doscColor = dosc >= 0 ? (dosc[1] < dosc ? #26A69A : #B2DFDB) : (dosc[1] < dosc ? #FFCDD2 : #EF5350)
+
+plot(dosc, title="DOSC", style=columns, linewidth=2, color=doscColor, transp=0)

@@ -1,0 +1,68 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Phase Change Index script may be freely distributed under the MIT license.
+study("Phase Change Index", shorttitle="PCI")
+
+length = input(title="Length", type=integer, minval=1, defval=35)
+upperLevelInput = input(title="Upper Level", type=integer, defval=80)
+lowerLevelInput = input(title="Lower Level", type=integer, defval=20)
+drawBg = input(title="Draw Breakout Backgrounds ?", type=bool, defval=false)
+applySmoothing = input(title="Apply Smoothing ?", type=bool, defval=false)
+maInput = input(title="Smoothing Type", defval="SMA", options=["EMA", "SMA", "VWMA", "WMA"])
+smoothLength = input(title="Smoothing Length", type=integer, minval=1, defval=3)
+src = input(title="Source", type=source, defval=close)
+
+getMA(src, length) =>
+    ma = 0.0
+
+    if maInput == "EMA"
+        ma := ema(src, length)
+
+    if maInput == "SMA"
+        ma := sma(src, length)
+
+    if maInput == "VWMA"
+        ma := vwma(src, length)
+
+    if maInput == "WMA"
+        ma := wma(src, length)
+    ma
+
+getPCI(src, length) =>
+    mom = change(src, length)
+
+    positiveSum = 0.0
+    negativeSum = 0.0
+
+    for i = 0 to length - 1
+    	gradient = nz(src[length]) + mom * (length - i) / (length - 1)
+    	deviation = nz(src[length - i]) - gradient
+
+    	if deviation > 0
+    	    positiveSum := positiveSum + deviation
+    	else
+    	    negativeSum := negativeSum - deviation
+
+    pci = positiveSum + negativeSum != 0
+             ? 100 * positiveSum / (positiveSum + negativeSum)
+             : 0
+
+pci = getPCI(src, length)
+pci := applySmoothing ? getMA(pci, smoothLength) : pci
+
+pciColor = not drawBg ? (pci > upperLevelInput ? #0ebb23 : pci < lowerLevelInput ? #ff0000 : #674ea7) : #45818e
+
+plot(pci, title="PCI", linewidth=2, color=pciColor, transp=0)
+
+maxBand = hline(100, title="Max Level", color=color(white, 100))
+hline(title="Middle Level", price=50, linestyle=dotted, color=gray)
+minBand = hline(0, title="Min Level", color=color(white, 100))
+
+upperLevel = hline(upperLevelInput, title="Upper Level", linestyle=dotted, color=#e69138)
+lowerLevel = hline(lowerLevelInput, title="Lower Level", linestyle=dotted, color=#e69138)
+
+upperFillColor = pci > upperLevelInput and drawBg ? green : color(white, 100)
+lowerFillColor = pci < lowerLevelInput and drawBg ? red : color(white, 100)
+
+fill(maxBand, upperLevel, color=upperFillColor, transp=70)
+fill(minBand, lowerLevel, color=lowerFillColor, transp=70)

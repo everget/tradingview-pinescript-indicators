@@ -3,54 +3,13 @@
 // Ehlers Super Smoother Filter script may be freely distributed under the MIT license.
 study("Ehlers Super Smoother Filter", shorttitle="ESSF", overlay=true)
 
-length = input(title="Length", type=integer, defval=15, minval=1)
+length = input(title="Length", type=integer, minval=1, defval=15)
 numberOfPoles = input(title="Number of Poles", type=integer, defval=2, options=[2, 3])
-srcInput = input(title="Source", defval='cc2', options=['open', 'high', 'low', 'close', 'oo2', 'oh2', 'ol2', 'oc2', 'hh2', 'hl2', 'hc2', 'll2', 'lc2', 'cc2', 'hlc3', 'ohlc4', 'wc'])
-
-getSource(input) =>
-	src = 0.0
-
-	if input == 'open'
-		src := open
-	if input == 'high'
-		src := high
-	if input == 'low'
-		src := low
-	if input == 'close'
-		src := close
-	if input == 'oo2'
-		src := (open + nz(open[1])) / 2
-	if input == 'oh2'
-		src := (open + high) / 2
-	if input == 'ol2'
-		src := (open + low) / 2
-	if input == 'oc2'
-		src := (open + close) / 2
-	if input == 'hh2'
-		src := (high + nz(high[1])) / 2
-	if input == 'hl2' // Median Price
-		src := (high + low) / 2
-	if input == 'hc2'
-		src := (high + close) / 2
-	if input == 'll2'
-		src := (low + nz(low[1])) / 2
-	if input == 'lc2'
-		src := (low + close) / 2
-	if input == 'cc2'
-		src := (close + nz(close[1])) / 2
-	if input == 'hlc3' // Typical Price
-		src := (high + low + close) / 3
-	if input == 'ohlc4'
-		src := (open + high + low + close) / 4
-	if input == 'wc' // Weighted Close
-		src := (2 * close + high + low) / 4
-	src
-
-src = getSource(srcInput)
+src = input(title="Source", type=source, defval=close)
 
 PI = 2 * asin(1)
 
-twoPoleSuperSmootherFilter(src, length) =>
+get2PoleSSF(src, length) =>
 	arg = sqrt(2) * PI / length
 	a1 = exp(-arg)
 	b1 = 2 * a1 * cos(arg)
@@ -61,7 +20,7 @@ twoPoleSuperSmootherFilter(src, length) =>
 	ssf = 0.0
 	ssf := c1 * src + c2 * nz(ssf[1]) + c3 * nz(ssf[2])
 
-threePoleSuperSmootherFilter(src, length) =>
+get3PoleSSF(src, length) =>
 	arg = PI / length
 	a1 = exp(-arg)
 	b1 = 2 * a1 * cos(1.738 * arg)
@@ -76,7 +35,7 @@ threePoleSuperSmootherFilter(src, length) =>
 	ssf := coef1 * src + coef2 * nz(ssf[1]) + coef3 * nz(ssf[2]) + coef4 * nz(ssf[3])
 
 essf = numberOfPoles == 2
-	 ? twoPoleSuperSmootherFilter(src, length)
-	 : threePoleSuperSmootherFilter(src, length)
+		 ? get2PoleSSF(src, length)
+		 : get3PoleSSF(src, length)
 
 plot(essf, title="ESSF", linewidth=2, color=#741b47, transp=0)

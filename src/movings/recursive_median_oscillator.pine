@@ -3,8 +3,8 @@
 // Recursive Median Filter script may be freely distributed under the MIT license.
 study("Recursive Median Filter", shorttitle="RMF", overlay=true)
 
-medianLength = input(title="Length", type=integer, defval=5, minval=1)
-lowpassLength = input(title="Lowpass Length", type=integer, defval=12, minval=1)
+medianLength = input(title="Length", type=integer, minval=1, defval=5)
+lowpassLength = input(title="Lowpass Length", type=integer, minval=1, defval=12)
 src = input(title="Source", type=source, defval=close)
 
 median(src, length) =>

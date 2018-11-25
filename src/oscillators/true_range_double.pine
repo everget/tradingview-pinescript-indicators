@@ -1,0 +1,8 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// True Range Double script may be freely distributed under the MIT license.
+study("True Range Double", shorttitle="TRD")
+
+trd = max(max(high, high[1]), close[2]) - min(min(low, low[1]), close[2])
+
+plot(trd, title="TRD", linewidth=1, color=#741b47, transp=0)

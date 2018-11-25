@@ -1,0 +1,12 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Parabolic SAR script may be freely distributed under the MIT license.
+study(title="Parabolic SAR", shorttitle="PSAR", overlay=true)
+
+start = input(0.02)
+increment = input(0.02)
+maximum = input(0.2)
+
+psar = sar(start, increment, maximum)
+
+plot(psar, style=cross, color=blue)
