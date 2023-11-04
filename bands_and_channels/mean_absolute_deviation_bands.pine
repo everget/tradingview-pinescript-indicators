@@ -1,0 +1,18 @@
+//@version=4
+// Copyright (c) 2020-present, Alex Orekhov (everget)
+// Mean Absolute Deviation Bands script may be freely distributed under the terms of the GPL-3.0 license.
+study("Mean Absolute Deviation Bands", shorttitle="MADB", overlay=true)
+
+length = input(title="Length", defval=20, minval=2)
+mult = input(title="Bands Multiplier", defval=2.0, type=input.float, step=0.1)
+src = input(title="Source", defval=close)
+
+basis = sma(src, length)
+dev = mult * dev(src, length)
+upper = basis + dev
+lower = basis - dev
+
+plot(basis, title="Basis", color=#351c75, transp=0)
+upperPlot = plot(upper, title="Upper", color=#45818e, transp=0)
+lowerPlot = plot(lower, title="Lower", color=#45818e, transp=0)
+fill(upperPlot, lowerPlot, title="MADB Background", color=color.new(#ffd966, 84))

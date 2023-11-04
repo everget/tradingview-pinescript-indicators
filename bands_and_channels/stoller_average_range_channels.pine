@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Stoller Average Range Channels (STARC) Bands script may be freely distributed under the MIT license.
+// Stoller Average Range Channels (STARC) Bands script may be freely distributed under the terms of the GPL-3.0 license.
 study("Stoller Average Range Channels (STARC) Bands", shorttitle="STARC", overlay=true)
 
 length = input(title="Length", type=integer, minval=1, defval=6)

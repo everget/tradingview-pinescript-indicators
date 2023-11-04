@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Acceleration Bands script may be freely distributed under the MIT license.
+// Acceleration Bands script may be freely distributed under the terms of the GPL-3.0 license.
 study(title="Acceleration Bands", shorttitle="AB", overlay=true)
 
 length = input(title="Length", type=integer, defval=20)

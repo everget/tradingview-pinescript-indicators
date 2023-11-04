@@ -1,0 +1,41 @@
+//@version=4
+// Copyright (c) 2020-present, Alex Orekhov (everget)
+// Vortex Bands script may be freely distributed under the terms of the GPL-3.0 license.
+study("Vortex Bands", shorttitle="VB", overlay=true)
+
+length = input(title="Length", type=input.integer, defval=20)
+mult = input(title="Multiplier", type=input.float, step=0.1, defval=2)
+src = input(title="Source", type=input.source, defval=hlc3)
+barColoringType = input(title="Bar Coloring", defval="None", options=["None", "Upper > Lower", "Close Above/Below Basis", "Close Inside Cloud", "Wicks Inside Cloud"])
+
+_ema(src, alpha) =>
+    out = src
+    out := alpha * out + (1 - alpha) * nz(out[1], out)
+    out
+
+_mnma(src, length) =>
+    alpha = 2 / (length + 1)
+    ema1 = _ema(src, alpha)
+    ema2 = _ema(ema1, alpha)
+    out = ((2 - alpha) * ema1 - ema2) / (1 - alpha)
+    out
+
+basis = _mnma(src, length)
+dev = mult * _mnma(src - basis, length)
+
+upper = basis + dev
+lower = basis - dev
+
+plot(basis, title="Basis", color=color.maroon, transp=0)
+upperBandPlot = plot(upper, title="Upper", linewidth=2, color=color.blue)
+lowerBandPlot = plot(lower, title="Lower", linewidth=2, color=color.orange)
+fill(upperBandPlot, lowerBandPlot, title="Background", color=color.new(#ffd966, 90))
+
+barColor =
+     barColoringType == "Upper > Lower" ? (upper > lower ? color.lime : color.red) :
+     barColoringType == "Close Above/Below Basis" ? (close > basis ? color.lime : color.red) :
+     barColoringType == "Close Inside Cloud" ? (min(upper, lower) < close and close < max(upper, lower) ? color.lime : color.red) :
+     barColoringType == "Wicks Inside Cloud" ? (min(upper, lower) < low and high < max(upper, lower) ? color.lime : color.red) :
+     na
+
+barcolor(barColor, title="Bar Color")

@@ -1,0 +1,21 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Kirshenbaum Bands script may be freely distributed under the terms of the GPL-3.0 license.
+study("Kirshenbaum Bands", shorttitle="KB", overlay=true)
+
+length = input(title="Length", type=integer, defval=30)
+regressionLength = input(title="Regression Length", type=integer, defval=20)
+mult = input(title="Multiplier", type=float, step=0.1, defval=1.75)
+src = input(title="Source", type=source, defval=close)
+
+regression = linreg(src, regressionLength, 0)
+stderror = mult * sqrt(sma(pow(src - regression, 2), regressionLength))
+
+basis = ema(src, length)
+upper = basis + stderror
+lower = basis - stderror
+
+plot(basis, title="Basis", color=#351c75, transp=0)
+upperBandPlot = plot(upper, title="Upper", color=#45818e, transp=0)
+lowerBandPlot = plot(lower, title="Lower", color=#45818e, transp=0)
+fill(upperBandPlot, lowerBandPlot, title="Background", color=color(#ffd966, 84))
