@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Variable Index Dynamic Average script may be freely distributed under the GPL-3.0 license.
+// Variable Index Dynamic Average script may be freely distributed under the terms of GPL-3.0 license.
 study(title="Variable Index Dynamic Average", shorttitle="VIDYA", overlay=true)
 
 length = input(title="Length", type=integer, defval=14)

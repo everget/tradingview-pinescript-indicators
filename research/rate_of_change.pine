@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Rate of Change script may be freely distributed under the GPL-3.0 license.
+// Rate of Change script may be freely distributed under the terms of GPL-3.0 license.
 study("Rate of Change", shorttitle="ROC")
 
 src = close

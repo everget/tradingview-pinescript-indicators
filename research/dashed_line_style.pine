@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2019-present, Alex Orekhov (everget)
-// Dashed Line Style script may be freely distributed under the GPL-3.0 license.
+// Dashed Line Style script may be freely distributed under the terms of GPL-3.0 license.
 study("Dashed Line Style", overlay=true)
 
 sma = sma(close, 14)

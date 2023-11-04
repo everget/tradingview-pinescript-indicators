@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Fibonacci Weighted Moving Average script may be freely distributed under the GPL-3.0 license.
+// Fibonacci Weighted Moving Average script may be freely distributed under the terms of GPL-3.0 license.
 study("Fibonacci Weighted Moving Average", shorttitle="FWMA", overlay=true)
 
 length = input(title="Length", type=integer, defval=14)

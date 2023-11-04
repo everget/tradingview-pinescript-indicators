@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Momentum script may be freely distributed under the GPL-3.0 license.
+// Momentum script may be freely distributed under the terms of GPL-3.0 license.
 study("Momentum")
 
 src = close

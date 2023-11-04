@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Custom Median vs Built-in Median script may be freely distributed under the GPL-3.0 license.
+// Custom Median vs Built-in Median script may be freely distributed under the terms of GPL-3.0 license.
 study("Custom Median vs Built-in Median", shorttitle="CMvsBM")
 
 length = input(title="Length", type=integer, minval=1, defval=14)

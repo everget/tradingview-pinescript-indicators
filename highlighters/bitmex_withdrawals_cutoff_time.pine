@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2019-present, Alex Orekhov (everget)
-// BitMEX Withdrawals Cutoff Time script may be freely distributed under the GPL-3.0 license.
+// BitMEX Withdrawals Cutoff Time script may be freely distributed under the terms of GPL-3.0 license.
 study("BitMEX Withdrawals Cutoff Time", overlay=true)
 
 transparency = input(title="Transparency", minval=0, defval=70)

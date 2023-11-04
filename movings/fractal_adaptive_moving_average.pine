@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Fractal Adaptive Moving Average script may be freely distributed under the GPL-3.0 license.
+// Fractal Adaptive Moving Average script may be freely distributed under the terms of GPL-3.0 license.
 study(title="Fractal Adaptive Moving Average", shorttitle="FRAMA", overlay=true)
 
 length = input(title="Length", type=integer, defval=14)

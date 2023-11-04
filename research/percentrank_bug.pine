@@ -1,4 +1,6 @@
 //@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Percentrank Bug script may be freely distributed under the terms of the GPL-3.0 license.
 study("Percentrank Bug")
 
 src = volume

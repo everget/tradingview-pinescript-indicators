@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Multiple Hull Moving Average script may be freely distributed under the GPL-3.0 license.
+// Multiple Hull Moving Average script may be freely distributed under the terms of GPL-3.0 license.
 study("Multiple Hull Moving Average", shorttitle="HMA", overlay=true)
 
 len1 = input(title="1st Length", type=integer, defval=20)

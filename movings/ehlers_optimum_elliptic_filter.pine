@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2019-present, Alex Orekhov (everget)
-// Ehlers Optimum Elliptic Filter script may be freely distributed under the GPL-3.0 license.
+// Ehlers Optimum Elliptic Filter script may be freely distributed under the terms of GPL-3.0 license.
 study("Ehlers Optimum Elliptic Filter", shorttitle="OEF", overlay=true)
 
 src = input(title="Source", type=source, defval=hl2)

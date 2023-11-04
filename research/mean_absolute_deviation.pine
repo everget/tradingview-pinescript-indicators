@@ -1,6 +1,6 @@
 //@version=3
 // Copyright (c) 2018-present, Alex Orekhov (everget)
-// Mean Absolute Deviation script may be freely distributed under the GPL-3.0 license.
+// Mean Absolute Deviation script may be freely distributed under the terms of GPL-3.0 license.
 study("Mean Absolute Deviation", shorttitle="MAD")
 
 src = close

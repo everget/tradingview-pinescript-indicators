@@ -1,5 +1,6 @@
 //@version=5
 // Copyright (c) 2021-present, Alex Orekhov (everget)
+// Unit Testing Framework script may be freely distributed under the terms of GPL-3.0 license.
 indicator("Unit Testing Framework", overlay=true)
 
 // Unit Testing Framework Core {
