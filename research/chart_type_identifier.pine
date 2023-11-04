@@ -1,0 +1,127 @@
+//@version=4
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Chart Type Identifier script may be freely distributed under the terms of the GPL-3.0 license.
+study("Chart Type Identifier", overlay=true)
+
+max = max(open, close)
+min = min(open, close)
+body = abs(close - open)
+
+var int horizCount = -1
+if open[1] == close or close[1] == open
+    horizCount := horizCount + 1
+
+var int gapsCount = -1
+if low[1] > high or high[1] < low
+    gapsCount := gapsCount + 1
+
+var int noWicksCount = -1
+if max == high and min == low
+    noWicksCount := noWicksCount + 1
+
+//------------------------------------------------------------------------------
+
+_isHA() =>
+    var int oc2Count = -1
+    oc2Count := open == (open[1] + close[1]) / 2 ? oc2Count + 1 : oc2Count
+    out = oc2Count == bar_index - 1 and oc2Count != -1 and gapsCount == -1
+    out
+
+isHA = _isHA()
+
+_isRenko() =>
+    bodySum = cum(body)
+    avg = bodySum / (bar_index + 1)
+    out = avg == body and gapsCount == -1
+    out
+
+isRenko = _isRenko()
+
+_isKagi() =>
+    out = noWicksCount == bar_index and horizCount == bar_index - 1 and gapsCount == -1
+    out
+
+isKagi = _isKagi()
+
+_isPnF() =>
+    var int sum = 0
+    sum := close > close[1] ? sum + 1 : close < close[1] ? sum - 1 : sum
+    out = (sum == 1 or sum == 0 or sum == -1) and horizCount < bar_index - 1
+    out
+
+isPnF = _isPnF()
+
+_isLineBreak() =>
+    out = noWicksCount == bar_index and horizCount < bar_index - 1 and gapsCount == -1
+    out
+
+isLineBreak = not isPnF and _isLineBreak()
+
+monthData = security(syminfo.tickerid, "M", close)
+weekData = security(syminfo.tickerid, "W", close)
+dayData = security(syminfo.tickerid, "D", close)
+hourData = security(syminfo.tickerid, "60", close)
+minuteData = security(syminfo.tickerid, "1", close)
+
+_isRangeBars() =>
+    out =
+         timeframe.period != "S" and
+         minuteData == monthData and
+         minuteData == weekData and
+         minuteData == dayData and
+         minuteData == hourData and
+         minuteData == close
+    out
+
+isRangeBars = _isRangeBars()
+
+isClassic =
+     not isHA and
+     not isRenko and
+     not isKagi and
+     not isPnF and
+     not isLineBreak and
+     not isRangeBars
+
+labelText =
+     bar_index < 2 ? "\nNot enough bars to identify Chart Type\n" :
+     isHA ? "\nThis is Heikin-Ashi Chart\n" :
+     isRenko ? "\nThis is Renko Chart\n" :
+     isKagi ? "\nThis is Kagi Chart\n" :
+     isRangeBars ? "\nThis is Range Bars Chart\n" :
+     isPnF ? "\nThis is P&F Chart\n" :
+     isLineBreak ? "\nThis is Line Break Chart\n" :
+     isClassic ? "\nThis is Classic Chart\n" :
+     "\nUnknown Chart Type\n"
+
+labelColor = #1e90ff
+whiteColor = color.white
+
+var label l = label.new(
+     x=bar_index,
+     y=na,
+     text="",
+     color=labelColor,
+     textcolor=whiteColor,
+     style=label.style_labeldown,
+     size=size.normal
+     )
+
+_highest(length) =>
+    out = high
+    for i = 1 to length - 1
+        prev = nz(high[i])
+        out := out < prev ? prev : out
+    out
+
+lookback = min(bar_index + 2, 50)
+yPos = _highest(lookback)
+
+// debug =
+//      "\nBar Index: " + tostring(int(bar_index)) +
+//      "\nGaps: " + tostring(gapsCount) +
+//      "\nHoriz: " + tostring(horizCount) +
+//      "\nNo Wicks: " + tostring(noWicksCount)
+
+label.set_text(l, labelText) // + debug
+label.set_xy(l, bar_index, yPos)

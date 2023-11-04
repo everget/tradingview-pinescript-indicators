@@ -1,0 +1,33 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Mean Absolute Deviation script may be freely distributed under the GPL-3.0 license.
+study("Mean Absolute Deviation", shorttitle="MAD")
+
+src = close
+len = 14
+
+sma = sma(src, len)
+
+median(src, length) =>
+    percentile_nearest_rank(src, length, 50)
+
+dev0 = dev(src, len)
+dev1 = src - sma
+dev2 = sum(abs(src - sma), len) / len
+dev3 = abs(src - sma) / len
+dev4 = (src - sma) / len
+dev5 = median(src - median(src, len), len)
+
+sum = 0.0
+for i = 0 to len - 1
+    sum := sum + abs(src[i] - sma)
+
+dev6 = sum / len
+
+plot(dev0, title="Built-in", color=purple)
+plot(dev1, title="1", color=olive)
+plot(dev2, title="2", color=teal)
+plot(dev3, title="3", color=green)
+plot(dev4, title="4", color=red)
+plot(dev5, title="5", color=blue)
+plot(dev6, title="6", color=orange)

@@ -1,0 +1,67 @@
+//@version=4
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Fancy Shapes script may be freely distributed under the terms of the GPL-3.0 license.
+study("Fancy Shapes")
+
+y0 = 0
+offset0 = 0
+
+y1 = 0
+offset1 = -20
+
+y2 = 0
+offset2 = -40
+
+y3 = 0
+offset3 = -60
+
+y4 = 0
+offset4 = -80
+
+y5 = 0
+offset5 = -100
+
+y6 = 0
+offset6 = -120
+
+plotshape(y0, location=location.absolute, style=shape.flag, size=size.huge, color=color.blue, transp=80, show_last=1, offset=offset0)
+plotshape(y0, location=location.absolute, style=shape.flag, size=size.large, color=color.blue, transp=80, show_last=1, offset=offset0)
+plotshape(y0, location=location.absolute, style=shape.flag, size=size.normal, color=color.blue, transp=80, show_last=1, offset=offset0)
+plotshape(y0, location=location.absolute, style=shape.flag, size=size.small, color=color.blue, transp=80, show_last=1, offset=offset0)
+plotshape(y0, location=location.absolute, style=shape.flag, size=size.tiny, color=color.blue, transp=80, show_last=1, offset=offset0)
+
+plotshape(y1, location=location.absolute, style=shape.square, size=size.huge, color=color.blue, transp=80, show_last=1, offset=offset1)
+plotshape(y1, location=location.absolute, style=shape.square, size=size.large, color=color.blue, transp=80, show_last=1, offset=offset1)
+plotshape(y1, location=location.absolute, style=shape.square, size=size.normal, color=color.blue, transp=80, show_last=1, offset=offset1)
+plotshape(y1, location=location.absolute, style=shape.square, size=size.small, color=color.blue, transp=80, show_last=1, offset=offset1)
+plotshape(y1, location=location.absolute, style=shape.square, size=size.tiny, color=color.blue, transp=80, show_last=1, offset=offset1)
+
+plotshape(y2, location=location.absolute, style=shape.diamond, size=size.huge, color=color.blue, transp=80, show_last=1, offset=offset2)
+plotshape(y2, location=location.absolute, style=shape.diamond, size=size.large, color=color.blue, transp=80, show_last=1, offset=offset2)
+plotshape(y2, location=location.absolute, style=shape.diamond, size=size.normal, color=color.blue, transp=80, show_last=1, offset=offset2)
+plotshape(y2, location=location.absolute, style=shape.diamond, size=size.small, color=color.blue, transp=80, show_last=1, offset=offset2)
+plotshape(y2, location=location.absolute, style=shape.diamond, size=size.tiny, color=color.blue, transp=80, show_last=1, offset=offset2)
+
+plotshape(y3, location=location.absolute, style=shape.triangleup, size=size.huge, color=color.blue, transp=80, show_last=1, offset=offset3)
+plotshape(y3, location=location.absolute, style=shape.triangleup, size=size.large, color=color.blue, transp=80, show_last=1, offset=offset3)
+plotshape(y3, location=location.absolute, style=shape.triangleup, size=size.normal, color=color.blue, transp=80, show_last=1, offset=offset3)
+plotshape(y3, location=location.absolute, style=shape.triangleup, size=size.small, color=color.blue, transp=80, show_last=1, offset=offset3)
+plotshape(y3, location=location.absolute, style=shape.triangleup, size=size.tiny, color=color.blue, transp=80, show_last=1, offset=offset3)
+
+plotshape(y4, location=location.absolute, style=shape.circle, size=size.huge, color=color.blue, transp=80, show_last=1, offset=offset4)
+plotshape(y4, location=location.absolute, style=shape.circle, size=size.large, color=color.blue, transp=80, show_last=1, offset=offset4)
+plotshape(y4, location=location.absolute, style=shape.circle, size=size.normal, color=color.blue, transp=80, show_last=1, offset=offset4)
+plotshape(y4, location=location.absolute, style=shape.circle, size=size.small, color=color.blue, transp=80, show_last=1, offset=offset4)
+plotshape(y4, location=location.absolute, style=shape.circle, size=size.tiny, color=color.blue, transp=80, show_last=1, offset=offset4)
+
+plotshape(y5, location=location.absolute, style=shape.labelup, size=size.huge, color=color.blue, transp=80, show_last=1, offset=offset5)
+plotshape(y5, location=location.absolute, style=shape.labelup, size=size.large, color=color.blue, transp=80, show_last=1, offset=offset5)
+plotshape(y5, location=location.absolute, style=shape.labelup, size=size.normal, color=color.blue, transp=80, show_last=1, offset=offset5)
+plotshape(y5, location=location.absolute, style=shape.labelup, size=size.small, color=color.blue, transp=80, show_last=1, offset=offset5)
+plotshape(y5, location=location.absolute, style=shape.labelup, size=size.tiny, color=color.blue, transp=80, show_last=1, offset=offset5)
+
+plotshape(y6, location=location.absolute, style=shape.labeldown, size=size.huge, color=color.blue, transp=80, show_last=1, offset=offset6)
+plotshape(y6, location=location.absolute, style=shape.labeldown, size=size.large, color=color.blue, transp=80, show_last=1, offset=offset6)
+plotshape(y6, location=location.absolute, style=shape.labeldown, size=size.normal, color=color.blue, transp=80, show_last=1, offset=offset6)
+plotshape(y6, location=location.absolute, style=shape.labeldown, size=size.small, color=color.blue, transp=80, show_last=1, offset=offset6)
+plotshape(y6, location=location.absolute, style=shape.labeldown, size=size.tiny, color=color.blue, transp=80, show_last=1, offset=offset6)

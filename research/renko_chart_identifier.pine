@@ -1,0 +1,31 @@
+//@version=4
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Renko Chart Identifier script may be freely distributed under the terms of the GPL-3.0 license.
+study("Renko Chart Identifier", overlay=true)
+
+_isRenko() =>
+    var int gapsCount = -1
+    if low[1] > high or high[1] < low
+        gapsCount := gapsCount + 1
+    body = abs(close - open)
+    bodySum = cum(body)
+    avg = bodySum / (bar_index + 1)
+    out = avg == body and gapsCount == -1
+    out
+
+labelText = _isRenko() ? "This is Renko Chart" : "This is not Renko Chart"
+labelColor = #1e90ff
+whiteColor = color.white
+
+var label l = label.new(
+     x=bar_index,
+     y=na,
+     text="",
+     color=labelColor,
+     textcolor=whiteColor,
+     style=label.style_labeldown,
+     size=size.normal
+     )
+
+label.set_text(l, labelText)
+label.set_xy(l, bar_index, highest(close, 50))

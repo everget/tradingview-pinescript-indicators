@@ -1,0 +1,36 @@
+//@version=4
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Litecoin Halving UTC Countdown script may be freely distributed under the terms of the GPL-3.0 license.
+study("Litecoin Halving UTC Countdown", overlay=true)
+
+halvingDay = input(title="Halving Day", minval=1, maxval=31, defval=5)
+halvingHour = input(title="Halving Hour", minval=1, maxval=24, defval=11)
+halvingMinute = input(title="Halving Minute", minval=1, maxval=60, defval=55)
+
+halvingStamp = timestamp('GMT', 2019, 8, halvingDay, halvingHour, halvingMinute)
+
+secondsRaw = floor((halvingStamp - timenow) / 1000)
+minutesRaw = floor(secondsRaw / 60)
+hoursRaw = floor(minutesRaw / 60)
+
+seconds = secondsRaw % 60
+minutes = minutesRaw % 60
+hours = hoursRaw % 24
+days = floor(hoursRaw / 24)
+
+f_format(_val) =>
+    (0 < _val and _val < 10 ? "0" : "") + tostring(_val, "##") + (_val == 0 ? "0" : "")
+
+labelText = f_format(days) + "d  " + f_format(hours) + ":" + f_format(minutes) + ":" + f_format(seconds)
+
+var label l = label.new(
+     x=bar_index,
+     y=na,
+     text="",
+     textcolor=color.black,
+     style=label.style_none,
+     size=size.huge
+     )
+
+label.set_text(l, labelText)
+label.set_xy(l, bar_index, highest(100))

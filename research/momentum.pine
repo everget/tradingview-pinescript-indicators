@@ -1,0 +1,21 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Momentum script may be freely distributed under the GPL-3.0 license.
+study("Momentum")
+
+src = close
+length = 7
+
+mom = src - src[length]
+
+mom2 = change(src, length)
+
+mom3 = mom(src, length)
+
+sma = sma(src, length)
+mom4 = (sma - sma[1]) * length
+
+plot(mom, title="Simple", color=blue)
+plot(mom2, title="2", color=green)
+plot(mom3, title="3", color=red)
+plot(mom4, title="4", color=purple)

@@ -1,0 +1,7 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+study("Script With Expiration Time")
+
+expired = timenow >= timestamp("GMT", 2018, 12, 1, 13, 0) and (barstate.ishistory or barstate.isrealtime)
+
+plot(expired ? na : close, color=purple)

@@ -1,0 +1,41 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Custom Median vs Built-in Median script may be freely distributed under the GPL-3.0 license.
+study("Custom Median vs Built-in Median", shorttitle="CMvsBM")
+
+length = input(title="Length", type=integer, minval=1, defval=14)
+src = input(title="Source", type=source, defval=close)
+
+// Built-in Median
+median(src, length) =>
+    percentile_nearest_rank(src, length, 50)
+
+sort(src, length, i) =>
+	min = -10000.0
+
+	for j = 0 to i
+		min_local = 10000.0
+
+		for l = 0 to length - 1
+			if (nz(src[l]) <= min)
+				continue
+
+			min_local := min(min_local, max(min, nz(src[l])))
+
+		if min_local != 10000
+			min := min_local
+	min
+
+// Custom Median
+customMedian(src, length) =>
+	out = 0.0
+
+	if length % 2 == 0
+		out := (sort(src, length, length / 2 - 1) + sort(src, length, length / 2)) / 2
+	else
+		out := sort(src, length, length / 2 - 0.5)
+	out
+
+diff = median(src, length) - customMedian(src, length)
+
+plot(diff, title="CMvsBM", transp=0)

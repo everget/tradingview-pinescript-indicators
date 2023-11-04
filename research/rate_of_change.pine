@@ -1,0 +1,20 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Rate of Change script may be freely distributed under the GPL-3.0 license.
+study("Rate of Change", shorttitle="ROC")
+
+src = close
+length = 7
+
+roc = roc(src, length)
+
+roc2 = change(src, length)
+
+roc3 = change(src, length) / src[length]
+
+roc4 = 100 * change(src, length) / src[length]
+
+plot(roc, title="Built-in", color=blue)
+plot(roc2, title="2", color=green)
+plot(roc3, title="3", color=red)
+plot(roc4, title="4", color=purple)

@@ -1,0 +1,35 @@
+//@version=4
+// Copyright (c) 2020-present, Alex Orekhov (everget)
+// Point-and-Figure (P&F) Chart Identifier script may be freely distributed under the terms of the GPL-3.0 license.
+study("Point-and-Figure (P&F) Chart Identifier", overlay=true)
+
+var int ocCount = -1
+ocCount := open[1] == close or close[1] == open ? ocCount + 1 : ocCount
+
+var int sum = 0
+sum := close > close[1] ? sum + 1 : close < close[1] ? sum - 1 : sum
+
+isPnF = (sum == 1 or sum == 0 or sum == -1) and ocCount < bar_index - 1
+matchedCandles = cum(isPnF ? 1 : 0)
+
+labelText = isPnF ? "This is P&F Chart" : "This is not P&F Chart"
+stats = "\n------------------------------" +
+         "\nBar Index: " + tostring(int(bar_index)) +
+         "\nMatched Candles: " + tostring(matchedCandles) +
+         "\nO==C: " + tostring(ocCount) +
+         "\nSum: " + tostring(sum)
+labelColor = #1e90ff
+whiteColor = color.white
+
+var label pnfLabel = label.new(
+     x=bar_index,
+     y=na,
+     text="",
+     color=labelColor,
+     textcolor=whiteColor,
+     style=label.style_label_down,
+     size=size.normal
+     )
+
+label.set_text(pnfLabel, labelText + stats)
+label.set_xy(pnfLabel, bar_index, highest(close, 10))

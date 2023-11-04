@@ -1,0 +1,33 @@
+//@version=4
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Heikin-Ashi Chart Identifier script may be freely distributed under the terms of the GPL-3.0 license.
+study("Heikin-Ashi Chart Identifier", overlay=true)
+
+var int gapsCount = -1
+gapsCount := low[1] > high or high[1] < low ? gapsCount + 1 : gapsCount
+
+var int matchedCandles = -1
+matchedCandles := open == (open[1] + close[1]) / 2 ? matchedCandles + 1 : matchedCandles
+
+isHA = matchedCandles == bar_index - 1 and matchedCandles != -1 and gapsCount == -1
+
+labelText = isHA ? "This is Heikin-Ashi Chart" : "This is not Heikin-Ashi Chart"
+stats = "\n------------------------------------" +
+         "\nBar Index: " + tostring(int(bar_index)) +
+         "\nMatched: " + tostring(matchedCandles)
+         
+labelColor = #1e90ff
+whiteColor = color.white
+
+var label l = label.new(
+     x=bar_index,
+     y=na,
+     text="",
+     color=labelColor,
+     textcolor=whiteColor,
+     style=label.style_labeldown,
+     size=size.normal
+     )
+
+label.set_text(l, labelText + stats)
+label.set_xy(l, bar_index, highest(high, 50))
