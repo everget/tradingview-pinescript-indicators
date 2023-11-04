@@ -1,0 +1,35 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+study("Quarters", overlay=true)
+
+transparency = input(title="Transparency", type=integer, defval=88, minval=0, maxval=100)
+showLabels = input(title="Show Labels ? ", type=bool, defval=true)
+
+transparent = color(white, 100)
+labelColor = #1e90ff
+
+m = month(time)
+
+q1Text = " Q1 "
+q1Start = m[1] == 12 and m == 1
+q1 = m == 1 or m == 2 or m == 3
+plotshape(showLabels and q1Start, title=q1Text, text=q1Text, color=labelColor, textcolor=white, style=shape.labelup, location=location.belowbar, size=size.small, transp=0)
+bgcolor(title="Q1", color=q1 ? #e6194b : transparent, transp=transparency)
+
+q2Text = " Q2 "
+q2Start = m[1] == 3 and m == 4
+q2 = m == 4 or m == 5 or m == 6
+plotshape(showLabels and q2Start, title=q2Text, text=q2Text, color=labelColor, textcolor=white, style=shape.labelup, location=location.belowbar, size=size.small, transp=0)
+bgcolor(title="Q2", color=q2 ? #3cb44b : transparent, transp=transparency)
+
+q3Text = " Q3 "
+q3Start = m[1] == 6 and m == 7
+q3 = m == 7 or m == 8 or m == 9
+plotshape(showLabels and q3Start, title=q3Text, text=q3Text, color=labelColor, textcolor=white, style=shape.labelup, location=location.belowbar, size=size.small, transp=0)
+bgcolor(title="Q3", color=q3 ? #ffe119 : transparent, transp=transparency)
+
+q4Text = " Q4 "
+q4Start = m[1] == 9 and m == 10
+q4 = m == 10 or m == 11 or m == 12
+plotshape(showLabels and q4Start, title=q4Text, text=q4Text, color=labelColor, textcolor=white, style=shape.labelup, location=location.belowbar, size=size.small, transp=0)
+bgcolor(title="Q4", color=q4 ? #f58231 : transparent, transp=transparency)

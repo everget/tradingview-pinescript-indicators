@@ -1,0 +1,32 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+study("Leap Years", overlay=true)
+
+transparency = input(title="Transparency", type=integer, defval=88, minval=0, maxval=100)
+showLabels = input(title="Show Labels ? ", type=bool, defval=true)
+
+transparent = color(white, 100)
+labelColor = #1e90ff
+bgColor = #ffa726
+
+isLeap = false
+
+if year % 4 != 0 // year is not divisible by 4
+    // it is a common year
+    isLeap := false
+else
+    if year % 100 != 0 // year is not divisible by 100
+        // it is a leap year
+        isLeap := true
+    else
+        if year % 400 != 0 // year is not divisible by 400
+            // it is a common year
+            isLeap := false
+        else
+            // it is a leap year
+            isLeap := true
+
+lyText = " Leap \nYear "
+lyStart = year != year[1] and isLeap
+plotshape(showLabels and lyStart, title=lyText, text=lyText, color=labelColor, textcolor=white, style=shape.labelup, location=location.belowbar, size=size.small, transp=0)
+bgcolor(title="Leap Year", color=isLeap ? bgColor : transparent, transp=transparency)

@@ -1,0 +1,27 @@
+//@version=4
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Weekdays Gaps script may be freely distributed under the terms of the GPL-3.0 license.
+study("Weekdays Gaps", overlay=true)
+
+td = dayofweek(time)
+yd = dayofweek(time[1])
+
+mo = dayofweek.monday
+tu = dayofweek.tuesday
+we = dayofweek.wednesday
+th = dayofweek.thursday
+fr = dayofweek.friday
+sa = dayofweek.saturday
+su = dayofweek.sunday
+
+gaps = td == mo and yd != su or
+         td == tu and yd != mo or
+         td == we and yd != tu or
+         td == th and yd != we or
+         td == fr and yd != th or
+         td == sa and yd != fr or
+         td == su and yd != sa
+
+gapColor = color.new(#ffcc80, 70)
+noneColor = color.new(color.white, 100)
+bgcolor(gaps ? gapColor : noneColor, title="Gap")
