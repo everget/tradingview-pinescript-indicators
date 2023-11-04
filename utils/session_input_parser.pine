@@ -1,0 +1,79 @@
+//@version=4
+// Copyright (c) 2021-present, Alex Orekhov (everget)
+study("Session Input Parser", overlay=true)
+
+sessionSimple = input(title="Simple Session", type=input.session, defval="0800-1530")
+sessionWithWeekdays = input(title="Session With Weekdays", type=input.session, defval="0800-1530:1234567")
+
+_str_includes(str, char) =>
+    tmp = str.replace_all(str, char, "")
+    out = str.length(tmp) != str.length(str)
+    out
+
+_toint(str) =>
+    out = int(tonumber(str))
+    out
+
+_parseSession(session) =>
+    string sessionWithoutWeekdays = na
+    string weekdaysPart = na
+    bool hasWeekdays = false
+
+    int hStart = na
+    int mStart = na
+    int hEnd = na
+    int mEnd = na
+    int[] weekdays = array.new_int(0)
+
+    if _str_includes(session, ":")
+        hasWeekdays := true
+        sessionSplit = str.split(session, ":")
+        sessionWithoutWeekdays := array.get(sessionSplit, 0)
+        weekdaysPart := array.get(sessionSplit, 1)
+    else
+        sessionWithoutWeekdays := session
+
+    hhmm_hhmm = str.split(sessionWithoutWeekdays, "")
+    hStart := _toint(array.get(hhmm_hhmm, 0) + array.get(hhmm_hhmm, 1))
+    mStart := _toint(array.get(hhmm_hhmm, 2) + array.get(hhmm_hhmm, 3))
+    hEnd := _toint(array.get(hhmm_hhmm, 5) + array.get(hhmm_hhmm, 6))
+    mEnd := _toint(array.get(hhmm_hhmm, 7) + array.get(hhmm_hhmm, 8))
+
+    if hasWeekdays
+        weekdaysSplit = str.split(weekdaysPart, "")
+
+        for i = 0 to array.size(weekdaysSplit) - 1
+            array.push(weekdays, _toint(array.get(weekdaysSplit, i)))
+    [hStart, mStart, hEnd, mEnd, weekdays]
+
+[hStart1, mStart1, hEnd1, mEnd1, weekdays1] = _parseSession(sessionSimple)
+[hStart2, mStart2, hEnd2, mEnd2, weekdays2] = _parseSession(sessionWithWeekdays)
+
+labelText =
+     "Simple: " + sessionSimple + "\n"
+     + "\nStart Hour: " + tostring(hStart1, "#")
+     + "\nStart Minute: " + tostring(mStart1, "#")
+     + "\nEnd Hour: " + tostring(hEnd1, "#")
+     + "\nEnd Minute: " + tostring(mEnd1, "#")
+     + "\nWeekdays: " + tostring(weekdays1)
+     + "\n---------------------------------------------"
+     + "\nWith weekdays: " + sessionWithWeekdays + "\n"
+     + "\nStart Hour: " + tostring(hStart2, "#")
+     + "\nStart Minute: " + tostring(mStart2, "#")
+     + "\nEnd Hour: " + tostring(hEnd2, "#")
+     + "\nEnd Minute: " + tostring(mEnd2, "#")
+     + "\nWeekdays: " + tostring(weekdays2)
+
+var label l = label.new(
+     x=bar_index,
+     y=na,
+     text="",
+     textalign=text.align_left,
+     textcolor=color.white,
+     color=color.blue,
+     style=label.style_label_left,
+     size=size.normal
+     )
+
+label.set_text(l, labelText)
+label.set_xy(l, bar_index, ohlc4)

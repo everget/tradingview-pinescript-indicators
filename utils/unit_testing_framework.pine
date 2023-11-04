@@ -1,0 +1,517 @@
+//@version=5
+// Copyright (c) 2021-present, Alex Orekhov (everget)
+indicator("Unit Testing Framework", overlay=true)
+
+// Unit Testing Framework Core {
+
+// Constants and Globals {
+var string UT_FRAMEWORK_VERSION = "1.0.0"
+
+string[] _private_suites = array.new_string(0)
+string[] _private_tests = array.new_string(0)
+int[] _private_testStatuses = array.new_int(0)
+int[] _private_testToSuiteMap = array.new_int(0)
+//}
+
+// public _describe() {
+// A function to declare a test suite
+_describe(suiteName) =>
+	array.push(_private_suites, suiteName)
+//}
+
+// public _it() {
+// A function to run a test
+_it(specTitle, actual, expected) =>
+	array.push(_private_testToSuiteMap, array.size(_private_suites) - 1)
+	array.push(_private_tests, specTitle)
+	array.push(_private_testStatuses, actual == expected ? 1 : -1)
+//}
+
+// public _test() {
+// An alias for the _it() function
+_test(specTitle, actual, expected) =>
+	_it(specTitle, actual, expected)
+//}
+
+// public _xit() {
+// Any spec declared with `xit` is marked as skipped.
+// Their names will show up in the results as skipped
+_xit(specTitle, actual, expected) =>
+	array.push(_private_testToSuiteMap, array.size(_private_suites) - 1)
+	array.push(_private_tests, specTitle)
+	array.push(_private_testStatuses, 0)
+//}
+
+// public _xtest() {
+// An alias for the _xit() function
+_xtest(specTitle, actual, expected) =>
+	_xit(specTitle, actual, expected)
+//}
+
+// _private_factorize() {
+// An utility function to convert elements of both <bool|int|float|string|color|line|label|table|box> arrays into integers to make them sortable.
+// The arrays must have the same type!
+// The idea is partially taken from R: https://www.stat.berkeley.edu/~s133/factors.html
+// Example:
+//      _factorize(["a", "b", "c"], ["a", "b", "d"])
+//      => [0, 1, 2], [0, 1, 3]
+_private_factorize(id_1, id_2) =>
+	size_1 = array.size(id_1)
+	new_id_1 = array.new_int(array.size(id_1), 0)
+	new_id_2 = array.new_int(array.size(id_2), 0)
+
+	factors = array.new_int(0)
+	elements = array.concat(array.copy(id_1), id_2)
+	added_elements = array.copy(elements)
+	array.clear(added_elements)
+	size = array.size(elements)
+
+	if size > 0
+		for i = 0 to size - 1
+			el = array.get(elements, i)
+			int new_factor = na
+
+			if array.includes(added_elements, el)
+				index = array.indexof(added_elements, el)
+				new_factor := array.get(factors, index)
+			else
+				array.push(added_elements, el)
+				new_factor := array.size(factors) == 0 ? 0 : 1 + array.get(factors, array.size(factors) - 1)
+				array.push(factors, new_factor)
+				na
+
+			if i < size_1
+				array.set(new_id_1, i, new_factor)
+			else
+				array.set(new_id_2, i - size_1, new_factor)
+	[new_id_1, new_id_2]
+//}
+
+// public _isEqual() {
+// A function to compare <bool|int|float|string|color|line|label|table|box> arrays.
+// Order of elements isn't matter
+_isEqual(id_1, id_2) =>
+	out = false
+
+	if array.size(id_1) == array.size(id_2)
+		out := true
+
+		[factors_1, factors_2] = _private_factorize(id_1, id_2)
+		array.sort(factors_1, order.ascending)
+		array.sort(factors_2, order.ascending)
+
+		for i = 0 to array.size(factors_1) - 1
+			el_1 = array.get(factors_1, i)
+			el_2 = array.get(factors_2, i)
+			if el_1 != el_2
+				out := false
+				break
+		out
+	out
+//}
+
+// public _isStrictEqual() {
+// A function to compare <bool|int|float|string|color|line|label|table|box> arrays.
+// Order of elements is matter
+_isStrictEqual(id_1, id_2) =>
+	out = false
+
+	if array.size(id_1) == array.size(id_2)
+		out := true
+
+		for i = 0 to array.size(id_1) - 1
+			el_1 = array.get(id_1, i)
+			el_2 = array.get(id_2, i)
+			if el_1 != el_2
+				out := false
+				break
+		out
+	out
+//}
+
+// public _testReporter() {
+// A function to output test results
+_testReporter(caption = "") =>
+	var string configGroup = "Config"
+	showSuiteStatuses = input.bool(title="Show test suites statuses", defval=true, group=configGroup)
+	showPassedTests = input.bool(title="Show passed tests", defval=true, group=configGroup)
+	showFailedTests = input.bool(title="Show failed tests", defval=true, group=configGroup)
+	showSkippedTests = input.bool(title="Show skipped tests", defval=true, group=configGroup)
+
+	var string PASSED_ICON = "✔️"
+	var string FAILED_ICON = "❌"
+	var string SKIPPED_ICON = "⛔"
+	
+	var string NO_SUITES_WARNING = "Professor, your tests must be grouped into suites!"
+	var string NO_TESTS_WARNING = "Write at least 1 test, professor!"
+	var string NO_SUITES_AND_TESTS_WARNING = "You haven't write any suite with tests yet"
+	var string warningMessage = ""
+
+	string[] report = array.new_string(0)
+	suitesCount = array.size(_private_suites)
+	passedSuitesCount = 0
+	failedSuitesCount = 0
+	skippedSuitesCount = 0
+	
+	testsCount = array.size(_private_tests)
+	passedTestsCount = 0
+	failedTestsCount = 0
+	skippedTestsCount = 0
+
+	if suitesCount > 0
+		if testsCount > 0
+			lastTestIndex = 0
+
+			for i = 0 to suitesCount - 1
+				suite = array.get(_private_suites, i)
+				array.push(report, suite + ":")
+				suiteIndex = array.size(report) - 1
+
+				passedTestsInSuite = 0
+				failedTestsInSuite = 0
+				skippedTestsInSuite = 0
+
+				for j = lastTestIndex to testsCount - 1
+					suiteId = array.get(_private_testToSuiteMap, j)
+
+					if suiteId == i
+						test = array.get(_private_tests, j)
+						status = array.get(_private_testStatuses, j)
+
+						if status == 1
+							passedTestsInSuite += 1
+							passedTestsCount += 1
+							if showPassedTests
+								array.push(report, "\t\t" + PASSED_ICON + " " + test)
+						else if status == -1
+							failedTestsInSuite += 1
+							failedTestsCount += 1
+							if showFailedTests
+								array.push(report, "\t\t" + FAILED_ICON + " " + test)
+						else
+							skippedTestsInSuite += 1
+							skippedTestsCount += 1
+							if showSkippedTests
+								array.push(report, "\t\t" + SKIPPED_ICON + " " + test)
+					else
+						lastTestIndex := j
+						break
+
+				if failedTestsInSuite != 0
+					failedSuitesCount += 1
+					if showSuiteStatuses
+						array.set(report, suiteIndex, FAILED_ICON + " " + array.get(report, suiteIndex))
+				else if passedTestsInSuite != 0
+					passedSuitesCount += 1
+					if showSuiteStatuses
+						array.set(report, suiteIndex, PASSED_ICON + " " + array.get(report, suiteIndex))
+				else if skippedTestsInSuite != 0
+					skippedSuitesCount += 1
+					if showSuiteStatuses
+						array.set(report, suiteIndex, SKIPPED_ICON + " " + array.get(report, suiteIndex))
+
+				array.push(report, "")
+			""
+		else
+			warningMessage := NO_TESTS_WARNING
+	else if testsCount > 0
+		warningMessage := NO_SUITES_WARNING
+	else
+		warningMessage := NO_SUITES_AND_TESTS_WARNING
+
+	reportText =
+		 "Unit Testing Framework Version: " + UT_FRAMEWORK_VERSION
+		 + "\n\n" + "Suites: "
+				 + str.tostring(passedSuitesCount, "#") + " passed"
+				 + ", " + str.tostring(failedSuitesCount, "#") + " failed"
+				 + ", " + str.tostring(skippedSuitesCount, "#") + " skipped"
+				 + ", " + str.tostring(suitesCount, "#") + " total"
+		 + "\n" + "Tests: "
+				 + str.tostring(passedTestsCount, "#") + " passed"
+				 + ", " + str.tostring(failedTestsCount, "#") + " failed"
+				 + ", " + str.tostring(skippedTestsCount, "#") + " skipped"
+				 + ", " + str.tostring(testsCount, "#") + " total"
+		 + "\n" + "-------------------------------------------------------"
+		 + "\n\n" + (warningMessage == "" ? (caption != "" ? caption + "\n\n" : "") + array.join(report, "\n") : warningMessage)
+
+	var string positionUp = "Up"
+	var string positionDown = "Down"
+	var string positionLeft = "Left"
+	var string positionRight = "Right"
+	var string positionLowerLeft = "Lower Left"
+	var string positionLowerRight = "Lower Right"
+	var string positionUpperLeft = "Upper Left"
+	var string positionUpperRight = "Upper Right"
+	var string positionCenter = "Center"
+
+	reporterPositionInput = input.string(title="Reporter Position", defval=positionUpperLeft, options=[positionUp, positionDown, positionLeft, positionRight, positionLowerLeft, positionLowerRight, positionUpperLeft, positionUpperRight, positionCenter], group=configGroup)
+	var string reporterPosition = 
+		 reporterPositionInput == positionUp ? label.style_label_up :
+		 reporterPositionInput == positionDown ? label.style_label_down :
+		 reporterPositionInput == positionLeft ? label.style_label_left :
+		 reporterPositionInput == positionRight ? label.style_label_right :
+		 reporterPositionInput == positionLowerLeft ? label.style_label_lower_left :
+		 reporterPositionInput == positionLowerRight ? label.style_label_lower_right :
+		 reporterPositionInput == positionUpperLeft ? label.style_label_upper_left :
+		 reporterPositionInput == positionUpperRight ? label.style_label_upper_right :
+		 label.style_label_center
+
+	var label l = label.new(
+		 x=na,
+		 y=na,
+		 color=input.color(title="Reporter Background Color", defval=color.black, group=configGroup),
+		 text="",
+		 textalign=text.align_left,
+		 textcolor=input.color(title="Reporter Text Color", defval=color.white, group=configGroup),
+		 style=reporterPosition,
+		 size=size.normal
+		 )
+
+	label.set_text(l, reportText)
+	label.set_xy(l, bar_index + 1, ohlc4)
+//}
+
+//} End of Unit Testing Framework Core
+
+//==============================================================================
+//==============================================================================
+// YOUR TESTS START HERE !!!
+
+_sum(v1, v2) =>
+	out = v1 + v2
+	out
+
+// TIP: You can collapse (fold) code fragments with tests reducing them to a single visible line {
+_describe("_sum()")
+_it("should sum two integers", _sum(1, 2), 3)
+_it("should sum two decimals", _sum(1.1, 2.4), 3.5)
+_it("should sum integer and decimal numbers", _sum(1, 0.01), 1.01)
+// }
+
+//------------------------------------------------------------------------------
+
+_multiply(v1, v2) =>
+	out = v1 * v2
+	out
+
+// TIP: You can collapse (fold) code fragments with tests reducing them to a single visible line {
+_describe("_multiply()")
+_it("should multiply two integers", _multiply(2, 3), 6)
+_it("should multiply two decimals", _multiply(0.1, 0.2), 0.02)
+_it("should multiply integers and decimals", _multiply(2, 0.3), 0.6)
+// }
+
+//------------------------------------------------------------------------------
+
+_describe("An example suite with all types of test statuses")
+_it("this test is passed", true, true)
+_it("this test is failed", true, false)
+_xit("this test is skipped", true, true)
+
+//------------------------------------------------------------------------------
+
+_describe("<- A suite with at least one failed test will be marked with the cross icon")
+_it("this test is failed", true, false)
+
+//------------------------------------------------------------------------------
+
+_describe("<- A suite with all tests passed will be marked with the check mark icon")
+_it("this test is passed", true, true)
+
+//------------------------------------------------------------------------------
+
+_describe("<- A suite with all tests skipped will be marked with the no-entry icon")
+_xit("this test is skipped", true, false)
+
+//------------------------------------------------------------------------------
+
+_describe("_isEqual")
+_it("int[] Arrays of the different size should not be equal", _isEqual(array.from(1, 2, 3), array.from(3, 1)), false)
+_it("int[] Arrays of the same size with the same elements should be equal", _isEqual(array.from(1, 2, 3), array.from(3, 1, 2)), true)
+_it("int[] Arrays of the same size with different elements should not be equal", _isEqual(array.from(1, 2, 3), array.from(4, 5, 6)), false)
+
+_it("float[] Arrays of the different size should not be equal", _isEqual(array.from(1.61803, 1.73205, 2.23606), array.from(2.71828, 3.14159)), false)
+_it("float[] Arrays of the same size with the same elements should be equal", _isEqual(array.from(1.61803, 1.73205, 2.23606), array.from(2.23606, 1.61803, 1.73205)), true)
+_it("float[] Arrays of the same size with different elements should not be equal", _isEqual(array.from(1.61803, 1.73205, 2.23606), array.from(2.71828, 3.14159, 2.289202)), false)
+
+_it("bool[] Arrays of the different size should not be equal", _isEqual(array.from(true), array.from(true, true)), false)
+_it("bool[] Arrays of the same size with the same elements should be equal", _isEqual(array.from(true, false, true), array.from(false, true, true)), true)
+_it("bool[] Arrays of the same size with different elements should not be equal", _isEqual(array.from(true, true), array.from(false, false)), false)
+
+_it("string[] Arrays of the different size should not be equal", _isEqual(array.from("Jeszcze", "Polska", "nie", "zginęła!"), array.from("Жыве", "Беларусь!")), false)
+_it("string[] Arrays of the same size with the same elements should be equal", _isEqual(array.from("kiełba", "bimber", "pierogi"), array.from("pierogi", "kiełba", "bimber")), true)
+_it("string[] Arrays of the same size with different elements should not be equal", _isEqual(array.from("a", "b", "c"), array.from("d", "e", "f")), false)
+
+_it("color[] Arrays of the different size should not be equal", _isEqual(array.from(color.red, color.green, color.blue), array.from(#11111f, #000000)), false)
+_it("color[] Arrays of the same size with the same elements should be equal", _isEqual(array.from(color.red, color.green, color.blue), array.from(color.blue, color.red, color.green)), true)
+_it("color[] Arrays of the same size with different elements should not be equal", _isEqual(array.from(color.red, color.green, color.blue), array.from(color.purple, color.orange, color.teal)), false)
+
+// TIP: If your methods/functions require some setup it is good to wrap tests in a function and then call it
+_suite_isEqual_lines() =>
+	line line0 = na
+	line line1 = na
+	line line2 = na
+	line line3 = na
+	line line4 = na
+	line line5 = na
+
+	if barstate.islast
+		line0 := line.new(bar_index, na, bar_index, na, color=color.new(color.white, 100))
+		line.delete(line0[1])
+
+		line1 := line.new(bar_index + 1, na, bar_index + 2, na, color=color.new(color.white, 100))
+		line.delete(line1[1])
+
+		line2 := line.new(bar_index + 2, na, bar_index + 3, na, color=color.new(color.white, 100))
+		line.delete(line2[1])
+
+		line3 := line.new(bar_index + 3, na, bar_index + 4, na, color=color.new(color.white, 100))
+		line.delete(line3[1])
+
+		line4 := line.new(bar_index + 4, na, bar_index + 5, na, color=color.new(color.white, 100))
+		line.delete(line4[1])
+
+		line5 := line.new(bar_index + 5, na, bar_index + 6, na, color=color.new(color.white, 100))
+		line.delete(line5[1])
+
+	_it("lines[] Arrays of the different size should not be equal", _isEqual(array.from(line0, line1, line2), array.from(line0, line1)), false)
+	_it("lines[] Arrays of the same size with the same elements should be equal", _isEqual(array.from(line0, line1, line2), array.from(line2, line0, line1)), true)
+	_it("lines[] Arrays of the same size with different elements should not be equal", _isEqual(array.from(line0, line1, line2), array.from(line3, line4, line5)), false)
+_suite_isEqual_lines()
+
+// TIP: If your methods/functions require some setup it is good to wrap tests in a function and then call it
+_suite_isEqual_labels() =>
+	label label0 = na
+	label label1 = na
+	label label2 = na
+	label label3 = na
+	label label4 = na
+	label label5 = na
+
+	if barstate.islast
+		label0 := label.new(bar_index, na, color=color.new(color.white, 100))
+		label.delete(label0[1])
+
+		label1 := label.new(bar_index + 1, na, color=color.new(color.white, 100))
+		label.delete(label1[1])
+
+		label2 := label.new(bar_index + 2, na, color=color.new(color.white, 100))
+		label.delete(label2[1])
+
+		label3 := label.new(bar_index + 3, na, color=color.new(color.white, 100))
+		label.delete(label3[1])
+
+		label4 := label.new(bar_index + 4, na, color=color.new(color.white, 100))
+		label.delete(label4[1])
+
+		label5 := label.new(bar_index + 5, na, color=color.new(color.white, 100))
+		label.delete(label5[1])
+
+	_it("label[] Arrays of the different size should not be equal", _isEqual(array.from(label0, label1, label2), array.from(label0, label1)), false)
+	_it("label[] Arrays of the same size with the same elements should be equal", _isEqual(array.from(label0, label1, label2), array.from(label2, label0, label1)), true)
+	_it("label[] Arrays of the same size with different elements should not be equal", _isEqual(array.from(label0, label1, label2), array.from(label3, label4, label5)), false)
+_suite_isEqual_labels()
+
+//------------------------------------------------------------------------------
+
+_describe("_isStrictEqual")
+_it("int[] Different size", _isStrictEqual(array.from(1, 2, 3), array.from(3, 1)), false)
+_it("int[] Same size | same elements | same order", _isStrictEqual(array.from(1, 2, 3), array.from(1, 2, 3)), true)
+_it("int[] Same size | same elements | different order", _isStrictEqual(array.from(1, 2, 3), array.from(3, 2, 1)), false)
+_it("int[] Same size | different elements", _isStrictEqual(array.from(1, 2, 3), array.from(4, 5, 6)), false)
+
+_it("float[] Different size", _isStrictEqual(array.from(1.61803, 1.73205, 2.23606), array.from(2.71828, 3.14159)), false)
+_it("float[] Same size | same elements | same order", _isStrictEqual(array.from(1.61803, 1.73205, 2.23606), array.from(1.61803, 1.73205, 2.23606)), true)
+_it("float[] Same size | same elements | different order", _isStrictEqual(array.from(1.61803, 1.73205, 2.23606), array.from(2.23606, 1.61803, 1.73205)), false)
+_it("float[] Same size | different elements", _isStrictEqual(array.from(1.61803, 1.73205, 2.23606), array.from(2.71828, 3.14159, 2.289202)), false)
+
+_it("bool[] Different size", _isStrictEqual(array.from(true), array.from(true, true)), false)
+_it("bool[] Same size | same elements | same order", _isStrictEqual(array.from(true, false, true), array.from(true, false, true)), true)
+_it("bool[] Same size | same elements | different order", _isStrictEqual(array.from(true, false, true), array.from(false, true, true)), false)
+_it("bool[] Same size | different elements", _isStrictEqual(array.from(true, true), array.from(false, false)), false)
+
+_it("string[] Different size", _isStrictEqual(array.from("Jeszcze", "Polska", "nie", "zginęła!"), array.from("Жыве", "Беларусь!")), false)
+_it("string[] Same size | same elements | same order", _isStrictEqual(array.from("Слава Україні!", "Жыве Беларусь!", "Живела Србија!"), array.from("Слава Україні!", "Жыве Беларусь!", "Живела Србија!")), true)
+_it("string[] Same size | same elements | different order", _isStrictEqual(array.from("kiełba", "bimber", "pierogi"), array.from("pierogi", "kiełba", "bimber")), false)
+_it("string[] Same size | different elements", _isStrictEqual(array.from("a", "b", "c"), array.from("d", "e", "f")), false)
+
+_it("color[] Different size", _isStrictEqual(array.from(color.red, color.green, color.blue), array.from(#11111f, #000000)), false)
+_it("color[] Same size | same elements | same order", _isStrictEqual(array.from(color.red, color.green, color.blue), array.from(color.red, color.green, color.blue)), true)
+_it("color[] Same size | same elements | different order", _isStrictEqual(array.from(color.red, color.green, color.blue), array.from(color.blue, color.red, color.green)), false)
+_it("color[] Same size | different elements", _isStrictEqual(array.from(color.red, color.green, color.blue), array.from(color.purple, color.orange, color.teal)), false)
+
+// TIP: If your methods/functions require some setup it is good to wrap tests in a function and then call it
+_suite_isStrictEqual_lines() =>
+	var color noneColor = color.new(color.white, 100)
+	line line0 = na
+	line line1 = na
+	line line2 = na
+	line line3 = na
+	line line4 = na
+	line line5 = na
+
+	if barstate.islast
+		line0 := line.new(bar_index, na, bar_index, na, color=noneColor)
+		line.delete(line0[1])
+
+		line1 := line.new(bar_index + 1, na, bar_index + 2, na, color=noneColor)
+		line.delete(line1[1])
+
+		line2 := line.new(bar_index + 2, na, bar_index + 3, na, color=noneColor)
+		line.delete(line2[1])
+
+		line3 := line.new(bar_index + 3, na, bar_index + 4, na, color=noneColor)
+		line.delete(line3[1])
+
+		line4 := line.new(bar_index + 4, na, bar_index + 5, na, color=noneColor)
+		line.delete(line4[1])
+
+		line5 := line.new(bar_index + 5, na, bar_index + 6, na, color=noneColor)
+		line.delete(line5[1])
+
+	_it("lines[] Different size", _isStrictEqual(array.from(line0, line1, line2), array.from(line2, line0)), false)
+	_it("lines[] Same size | same elements | same order", _isStrictEqual(array.from(line0, line1, line2), array.from(line0, line1, line2)), true)
+	_it("lines[] Same size | same elements | different order", _isStrictEqual(array.from(line0, line1, line2), array.from(line2, line1, line0)), false)
+	_it("lines[] Same size | different elements", _isStrictEqual(array.from(line0, line1, line2), array.from(line3, line4, line5)), false)
+_suite_isStrictEqual_lines()
+
+// TIP: If your methods/functions require some setup it is good to wrap tests in a function and then call it
+_suite_isStrictEqual_labels() =>
+	var color noneColor = color.new(color.white, 100)
+	label label0 = na
+	label label1 = na
+	label label2 = na
+	label label3 = na
+	label label4 = na
+	label label5 = na
+
+	if barstate.islast
+		label0 := label.new(bar_index, na, color=noneColor)
+		label.delete(label0[1])
+
+		label1 := label.new(bar_index + 1, na, color=noneColor)
+		label.delete(label1[1])
+
+		label2 := label.new(bar_index + 2, na, color=noneColor)
+		label.delete(label2[1])
+
+		label3 := label.new(bar_index + 3, na, color=noneColor)
+		label.delete(label3[1])
+
+		label4 := label.new(bar_index + 4, na, color=noneColor)
+		label.delete(label4[1])
+
+		label5 := label.new(bar_index + 5, na, color=noneColor)
+		label.delete(label5[1])
+
+	_it("labels[] Different size", _isStrictEqual(array.from(label0, label1, label2), array.from(label2, label0)), false)
+	_it("labels[] Same size | same elements | same order", _isStrictEqual(array.from(label0, label1, label2), array.from(label0, label1, label2)), true)
+	_it("labels[] Same size | same elements | different order", _isStrictEqual(array.from(label0, label1, label2), array.from(label2, label1, label0)), false)
+	_it("labels[] Same size | different elements", _isStrictEqual(array.from(label0, label1, label2), array.from(label3, label4, label5)), false)
+_suite_isStrictEqual_labels()
+
+//==============================================================================
+//==============================================================================
+
+// ATTENTION: We need to call the reporter function to see test resuts
+_testReporter("<This is an optional caption that may contain your library name and version.\nUse empty string if you don't need the caption\nor call the _testReporter function without any arguments>")
