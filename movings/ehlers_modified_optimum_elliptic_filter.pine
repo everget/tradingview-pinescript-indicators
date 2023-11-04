@@ -1,0 +1,21 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Ehlers Modified Optimum Elliptic Filter script may be freely distributed under the GPL-3.0 license.
+study("Ehlers Modified Optimum Elliptic Filter", shorttitle="MOEF", overlay=true)
+
+src = input(title="Source", type=source, defval=hl2)
+highlightMovements = input(title="Highlight Movements ?", type=bool, defval=false)
+
+src1 = nz(src[1], src)
+src2 = nz(src[2], src1)
+src3 = nz(src[3], src2)
+
+moef = src
+moef := 0.13785 * (2 * src - src1) +
+         0.0007 * (2 * src1 - src2) +
+         0.13785 * (2 * src2 - src3) +
+         1.2103 * nz(moef[1], moef) -
+         0.4867 * nz(moef[2], moef)
+
+moefColor = highlightMovements ? (moef > moef[1] ? green : red) : #6d1e7f
+plot(moef, title="MOEF", linewidth=2, color=moefColor, transp=0)

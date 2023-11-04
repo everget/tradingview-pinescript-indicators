@@ -1,0 +1,55 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Spencer 15-Point Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Spencer 15-Point Moving Average", shorttitle="SPMA 15", overlay=true)
+
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+_weight(i) =>
+	weight = 0.0
+
+	if i == 0
+		weight := -3
+	if i == 1
+		weight := -6
+	if i == 2
+		weight := -5
+	if i == 3
+		weight := 3
+	if i == 4
+		weight := 21
+	if i == 5
+		weight := 46
+	if i == 6
+		weight := 67
+	if i == 7
+		weight := 74
+	if i == 8
+		weight := 67
+	if i == 9
+		weight := 46
+	if i == 10
+		weight := 21
+	if i == 11
+		weight := 3
+	if i == 12
+		weight := -5
+	if i == 13
+		weight := -6
+	if i == 14
+		weight := -3
+	weight
+
+sum = 0.0
+weightSum = 0.0
+
+for i = 0 to 14
+	weight = _weight(i)
+	sum := sum + nz(src[i]) * weight
+	weightSum := weightSum + weight
+
+spma15 = sum / weightSum
+
+spma15Color = highlight ? spma15 > spma15[1] ? color.green : color.red : #6d1e7f
+plot(spma15, title="SPMA 15", linewidth=2, color=spma15Color, transp=0)

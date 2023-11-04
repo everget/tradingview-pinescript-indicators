@@ -1,0 +1,55 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ehlers Deviation-Scaled Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Ehlers Deviation-Scaled Moving Average", shorttitle="EDSMA", overlay=true)
+
+length = input(title="Length", type=integer, defval=40, minval=2)
+ssfLength = input(title="Super Smoother Filter Length", type=integer, defval=20, minval=1)
+numberOfPoles = input(title="Number of Poles", type=integer, defval=2, options=[2, 3])
+src = input(title="Source", type=source, defval=close)
+
+PI = 2 * asin(1)
+
+twoPoleSuperSmootherFilter(src, length) =>
+	arg = sqrt(2) * PI / length
+	a1 = exp(-arg)
+	b1 = 2 * a1 * cos(arg)
+	c2 = b1
+	c3 = -pow(a1, 2)
+	c1 = 1 - c2 - c3
+
+	ssf = 0.0
+	ssf := c1 * src + c2 * nz(ssf[1]) + c3 * nz(ssf[2])
+
+threePoleSuperSmootherFilter(src, length) =>
+	arg = PI / length
+	a1 = exp(-arg)
+	b1 = 2 * a1 * cos(1.738 * arg)
+	c1 = pow(a1, 2)
+
+	coef2 = b1 + c1
+	coef3 = -(c1 + b1 * c1)
+	coef4 = pow(c1, 2)
+	coef1 = 1 - coef2 - coef3 - coef4
+
+	ssf = 0.0
+	ssf := coef1 * src + coef2 * nz(ssf[1]) + coef3 * nz(ssf[2]) + coef4 * nz(ssf[3])
+
+zeros = src - nz(src[2])
+
+// Ehlers Super Smoother Filter
+ssf = numberOfPoles == 2
+	 ? twoPoleSuperSmootherFilter((zeros + zeros[1]) / 2, ssfLength)
+	 : threePoleSuperSmootherFilter((zeros + zeros[1]) / 2, ssfLength)
+
+// Rescale filter in terms of Standard Deviations
+scaledFilter = stdev(ssf, length) != 0
+	 ? ssf / stdev(ssf, length)
+	 : 0
+
+alpha = abs(scaledFilter) * 5 / length
+
+edsma = 0.0
+edsma := alpha * src + (1 - alpha) * nz(edsma[1])
+
+plot(edsma, title="EDSMA", linewidth=2, color=#6d1e7f, transp=0)

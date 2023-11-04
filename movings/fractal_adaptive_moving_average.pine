@@ -1,0 +1,29 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Fractal Adaptive Moving Average script may be freely distributed under the GPL-3.0 license.
+study(title="Fractal Adaptive Moving Average", shorttitle="FRAMA", overlay=true)
+
+length = input(title="Length", type=integer, defval=14)
+highlightMovements = input(title="Highlight Movements ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+length2 = floor(length / 2)
+
+hh2 = highest(length2)
+ll2 = lowest(length2)
+
+N1 = (hh2 - ll2) / length2
+
+N2 = (hh2[length2] - ll2[length2]) / length2
+
+N3 = (highest(length) - lowest(length)) / length
+
+D = (log(N1 + N2) - log(N3)) / log(2)
+
+factor = exp(-4.6 * (D - 1))
+
+frama = 0.0
+frama := factor * src + (1 - factor) * nz(frama[1])
+
+framaColor = highlightMovements ? (frama > frama[1] ? green : red) : #6d1e7f
+plot(frama, title="FRAMA", linewidth=2, color=framaColor, transp=0)

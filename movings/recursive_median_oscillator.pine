@@ -1,0 +1,23 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Recursive Median Filter script may be freely distributed under the terms of the GPL-3.0 license.
+study("Recursive Median Filter", shorttitle="RMF", overlay=true)
+
+medianLength = input(title="Length", type=integer, minval=1, defval=5)
+lowpassLength = input(title="Lowpass Length", type=integer, minval=1, defval=12)
+src = input(title="Source", type=source, defval=close)
+
+median(src, length) =>
+	percentile_nearest_rank(src, length, 50)
+
+PI = 2 * asin(1)
+
+alphaArg = 2 * PI / lowpassLength
+
+alpha = 0.0
+alpha := cos(alphaArg) != 0 ? (cos(alphaArg) + sin(alphaArg) - 1) / cos(alphaArg) : nz(alpha[1])
+
+rmf = 0.0
+rmf := alpha * median(src, medianLength) + (1 - alpha) * nz(rmf[1])
+
+plot(rmf, title="RMF", linewidth=2, color=#6d1e7f, transp=0)

@@ -1,0 +1,41 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ehlers Super Smoother Filter script may be freely distributed under the terms of the GPL-3.0 license.
+study("Ehlers Super Smoother Filter", shorttitle="ESSF", overlay=true)
+
+length = input(title="Length", type=integer, minval=1, defval=15)
+numberOfPoles = input(title="Number of Poles", type=integer, defval=2, options=[2, 3])
+src = input(title="Source", type=source, defval=close)
+
+PI = 2 * asin(1)
+
+get2PoleSSF(src, length) =>
+	arg = sqrt(2) * PI / length
+	a1 = exp(-arg)
+	b1 = 2 * a1 * cos(arg)
+	c2 = b1
+	c3 = -pow(a1, 2)
+	c1 = 1 - c2 - c3
+
+	ssf = 0.0
+	ssf := c1 * src + c2 * nz(ssf[1]) + c3 * nz(ssf[2])
+
+get3PoleSSF(src, length) =>
+	arg = PI / length
+	a1 = exp(-arg)
+	b1 = 2 * a1 * cos(1.738 * arg)
+	c1 = pow(a1, 2)
+
+	coef2 = b1 + c1
+	coef3 = -(c1 + b1 * c1)
+	coef4 = pow(c1, 2)
+	coef1 = 1 - coef2 - coef3 - coef4
+
+	ssf = 0.0
+	ssf := coef1 * src + coef2 * nz(ssf[1]) + coef3 * nz(ssf[2]) + coef4 * nz(ssf[3])
+
+essf = numberOfPoles == 2
+		 ? get2PoleSSF(src, length)
+		 : get3PoleSSF(src, length)
+
+plot(essf, title="ESSF", linewidth=2, color=#741b47, transp=0)

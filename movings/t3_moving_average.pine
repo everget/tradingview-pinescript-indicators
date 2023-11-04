@@ -1,0 +1,17 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// T3 Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("T3 Moving Average", shorttitle="T3", overlay=true)
+
+length = input(title="Length", type=input.integer, defval=5)
+factor = input(title="Factor", type=input.float, minval=0, maxval=1, defval=0.7)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+_gd(src, length) =>
+	ema(src, length) * (1 + factor) - ema(ema(src, length), length) * factor
+
+t3 = _gd(_gd(_gd(src, length), length), length)
+
+t3Color = highlight ? t3 > t3[1] ? color.green : color.red : #6d1e7f
+plot(t3, title="T3", linewidth=2, color=t3Color, transp=0)

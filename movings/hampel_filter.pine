@@ -1,0 +1,23 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Hampel Filter script may be freely distributed under the terms of the GPL-3.0 license.
+study("Hampel Filter", shorttitle="HF", overlay=true)
+
+length = input(title="Length", type=input.integer, minval=1, defval=14)
+scalingFactor = input(title="Scaling Factor", type=input.float, step=0.1, defval=3)
+src = input(title="Source", type=input.source, defval=close)
+
+_median(src, length) =>
+	percentile_nearest_rank(src, length, 50)
+
+sampleMedian = _median(src, length)
+
+// Median Absolute Deviation
+mad = _median(abs(src - sampleMedian), length)
+
+hf = abs(src - sampleMedian) <= scalingFactor * mad
+	 ? src
+	 : sampleMedian
+
+// Plot EMA of the filtered samples
+plot(ema(hf, length), title="HF", linewidth=2, color=#6d1e7f, transp=0)

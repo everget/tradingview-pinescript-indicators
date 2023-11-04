@@ -1,0 +1,21 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Holt Exponential Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Holt Exponential Moving Average", shorttitle="HEMA", overlay=true)
+
+alphaLength = input(title="Alpha Length", type=input.integer, defval=20, minval=1)
+gammaLength = input(title="Gamma Length", type=input.integer, defval=20, minval=1)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+alpha = 2 / (alphaLength + 1)
+gamma = 2 / (gammaLength + 1)
+
+b = 0.0
+hema = 0.0
+
+hema := (1 - alpha) * (nz(hema[1]) + nz(b[1], src)) + alpha * src
+b := (1 - gamma) * nz(b[1]) + gamma * (hema - nz(hema[1]))
+
+hemaColor = highlight ? hema > hema[1] ? color.green : color.red : #6d1e7f
+plot(hema, title="HEMA", linewidth=2, color=hemaColor, transp=0)

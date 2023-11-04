@@ -1,0 +1,25 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Laguerre Filter script may be freely distributed under the terms of the GPL-3.0 license.
+study("Laguerre Filter", shorttitle="LF", overlay=true)
+
+alpha = input(title="Alpha", type=input.float, minval=0, maxval=1, step=0.1, defval=0.7)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+L0 = 0.0
+L0 := alpha * src + (1 - alpha) * nz(L0[1])
+
+L1 = 0.0
+L1 := -(1 - alpha) * L0 + nz(L0[1]) + (1 - alpha) * nz(L1[1])
+
+L2 = 0.0
+L2 := -(1 - alpha) * L1 + nz(L1[1]) + (1 - alpha) * nz(L2[1])
+
+L3 = 0.0
+L3 := -(1 - alpha) * L2 + nz(L2[1]) + (1 - alpha) * nz(L3[1])
+
+lf = (L0 + 2 * L1 + 2 * L2 + L3) / 6
+
+lfColor = highlight ? lf > lf[1] ? color.green : color.red : #6d1e7f
+plot(lf, title="LF", linewidth=2, color=lfColor, transp=0)

@@ -1,0 +1,26 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Variable Index Dynamic Average script may be freely distributed under the GPL-3.0 license.
+study(title="Variable Index Dynamic Average", shorttitle="VIDYA", overlay=true)
+
+length = input(title="Length", type=integer, defval=14)
+highlightMovements = input(title="Highlight Movements ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+// Chande Momentum Oscillator
+getCMO(src, length) =>
+    mom = change(src)
+    upSum = sum(max(mom, 0), length)
+    downSum = sum(-min(mom, 0), length)
+    out = (upSum - downSum) / (upSum + downSum)
+    out
+
+cmo = abs(getCMO(src, length))
+
+alpha = 2 / (length + 1)
+
+vidya = 0.0
+vidya := src * alpha * cmo + nz(vidya[1]) * (1 - alpha * cmo)
+
+vidyaColor = highlightMovements ? (vidya > vidya[1] ? green : red) : #6d1e7f
+plot(vidya, title="VIDYA", linewidth=2, color=vidyaColor, transp=0)

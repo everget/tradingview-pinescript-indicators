@@ -1,0 +1,41 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Henderson Weighted Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Henderson Weighted Moving Average", shorttitle="HWMA", overlay=true)
+
+termsNumber = input(title="Terms Number", type=input.integer, minval=1, defval=7)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+// The general form of the weights of the (2m + 1)-term Henderson Weighted Moving Average
+_weight(m, j) =>
+	powj2 = pow(j, 2)
+	powm22 = pow(m + 2, 2)
+
+	numerator =
+		 315 * (pow(m + 1, 2) - powj2) *
+		 (powm22 - powj2) *
+		 (pow(m + 3, 2) - powj2) *
+		 (3 * powm22 - 11 * powj2 - 16)
+	denominator =
+		 8 * (m + 2) * (powm22 - 1) *
+		 (4 * powm22 - 1) *
+		 (4 * powm22 - 9) *
+		 (4 * powm22 - 25)
+	out = denominator != 0 ? numerator / denominator : 0
+	out
+
+sum = 0.0
+weightSum = 0.0
+
+termMult = floor((termsNumber - 1) / 2)
+
+for i = 0 to termsNumber - 1
+	weight = _weight(termMult, i - termMult)
+	sum := sum + nz(src[i]) * weight
+	weightSum := weightSum + weight
+
+hwma = sum / weightSum
+
+hwmaColor = highlight ? hwma > hwma[1] ? color.green : color.red : #6d1e7f
+plot(hwma, title="HWMA", linewidth=2, color=hwmaColor, transp=0)

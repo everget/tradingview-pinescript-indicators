@@ -1,0 +1,27 @@
+//@version=3
+// Copyright (c) 2019-present, Vitali Apirine
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Adaptive Exponential Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Adaptive Exponential Moving Average", shorttitle="AEMA", overlay=true)
+
+length = input(title="Length", type=integer, defval=10)
+hlLookback = input(title="Highest/Lowest Lookback", type=integer, defval=10)
+src = input(title="Source", type=source, defval=close)
+highlightMovements = input(title="Highlight Movements ?", type=bool, defval=false)
+
+hh = highest(hlLookback)
+ll = lowest(hlLookback)
+
+mltp1 = 2 / (length + 1)
+mltp2 = hh - ll != 0 ? abs(2 * src - ll - hh) / (hh - ll) : 0
+
+rate = mltp1 * (1 + mltp2)
+
+ma = 0.0
+if n <= length
+    ma := sma(src, length)
+else
+    ma := nz(ma[1], src) + rate * (src - nz(ma[1], src))
+
+maColor = highlightMovements ? (ma > ma[1] ? green : red) : #512da8
+plot(ma, title="AMA", linewidth=2, color=maColor, transp=0)

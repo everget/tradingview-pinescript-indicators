@@ -1,0 +1,27 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Inverse Distance Weighted Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Inverse Distance Weighted Moving Average", shorttitle="IDWMA", overlay=true)
+
+length = input(title="Length", type=integer, defval=14)
+highlightMovements = input(title="Highlight Movements ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+sum = 0.0
+weightSum = 0.0
+
+calcWeight(src, length, i) =>
+    distanceSum = 0.0
+    for j = 0 to length - 1
+        distanceSum := distanceSum + abs(nz(src[i]) - nz(src[j]))
+    distanceSum
+
+for i = 0 to length - 1
+    weight = calcWeight(src, length, i)
+    sum := sum + nz(src[i]) * weight
+    weightSum := weightSum + weight
+
+idwma = sum / weightSum
+
+idwmaColor = highlightMovements ? (idwma > idwma[1] ? green : red) : #6d1e7f
+plot(idwma, title="IDWMA", linewidth=2, color=idwmaColor, transp=0)

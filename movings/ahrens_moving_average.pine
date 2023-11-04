@@ -1,0 +1,15 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ahrens Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Ahrens Moving Average", shorttitle="AHMA", overlay=true)
+
+length = input(title="Length", type=input.integer, defval=9)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+ahma = 0.0
+ahma1 = nz(ahma[1])
+ahma := ahma1 + (src - (ahma1 + nz(ahma[length])) / 2) / length
+
+ahmaColor = highlight ? ahma > ahma[1] ? color.green : color.red : #6d1e7f
+plot(ahma, title="AHMA", linewidth=2, color=ahmaColor, transp=0)

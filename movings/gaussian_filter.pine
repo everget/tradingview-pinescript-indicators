@@ -1,0 +1,49 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Gaussian Filter script may be freely distributed under the terms of the GPL-3.0 license.
+study("Gaussian Filter", shorttitle="GF", overlay=true)
+
+cyclePeriod = input(title="Cycle Period", type=input.integer, minval=1, defval=14)
+polesNumber = input(title="Number of Poles", type=input.integer, defval=4, options=[1, 2, 3, 4])
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+PI = 2 * asin(1)
+beta = (1 - cos(2 * PI / cyclePeriod)) / (pow(2, 1 / polesNumber) - 1)
+alpha = -beta + sqrt(pow(beta, 2) + 2 * beta)
+
+_gf(poles) =>
+	filter = 0.0
+	filter1 = nz(filter[1], src)
+	filter2 = nz(filter[2], filter1)
+	filter3 = nz(filter[3], filter2)
+	filter4 = nz(filter[4], filter3)
+
+	if poles == 1
+		filter := alpha * src + (1 - alpha) * filter1
+
+	if poles == 2
+		filter :=
+			 pow(alpha, 2) * src +
+			 2 * (1 - alpha) * filter1 -
+			 pow(1 - alpha, 2) * filter2
+
+	if poles == 3
+		filter :=
+			 pow(alpha, 3) * src +
+			 3 * (1 - alpha) * filter1 -
+			 3 * pow(1 - alpha, 2) * filter2 +
+			 pow(1 - alpha, 3) * filter3
+
+	if poles == 4
+		filter :=
+			 pow(alpha, 4) * src +
+			 4 * (1 - alpha) * filter1 -
+			 6 * pow(1 - alpha, 2) * filter2 +
+			 4 * pow(1 - alpha, 3) * filter3 -
+			 pow(1 - alpha, 4) * filter4
+	filter
+
+gf = _gf(polesNumber)
+gfColor = highlight ? gf > gf[1] ? color.green : color.red : #6d1e7f
+plot(gf, title="GF", linewidth=2, color=gfColor, transp=0)

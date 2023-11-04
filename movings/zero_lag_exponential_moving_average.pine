@@ -1,0 +1,14 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Zero Lag Exponential Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Zero Lag Exponential Moving Average", shorttitle="ZLEMA", overlay=true)
+
+length = input(title="Length", type=input.integer, defval=14)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+lag = floor((length - 1) / 2)
+zlema = ema(src + (src - src[lag]), length)
+
+zlemaColor = highlight ? zlema > zlema[1] ? color.green : color.red : #6d1e7f
+plot(zlema, title="ZLEMA", linewidth=2, color=zlemaColor, transp=0)

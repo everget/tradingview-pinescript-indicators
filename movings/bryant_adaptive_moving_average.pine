@@ -1,0 +1,31 @@
+//@version=3
+// Copyright (c) 2014-present, Michael R. Bryant
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Bryant Adaptive Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Bryant Adaptive Moving Average", shorttitle="BAMA", overlay=true)
+
+length = input(title="Length", type=integer, defval=14)
+trendParam = input(title="Trend Parameter", type=float, defval=-1, step=0.1)
+maxLength = input(title="Max Length", type=integer, defval=100)
+highlightMovements = input(title="Highlight Movements ?", type=bool, defval=false)
+src = input(title="Source", type=source, defval=close)
+
+mom = abs(change(src, length))
+volatility = sum(abs(change(src)), length)
+
+// Efficiency Ratio
+er = volatility != 0 ? mom / volatility : 0
+
+// Variable Efficiency Ratio
+ver = pow(er - (2 * er - 1) / 2 * (1 - trendParam) + 0.5, 2)
+
+vlength = (length - ver + 1) / ver
+vlength := vlength > maxLength ? maxLength : vlength
+
+valpha = 2 / (vlength + 1)
+
+bama = src
+bama := valpha * src + (1 - valpha) * nz(bama[1], bama)
+
+bamaColor = highlightMovements ? (bama > bama[1] ? green : red) : #6d1e7f
+plot(bama, title="BAMA", linewidth=2, color=bamaColor, transp=0)

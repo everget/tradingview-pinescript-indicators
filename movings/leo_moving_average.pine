@@ -1,0 +1,14 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Leo Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Leo Moving Average", shorttitle="LMA", overlay=true)
+
+length = input(title="Length", type=integer, minval=1, defval=14)
+highlightMovements = input(title="Highlight Movements ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+lma = 2 * wma(src, length) - sma(src, length)
+
+lmaColor = highlightMovements ? (lma > lma[1] ? green : red) : #6d1e7f
+
+plot(lma, title="LMA", linewidth=2, color=lmaColor, transp=0)

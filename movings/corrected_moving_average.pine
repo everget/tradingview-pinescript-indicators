@@ -1,0 +1,44 @@
+//@version=4
+// Copyright (c) 2020-present, Alex Orekhov (everget)
+// Corrected Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Corrected Moving Average", shorttitle="CMA", overlay=true)
+
+length = input(title="Length", type=input.integer, defval=35)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight CMA ?", type=input.bool, defval=false)
+applyFilling = input(title="Apply Ribbon Filling ?", type=input.bool, defval=true)
+
+sma = sma(src, length)
+cma = sma
+
+v1 = variance(src, length)
+v2 = pow(nz(cma[1], cma) - sma, 2)
+v3 = v1 == 0 or v2 == 0 ? 1 : v2 / (v1 + v2)
+
+var tolerance = pow(10, -5)
+float err = 1
+
+// Gain Factor
+float kPrev = 1
+float k = 1
+
+for i = 0 to 5000
+    if err > tolerance
+        k := v3 * kPrev * (2 - kPrev)
+        err := kPrev - k
+        kPrev := k
+
+cma := nz(cma[1], src) + k * (sma - nz(cma[1], src))
+
+cmaColor = highlight ? (cma > cma[1] ? color.green : color.red) : color.orange
+cmaPlot = plot(cma, title="CMA", linewidth=2, color=cmaColor)
+smaPlot = plot(sma, title="SMA", linewidth=2, color=color.blue)
+
+fillColor = applyFilling ? (sma > cma ? #0ebb23 : #cc0000) : color.new(color.white, 100) 
+fill(smaPlot, cmaPlot, color=fillColor, transp=80)
+
+long = crossover(sma, cma)
+short = crossunder(sma, cma)
+
+alertcondition(long, title="Long", message="Long")
+alertcondition(short, title="Short", message="Short")

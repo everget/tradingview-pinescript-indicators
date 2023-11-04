@@ -1,0 +1,58 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Adaptive Laguerre Filter script may be freely distributed under the terms of the GPL-3.0 license.
+study("Adaptive Laguerre Filter", shorttitle="ALF", overlay=true)
+
+length = input(title="Length", type=input.integer, defval=14)
+medianLength = input(title="Median Length", type=input.integer, defval=5)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+awaitBarConfirmation = input(title="Await Bar Confirmation ?", type=input.bool, defval=true)
+
+_median(src, length) =>
+	percentile_nearest_rank(src, length, 50)
+
+alf = 0.0
+
+diff = abs(src - nz(alf[1], src))
+
+HH = 0.0
+HH := diff
+
+LL = 0.0
+LL := diff
+
+for i = 0 to length - 1
+	if nz(diff[i]) > HH
+		HH := nz(diff[i])
+		HH
+
+	if nz(diff[i]) < LL
+		LL := nz(diff[i])
+		LL
+
+alpha = 0.0
+alpha := HH - LL != 0.0 ? _median((diff - LL) / (HH - LL), medianLength) : nz(alpha[1], 2 / (length + 1))
+alpha2 = 1 - alpha
+
+L0 = 0.0
+L0 := alpha * src + alpha2 * nz(L0[1], src)
+
+L1 = 0.0
+L1 := nz(L0[1], src) + alpha2 * (nz(L1[1], src) - L0)
+
+L2 = 0.0
+L2 := nz(L1[1], src) + alpha2 * (nz(L2[1], src) - L1)
+
+L3 = 0.0
+L3 := nz(L2[1], src) + alpha2 * (nz(L3[1], src) - L2)
+
+alf := (L0 + 2 * L1 + 2 * L2 + L3) / 6
+
+await = awaitBarConfirmation ? barstate.isconfirmed : true
+
+alfColor = highlight ? (alf > alf[1] and await ? color.green : color.red) : #6d1e7f
+plot(alf, title="ALF", linewidth=2, color=alfColor, transp=0)
+
+alertCond = alfColor != alfColor[1] and await
+alertcondition(alertCond, title="Color Change", message="ALF has changed its color!")

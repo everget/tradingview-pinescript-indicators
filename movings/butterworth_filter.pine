@@ -1,0 +1,56 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Butterworth Filter script may be freely distributed under the terms of the GPL-3.0 license.
+study("Butterworth Filter", shorttitle="BF", overlay=true)
+
+length = input(title="Length", type=input.integer, minval=1, defval=14)
+poles = input(title="Poles", type=input.integer, defval=2, options=[2, 3])
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+PI = 2 * asin(1)
+
+_bf2(src, length) =>
+	a = exp(-sqrt(2) * PI / length)
+	b = 2 * a * cos(sqrt(2) * PI / length)
+
+	src1 = nz(src[1], src)
+	src2 = nz(src[2], src1)
+
+	bf = 0.0
+	bf1 = nz(bf[1], src)
+	bf2 = nz(bf[2], bf1)
+
+	bf :=
+		 b * bf1 -
+		 pow(a, 2) * bf2 +
+		 (1 - b + pow(a, 2)) / 4 * (src + 2 * src1 + src2)
+	bf
+
+_bf3(src, length) =>
+	a = exp(-PI / length)
+	b = 2 * a * cos(1.738 * PI / length)
+	c = pow(a, 2)
+
+	src1 = nz(src[1], src)
+	src2 = nz(src[2], src1)
+	src3 = nz(src[3], src2)
+
+	bf = 0.0
+	bf1 = nz(bf[1], src)
+	bf2 = nz(bf[2], bf1)
+	bf3 = nz(bf[3], bf2)
+
+	bf :=
+		 (b + c) * bf1 -
+		 (c + b * c) * bf2 +
+		 pow(c, 2) * bf3 +
+		 (1 - b + c) * (1 - c) / 8 * (src + 3 * src1 + 3 * src2 + src3)
+	bf
+
+bf = poles == 2
+	 ? _bf2(src, length)
+	 : _bf3(src, length)
+
+bfColor = highlight ? bf > bf[1] ? color.green : color.red : #6d1e7f
+plot(bf, title="BF", linewidth=2, color=bfColor, transp=0)

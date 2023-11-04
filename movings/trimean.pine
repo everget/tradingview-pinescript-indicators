@@ -1,0 +1,17 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Trimean script may be freely distributed under the terms of the GPL-3.0 license.
+study("Trimean", shorttitle="Trimean", overlay=true)
+
+length = input(title="Length", type=input.integer, minval=1, defval=14)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+q1 = percentile_nearest_rank(src, length, 25)
+median = percentile_nearest_rank(src, length, 50)
+q3 = percentile_nearest_rank(src, length, 75)
+
+trimean = (q1 + 2 * median + q3) / 4
+
+trimeanColor = highlight ? trimean > trimean[1] ? color.green : color.red : #6d1e7f
+plot(trimean, title="Trimean", linewidth=2, color=trimeanColor, transp=0)

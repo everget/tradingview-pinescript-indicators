@@ -1,0 +1,26 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Apirine Adaptive Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
+study("Apirine Adaptive Moving Average", shorttitle="AAMA", overlay=true)
+
+length = input(title="Length", type=input.integer, defval=14)
+fastLength = input(title="Fast EMA Length", type=input.integer, defval=2)
+slowLength = input(title="Slow EMA Length", type=input.integer, defval=30)
+src = input(title="Source", type=input.source, defval=close)
+highlight = input(title="Highlight ?", type=input.bool, defval=true)
+
+fastAlpha = 2 / (fastLength + 1)
+slowAlpha = 2 / (slowLength + 1)
+
+hh = highest(length + 1)
+ll = lowest(length + 1)
+
+mltp = hh - ll != 0 ? abs(2 * src - ll - hh) / (hh - ll) : 0
+
+ssc = mltp * (fastAlpha - slowAlpha) + slowAlpha
+
+aama = 0.0
+aama := nz(aama[1], src) + pow(ssc, 2) * (src - nz(aama[1], src))
+
+aamaColor = highlight ? aama > aama[1] ? color.green : color.red : #6d1e7f
+plot(aama, title="AAMA", linewidth=2, color=aamaColor, transp=0)
