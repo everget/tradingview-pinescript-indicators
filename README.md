@@ -1,3 +1,3 @@
 # tradingview-pinescript-indicators
 
-A collection of the various technical indicators implemented in Pine Script Language
+A collection of various technical indicators implemented in the Pine Script language for the TradingView platform.
