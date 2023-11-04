@@ -1,0 +1,180 @@
+//@version=4
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Close-to-Close % Change Distribution script may be freely distributed under the terms of GPL-3.0 license.
+study("Close-to-Close % Change Distribution")
+
+reboot = input(title="Reboot ?", defval=false)
+width = input(title="Columns Width", defval=12)
+space = input(title="Space Between Columns", defval=4)
+
+columnColor = #ffb74d
+labelColor = #1e90ff
+whiteColor = color.white
+
+roc = roc(close, 1)
+total = bar_index + 1
+
+p025 = cum(0 <= roc and roc < 0.25 ? 1 : 0)
+plot(100 * p025 / total, offset=(-23 * space), title="0-0.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(23.5 * space)), title="0%", text=" 0% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+p05 = cum(0.25 <= roc and roc < 0.5 ? 1 : 0)
+plot(100 * p05 / total, offset=(-22 * space), title="0.25-0.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p075 = cum(0.5 <= roc and roc < 0.75 ? 1 : 0)
+plot(100 * p075 / total, offset=(-21 * space), title="0.5-0.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p1 = cum(0.75 <= roc and roc < 1 ? 1 : 0)
+plot(100 * p1 / total, offset=(-20 * space), title="0.75-1%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p125 = cum(1 <= roc and roc < 1.25 ? 1 : 0)
+plot(100 * p125 / total, offset=(-19 * space), title="1-1.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(19.5 * space)), title="1%", text=" 1% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+p15 = cum(1.25 <= roc and roc < 1.5 ? 1 : 0)
+plot(100 * p15 / total, offset=(-18 * space), title="1.25-1.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p175 = cum(1.5 <= roc and roc < 1.75 ? 1 : 0)
+plot(100 * p175 / total, offset=(-17 * space), title="1.5-1.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p2 = cum(1.75 <= roc and roc < 2 ? 1 : 0)
+plot(100 * p2 / total, offset=(-16 * space), title="1.75-2%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p225 = cum(2 <= roc and roc < 2.25 ? 1 : 0)
+plot(100 * p225 / total, offset=(-15 * space), title="2-2.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(15.5 * space)), title="2%", text=" 2% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+p25 = cum(2.25 <= roc and roc < 2.5 ? 1 : 0)
+plot(100 * p25 / total, offset=(-14 * space), title="2.25-2.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p275 = cum(2.5 <= roc and roc < 2.75 ? 1 : 0)
+plot(100 * p275 / total, offset=(-13 * space), title="2.5-2.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p3 = cum(2.75 <= roc and roc < 3 ? 1 : 0)
+plot(100 * p3 / total, offset=(-12 * space), title="2.75-3%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p325 = cum(3 <= roc and roc < 3.25 ? 1 : 0)
+plot(100 * p325 / total, offset=(-11 * space), title="3-3.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(11.5 * space)), title="3%", text=" 3% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+p35 = cum(3.25 <= roc and roc < 3.5 ? 1 : 0)
+plot(100 * p35 / total, offset=(-10 * space), title="3.25-3.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p375 = cum(3.5 <= roc and roc < 3.75 ? 1 : 0)
+plot(100 * p375 / total, offset=(-9 * space), title="3.5-3.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p4 = cum(3.75 <= roc and roc < 4 ? 1 : 0)
+plot(100 * p4 / total, offset=(-8 * space), title="3.75-4%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p425 = cum(4 <= roc and roc < 4.25 ? 1 : 0)
+plot(100 * p425 / total, offset=(-7 * space), title="4-4.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(7.5 * space)), title="4%", text=" 4% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+p45 = cum(4.25 <= roc and roc < 4.5 ? 1 : 0)
+plot(100 * p45 / total, offset=(-6 * space), title="4.25-4.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p475 = cum(4.5 <= roc and roc < 4.75 ? 1 : 0)
+plot(100 * p475 / total, offset=(-5 * space), title="4.5-4.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p5 = cum(4.75 <= roc and roc < 5 ? 1 : 0)
+plot(100 * p5 / total, offset=(-4 * space), title="4.75-5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p525 = cum(5 <= roc and roc < 5.25 ? 1 : 0)
+plot(100 * p525 / total, offset=(-3 * space), title="5-5.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(3.5 * space)), title="5%", text=" 5% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+p55 = cum(5.25 <= roc and roc < 5.5 ? 1 : 0)
+plot(100 * p55 / total, offset=(-2 * space), title="5.25-5.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p575 = cum(5.5 <= roc and roc < 5.75 ? 1 : 0)
+plot(100 * p575 / total, offset=(-1 * space), title="5.5-5.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p6 = cum(5.75 <= roc and roc < 6 ? 1 : 0)
+plot(100 * p6 / total, offset=(0 * space), title="5.75-6%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+p625 = cum(roc >= 6 ? 1 : 0)
+plot(100 * p625 / total, offset=(1 * space), title="≥ 6%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(floor(0.5 * space)), title="≥ 6%", text=" ≥ 6% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+//------------------------------------------------------------------------------
+
+n025 = cum(-0.25 < roc and roc < 0 ? 1 : 0)
+plot(100 * n025 / total, offset=(-24 * space), title="-0-0.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n05 = cum(-0.5 < roc and roc <= -0.25 ? 1 : 0)
+plot(100 * n05 / total, offset=(-25 * space), title="-0.25-0.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n075 = cum(-0.75 < roc and roc <= -0.5 ? 1 : 0)
+plot(100 * n075 / total, offset=(-26 * space), title="-0.5-0.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n1 = cum(-1 < roc and roc <= -0.75 ? 1 : 0)
+plot(100 * n1 / total, offset=(-27 * space), title="-0.75-1%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n125 = cum(-1.25 < roc and roc <= -1 ? 1 : 0)
+plot(100 * n125 / total, offset=(-28 * space), title="-1-1.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(27.5 * space)), title="-1%", text=" -1% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+n15 = cum(-1.5 < roc and roc <= -1.25 ? 1 : 0)
+plot(100 * n15 / total, offset=(-29 * space), title="-1.25-1.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n175 = cum(-1.75 < roc and roc <= -1.5 ? 1 : 0)
+plot(100 * n175 / total, offset=(-30 * space), title="-1.5-1.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n2 = cum(-2 < roc and roc <= -1.75 ? 1 : 0)
+plot(100 * n2 / total, offset=(-31 * space), title="-1.75-2%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n225 = cum(-2.25 < roc and roc <= -2 ? 1 : 0)
+plot(100 * n225 / total, offset=(-32 * space), title="-2-2.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(31.5 * space)), title="-2%", text=" -2% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+n25 = cum(-2.5 < roc and roc <= -2.25 ? 1 : 0)
+plot(100 * n25 / total, offset=(-33 * space), title="-2.25-2.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n275 = cum(-2.75 < roc and roc <= -2.5 ? 1 : 0)
+plot(100 * n275 / total, offset=(-34 * space), title="-2.5-2.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n3 = cum(-3 < roc and roc <= -2.75 ? 1 : 0)
+plot(100 * n3 / total, offset=(-35 * space), title="-2.75-3%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n325 = cum(-3.25 < roc and roc <= -3 ? 1 : 0)
+plot(100 * n325 / total, offset=(-36 * space), title="-3-3.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(35.5 * space)), title="-3%", text=" -3% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+n35 = cum(-3.5 < roc and roc <= -3.25 ? 1 : 0)
+plot(100 * n35 / total, offset=(-37 * space), title="-3.25-3.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n375 = cum(-3.75 < roc and roc <= -3.5 ? 1 : 0)
+plot(100 * n375 / total, offset=(-38 * space), title="-3.5-3.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n4 = cum(-4 < roc and roc <= -3.75 ? 1 : 0)
+plot(100 * n4 / total, offset=(-39 * space), title="-3.75-4%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n425 = cum(-4.25 < roc and roc <= -4 ? 1 : 0)
+plot(100 * n425 / total, offset=(-40 * space), title="-4-4.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(39.5 * space)), title="-4%", text=" -4% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+n45 = cum(-4.5 < roc and roc <= -4.25 ? 1 : 0)
+plot(100 * n45 / total, offset=(-41 * space), title="-4.25-4.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n475 = cum(-4.75 < roc and roc <= -4.5 ? 1 : 0)
+plot(100 * n475 / total, offset=(-42 * space), title="-4.5-4.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n5 = cum(-5 < roc and roc <= -4.75 ? 1 : 0)
+plot(100 * n5 / total, offset=(-43 * space), title="-4.75-5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n525 = cum(-5.25 < roc and roc <= -5 ? 1 : 0)
+plot(100 * n525 / total, offset=(-44 * space), title="-5-5.25%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(43.5 * space)), title="-5%", text=" -5% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+n55 = cum(-5.5 < roc and roc <= -5.25 ? 1 : 0)
+plot(100 * n55 / total, offset=(-45 * space), title="-5.25-5.5%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n575 = cum(-5.75 < roc and roc <= -5.5 ? 1 : 0)
+plot(100 * n575 / total, offset=(-46 * space), title="-5.5-5.75%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n6 = cum(-6 < roc and roc <= -5.75 ? 1 : 0)
+plot(100 * n6 / total, offset=(-47 * space), title="-5.75-6%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+
+n625 = cum(roc <= -6 ? 1 : 0)
+plot(100 * n625 / total, offset=(-48 * space), title="≤ -6%", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-floor(47.5 * space)), title="≤ -6%", text=" ≤ -6% ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)

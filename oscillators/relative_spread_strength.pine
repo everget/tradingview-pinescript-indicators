@@ -1,0 +1,38 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Relative Spread Strength script may be freely distributed under the terms of the GPL-3.0 license.
+study("Relative Spread Strength", shorttitle="RSS")
+
+rsiLength = input(title="RSI Length", type=integer, defval=14, minval=1)
+fastLength = input(title="Fast MA Length", type=integer, defval=10, minval=1)
+slowLength = input(title="Slow MA Length", type=integer, defval=40, minval=1)
+smoothingLength = input(title="Smoothing Length", type=integer, defval=5, minval=1)
+smoothingType = input(title="Smoothing Type", defval="EMA", options=["EMA", "SMA"])
+highLevel = input(title="High Level", type=integer, defval=80, maxval=100)
+lowLevel = input(title="Low Level", type=integer, defval=20, minval=0)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+spread = smoothingType == "EMA" ? ema(src, fastLength) - ema(src, slowLength) : sma(src, fastLength) - sma(src, slowLength)
+
+rs = rsi(spread, rsiLength)
+rss = sma(rs, smoothingLength)
+
+rssColor = rss > highLevel ? #0ebb23 : rss < lowLevel ? #ff0000 : #f4b77d
+plot(rss, title="RSS", linewidth=2, color=rssColor, transp=0)
+
+transparent = color(white, 100)
+
+maxLevelPlot = hline(100, title="Max Level", linestyle=dotted, color=transparent)
+highLevelPlot = hline(highLevel, title="High Level", linestyle=dotted)
+hline(50, title="Middle Level", linestyle=dotted)
+lowLevelPlot = hline(lowLevel, title="Low Level", linestyle=dotted)
+minLevelPlot = hline(0, title="Min Level", linestyle=dotted, color=transparent)
+
+fill(highLevelPlot, lowLevelPlot, color=purple, transp=95)
+
+highFillColor = rss > highLevel and highlightBreakouts ? green : transparent
+lowFillColor = rss < lowLevel and highlightBreakouts ? red : transparent
+
+fill(maxLevelPlot, highLevelPlot, color=highFillColor, transp=90)
+fill(minLevelPlot, lowLevelPlot, color=lowFillColor, transp=90)

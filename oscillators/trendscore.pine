@@ -1,0 +1,17 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Trendscore script may be freely distributed under the terms of the GPL-3.0 license.
+study("Trendscore", shorttitle="Trendscore")
+
+fromIndex = input(title="From", type=integer, minval=1, defval=11)
+toIndex = input(title="To", type=integer, minval=1, defval=20)
+src = input(title="Source", type=source, defval=close)
+
+trendscore(src, fromIndex, toIndex) =>
+	sum = 0.0
+
+	for i = fromIndex to toIndex
+		sum := src >= nz(src[i]) ? sum + 1 : sum - 1
+	sum
+
+plot(trendscore(src, fromIndex, toIndex), title="Trendscore", linewidth=2, color=#e69138, transp=0)

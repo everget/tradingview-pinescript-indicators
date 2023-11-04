@@ -1,0 +1,43 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Laguerre RSI (Self Adjusting Alpha with Fractals Energy) script may be freely distributed under the terms of the GPL-3.0 license.
+study("Laguerre RSI (Self Adjusting Alpha with Fractals Energy)", shorttitle="LRSI")
+
+alpha = input(title="Alpha", type=float, minval=0, step=0.1, defval=0.7)
+applyFractalEnergy = input(title="Apply Fractal Energy ?", type=bool, defval=true)
+feLength = input(title="Fractals Energy Length", type=integer, minval=1, defval=13)
+src = input(title="Source", type=source, defval=close)
+
+OC = (open + nz(close[1])) / 2
+HC = max(high, nz(close[1]))
+LC = min(low, nz(close[1]))
+
+feSrc = (OC + HC + LC + close) / 4
+
+feAlpha = log(sum((max(high, nz(close[1])) - min(low, nz(close[1]))) / (highest(high, feLength) - lowest(low, feLength)), feLength)) / log(feLength)
+
+L0 = 0.0
+L1 = 0.0
+L2 = 0.0
+L3 = 0.0
+
+lrsiAlpha = applyFractalEnergy ? feAlpha : alpha
+
+L0 := lrsiAlpha * (applyFractalEnergy ? feSrc : src) + (1 - lrsiAlpha) * nz(L0[1])
+L1 := -(1 - lrsiAlpha) * L0 + nz(L0[1]) + (1 - lrsiAlpha) * nz(L1[1])
+L2 := -(1 - lrsiAlpha) * L1 + nz(L1[1]) + (1 - lrsiAlpha) * nz(L2[1])
+L3 := -(1 - lrsiAlpha) * L2 + nz(L2[1]) + (1 - lrsiAlpha) * nz(L3[1])
+
+CU = 0.0
+CD = 0.0
+
+CU := (L0 >= L1 ? L0 - L1 : 0) + (L1 >= L2 ? L1 - L2 : 0) + (L2 >= L3 ? L2 - L3 : 0)
+CD := (L0 >= L1 ? 0 : L1 - L0) + (L1 >= L2 ? 0 : L2 - L1) + (L2 >= L3 ? 0 : L3 - L2)
+
+lrsi = iff(CU + CD != 0, CU / (CU + CD), 0)
+
+overboughtLevel = hline(0.8, title="Overbought Level", linestyle=dashed, color=#686868)
+oversoldLevel = hline(0.2, title="Oversold Level", linestyle=dashed, color=#686868)
+
+plot(lrsi, title="LRSI", linewidth=2, color=#ff3e7d, transp=0)
+plot(applyFractalEnergy ? feAlpha : na, title="FE Alpha", linewidth=2, color=#674ea7, transp=0)

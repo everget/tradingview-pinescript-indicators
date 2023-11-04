@@ -1,0 +1,59 @@
+//@version=4
+// Copyright (c) 2020-present, Alex Orekhov (everget)
+// Return on Investment (ROI) script may be freely distributed under the terms of GPL-3.0 license.
+study("Return on Investment (ROI)", shorttitle="ROI", precision=2)
+
+// mode = input(title="Display Mode", defval="Regular", options=["Regular", "Annualized"])
+
+useDate = input(title="Use Specific Start Date ?", defval=true)
+yearStart = input(title="Start Year", defval=2019)
+monthStart = input(title="Start Month", minval=1, maxval=12, defval=1)
+dayStart = input(title="Start Day", minval=1, maxval=31, defval=1)
+
+tp = input(title="Profit Level, %", type=input.integer, defval=0, minval=0)
+sl = input(title="Loss Level, %", type=input.integer, defval=0, maxval=0)
+
+startTime = timestamp(yearStart, monthStart, dayStart, 0, 0)
+
+index = float(na)
+index := na(index[1]) ? valuewhen(time(timeframe.period) >= startTime, bar_index, 0) : index[1]
+
+initialCond = useDate ? bar_index == index : bar_index == 0
+initialRegular = valuewhen(initialCond, open, 0)
+// initialAnnualized = valuewhen(initialCond, close, 0)
+
+roiRegular = 100 * (close - initialRegular) / initialRegular
+
+// bars = bar_index - index
+// power = 1 / ((useDate ? (bars != 0 ? bars : 1) : bar_index) / 365)
+// roiAnnualized = 100 * (pow(close / initialAnnualized, power) - 1)
+
+roi = roiRegular //mode == "Regular" ? roiRegular : roiAnnualized
+roiPlot = plot(roi, title="ROI, %", color=color.black)
+
+transparent = color.new(color.white, 100)
+roiColor = roi < 0 ? color.red : #09b71e
+labelColor = #f9ce02
+levelColor = #674ea7
+
+bgcolor(year != year[1] ? #f57f17 : transparent, title="Year Separator", transp=60)
+
+zeroPlot = plot(0, title="", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(0, title="Zero Level", linestyle=hline.style_dotted, color=levelColor)
+
+fill(roiPlot, zeroPlot, title="Base Background", color=roiColor, transp=80)
+
+tpPlot = plot(tp, title="Profit", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(tp, title="Profit Level", linestyle=hline.style_dotted, color=levelColor)
+
+tpFillColor = tp > 0 and roi > tp ? #09b71e : transparent
+fill(tpPlot, roiPlot, title="Profit Background", color=tpFillColor, transp=60)
+
+slPlot = plot(sl, title="Loss", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(sl, title="Loss Level", linestyle=hline.style_dotted, color=levelColor)
+
+slFillColor = sl < 0 and roi < sl ? color.red : transparent
+fill(slPlot, roiPlot, title="Loss Background", color=slFillColor, transp=60)
+
+alertcondition(crossover(roi, tp), title="ROI Profit Level Crossover", message="ROI Profit Level Crossover")
+alertcondition(crossunder(roi, sl), title="ROI Loss Level Crossunder", message="ROI Loss Level Crossunder")

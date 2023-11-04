@@ -1,0 +1,57 @@
+//@version=4
+// Copyright (c) 2020-present, Alex Orekhov (everget)
+// Volume Accumulation script may be freely distributed under the terms of GPL-3.0 license.
+study("Volume Accumulation", format=format.volume)
+
+type = input(title="Type", defval="Daily", options=["Minutely", "Hourly", "Session", "Daily", "Monthly", "Quarterly", "Yearly"])
+sessionInput = input(title="Session (only for 'Session' type)", type=input.session, defval="0900-1530")
+includeWeekends = input(title="Include Weekends ?", defval=true)
+
+_inSession(res, sess) =>
+    t = time(res, sess)
+    na(t[1]) and not na(t) or t[1] < t
+
+min = minute(time)
+h = hour(time)
+d = dayofmonth(time)
+m = month(time)
+y = year(time)
+
+q1 = m == 1 or m == 2 or m == 3
+q2 = m == 4 or m == 5 or m == 6
+q3 = m == 7 or m == 8 or m == 9
+q4 = m == 10 or m == 11 or m == 12
+
+q =
+     q1 ? 1 :
+     q2 ? 2 :
+     q3 ? 3 :
+     4
+
+session = includeWeekends ? sessionInput + ":1234567" : sessionInput
+s = _inSession(timeframe.period, session) ? 1 : 0
+
+int p =
+     type == "Minutely" ? min :
+     type == "Hourly" ? h :
+     type == "Session" ? s :
+     type == "Daily" ? d :
+     type == "Monthly" ? m :
+     type == "Quarterly" ? q :
+     type == "Yearly" ? y :
+     na
+
+var acc = 0.0
+acc := p != p[1] ? volume : nz(acc[1]) + volume
+
+var accPrev = 0.0
+accPrev := p != p[1] ? acc[1] : accPrev
+
+accColor = acc > accPrev ? #92df8bff : #fe9695ff
+plot(acc, title="Accumulation", style=plot.style_columns, color=accColor)
+
+transparent = color.new(color.white, 100)
+bgcolor(p != p[1] ? #ffcc80 : transparent, title="Separator", transp=60)
+
+higherAlert = acc > accPrev
+alertcondition(higherAlert, title="Higher Accumulation", message="Higher Accumulation")

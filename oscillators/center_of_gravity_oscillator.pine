@@ -1,0 +1,23 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// CG Oscillator script may be freely distributed under the terms of the GPL-3.0 license.
+study("CG Oscillator", shorttitle="CGO")
+
+length = input(title="Length", type=integer, minval=1, defval=10)
+applyFilling = input(title="Apply Filling ?", type=bool, defval=false)
+src = input(title="Source", type=source, defval=hl2)
+
+numeratorSum = 0.0
+denominatorSum = 0.0
+
+for i = 0 to length - 1
+	numeratorSum := numeratorSum + (i + 1) * nz(src[i])
+	denominatorSum := denominatorSum + nz(src[i])
+
+cgo = -numeratorSum / denominatorSum
+
+cgoPlot = plot(cgo, title="CGO", color=#3d85c6, transp=0)
+cgoPrevPlot = plot(cgo[1], title="CGO Prev", color=#ff3e7d, transp=0)
+
+fillColor = applyFilling ? (cgo > cgo[1] ? #0ebb23 : #cc0000) : color(white, 100)
+fill(cgoPlot, cgoPrevPlot, color=fillColor, transp=0)

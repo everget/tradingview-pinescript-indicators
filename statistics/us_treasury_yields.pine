@@ -1,0 +1,94 @@
+//@version=4
+// Copyright (c) 2020-present, Alex Orekhov (everget)
+// US Treasury Yields script may be freely distributed under the terms of GPL-3.0 license.
+study("US Treasury Yields", format=format.price)
+
+mode = input(title="Display Mode", defval="Columns", options=["Lines", "Columns"])
+lineWidth = input(title="Lines Width", type=input.integer, defval=2)
+columnWidth = input(title="Columns Width", type=input.integer, defval=12)
+space = input(title="Space Between Columns", type=input.integer, defval=8)
+
+//------------------------------------------------------------------------------
+
+_get(sym) =>
+	out = nz(security(sym, timeframe.period, close, barmerge.gaps_off, barmerge.lookahead_on))
+	out
+
+//------------------------------------------------------------------------------
+
+modeLines = mode == "Lines"
+
+labelColor = #1e90ff
+textColor = color.white
+
+US30Y = _get("TVC:US30Y")
+
+plot(not modeLines ? US30Y : na, title="30Y, %", offset=(0 * space), color=#f1625e, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US30Y : na, title="30Y, %", color=#f1625e, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US30Y, 0) : na, offset=(0 * space), title="US30Y", text=" 30Y ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US10Y = _get("TVC:US10Y")
+
+plot(not modeLines ? US10Y : na, title="10Y, %", offset=(-1 * space), color=#9ace73, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US10Y : na, title="10Y, %", color=#9ace73, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US10Y, 0) : na, offset=(-1 * space), title="US10Y", text=" 10Y ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US07Y = _get("TVC:US07Y")
+
+plot(not modeLines ? US07Y : na, title="7Y, %", offset=(-2 * space), color=#ffdf82, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US07Y : na, title="7Y, %", color=#ffdf82, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US07Y, 0) : na, offset=(-2 * space), title="US07Y", text=" 7Y ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US05Y = _get("TVC:US05Y")
+
+plot(not modeLines ? US05Y : na, title="5Y, %", offset=(-3 * space), color=#bb8954, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US05Y : na, title="5Y, %", color=#bb8954, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US05Y, 0) : na, offset=(-3 * space), title="US05Y", text=" 5Y ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US03Y = _get("TVC:US03Y")
+
+plot(not modeLines ? US03Y : na, title="3Y, %", offset=(-4 * space), color=#4363d8, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US03Y : na, title="3Y, %", color=#4363d8, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US03Y, 0) : na, offset=(-4 * space), title="US03Y", text=" 3Y ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US02Y = _get("TVC:US02Y")
+
+plot(not modeLines ? US02Y : na, title="2Y, %", offset=(-5 * space), color=#c46c54, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US02Y : na, title="2Y, %", color=#c46c54, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US02Y, 0) : na, offset=(-5 * space), title="US02Y", text=" 2Y ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US01Y = _get("TVC:US01Y")
+
+plot(not modeLines ? US01Y : na, title="1Y, %", offset=(-6 * space), color=#5ec27c, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US01Y : na, title="1Y, %", color=#5ec27c, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US01Y, 0) : na, offset=(-6 * space), title="US01Y", text=" 1Y ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US06MY = _get("TVC:US06MY")
+
+plot(not modeLines ? US06MY : na, title="6M, %", offset=(-7 * space), color=#e6194b, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US06MY : na, title="6M, %", color=#e6194b, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US06MY, 0) : na, offset=(-7 * space), title="US06MY", text=" 6M ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US03MY = _get("TVC:US03MY")
+
+plot(not modeLines ? US03MY : na, title="3M, %", offset=(-8 * space), color=#3cb44b, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US03MY : na, title="3M, %", color=#3cb44b, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US03MY, 0) : na, offset=(-8 * space), title="US03MY", text=" 3M ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US02MY = _get("TVC:US02MY")
+
+plot(not modeLines ? US02MY : na, title="2M, %", offset=(-9 * space), color=#ffe119, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US02MY : na, title="2M, %", color=#ffe119, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US02MY, 0) : na, offset=(-9 * space), title="US02MY", text=" 2M ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+US01MY = _get("TVC:US01MY")
+
+plot(not modeLines ? US01MY : na, title="1M, %", offset=(-10 * space), color=#f58231, style=plot.style_histogram, linewidth=columnWidth, show_last=1, editable=false)
+plot(modeLines ? US01MY : na, title="1M, %", color=#f58231, linewidth=lineWidth, editable=false)
+plotshape(not modeLines ? min(US01MY, 0) : na, offset=(-10 * space), title="US01MY", text=" 1M ", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+levelLabelColor = #f9ce02
+levelColor = #674ea7
+
+plot(0.0, title="", style=plot.style_circles, linewidth=0, color=levelLabelColor, editable=false)
+hline(0.0, title="Zero Level", linestyle=hline.style_dotted, color=levelColor)

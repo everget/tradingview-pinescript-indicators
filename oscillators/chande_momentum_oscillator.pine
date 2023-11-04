@@ -1,0 +1,37 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Chande Momentum Oscillator script may be freely distributed under the terms of GPL-3.0 license.
+study("Chande Momentum Oscillator", shorttitle="CMO")
+
+length = input(title="Length", type=integer, defval=9)
+obLevel = input(title="Overbought Level", type=integer, defval=50)
+osLevel = input(title="Oversold Level", type=integer, defval=-50)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+mom = change(src)
+
+upSum = sum(max(mom, 0), length)
+downSum = sum(-min(mom, 0), length)
+
+cmo = 100 * (upSum - downSum) / (upSum + downSum)
+
+cmoColor = cmo > obLevel ? #0ebb23 : cmo < osLevel ? #ff0000 : #f4b77d
+
+plot(cmo, title="CMO", linewidth=2, color=cmoColor, transp=0)
+
+transparent = color(white, 100)
+
+maxBand = hline(100, title="Max Level", linestyle=dotted, color=transparent)
+hline(0, title="Zero Level", linestyle=dotted)
+minBand = hline(-100, title="Min Level", linestyle=dotted, color=transparent)
+
+obBand = hline(obLevel, title="Overbought Level", linestyle=dotted)
+osBand = hline(osLevel, title="Oversold Level", linestyle=dotted)
+fill(obBand, osBand, color=purple, transp=95)
+
+obFillColor = cmo > obLevel and highlightBreakouts ? green : transparent
+osFillColor = cmo < osLevel and highlightBreakouts ? red : transparent
+
+fill(maxBand, obBand, color=obFillColor, transp=80)
+fill(minBand, osBand, color=osFillColor, transp=80)

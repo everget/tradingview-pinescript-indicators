@@ -1,0 +1,16 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Regression Oscillator script may be freely distributed under the terms of the GPL-3.0 license.
+study("Regression Oscillator", shorttitle="ROSC")
+
+length = input(title="Length", type=integer, minval=1, defval=63)
+linregOffset = input(title="Linear Regression Offset", type=integer, defval=0)
+src = input(title="Source", type=source, defval=close)
+
+rosc = 100 * (src / linreg(src, length, linregOffset) - 1)
+
+roscColor = rosc >= 0.0 ? #0ebb23 : #ff0000
+
+plot(rosc, title="ROSC", linewidth=2, color=roscColor, transp=0)
+
+hline(0, title="Zero Level", linestyle=dotted, color=#989898)

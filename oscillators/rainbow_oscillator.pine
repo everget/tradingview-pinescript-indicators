@@ -1,0 +1,90 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Rainbow Oscillator script may be freely distributed under the terms of GPL-3.0 license.
+study("Rainbow Oscillator", shorttitle="ROSC")
+
+maLength = input(title="Moving Average Length", type=integer, minval=1, defval=2)
+maInput = input(title="Moving Average Type", defval="SMA", options=["EMA", "SMA", "VWMA", "WMA"])
+highestLookback = input(title="Highest Price Lookback", type=integer, minval=1, defval=10)
+lowestLookback = input(title="Lowest Price Lookback", type=integer, minval=1, defval=10)
+drawBg = input(title="Draw Backgrounds ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+getMA(src, maLength) =>
+    ma = 0.0
+
+	if maInput == "EMA"
+        ma := ema(src, maLength)
+
+	if maInput == "SMA"
+        ma := sma(src, maLength)
+
+	if maInput == "VWMA"
+        ma := vwma(src, maLength)
+
+	if maInput == "WMA"
+        ma := wma(src, maLength)
+    ma
+
+ma1 = getMA(src, maLength)
+ma2 = getMA(ma1, maLength)
+ma3 = getMA(ma2, maLength)
+ma4 = getMA(ma3, maLength)
+ma5 = getMA(ma4, maLength)
+ma6 = getMA(ma5, maLength)
+ma7 = getMA(ma6, maLength)
+ma8 = getMA(ma7, maLength)
+ma9 = getMA(ma8, maLength)
+ma10 = getMA(ma9, maLength)
+
+maMax = max(ma1,
+     max(ma2,
+     max(ma3,
+     max(ma4,
+     max(ma5,
+     max(ma6,
+     max(ma7,
+     max(ma8,
+     max(ma9,
+     ma10)))))))))
+
+maMin = min(ma1,
+     min(ma2,
+     min(ma3,
+     min(ma4,
+     min(ma5,
+     min(ma6,
+     min(ma7,
+     min(ma8,
+     min(ma9,
+     ma10)))))))))
+
+hlDiff = highest(src, highestLookback) - lowest(src, lowestLookback)
+average = (ma1 + ma2 + ma3 + ma4 + ma5 + ma6 + ma7 + ma8 + ma9 + ma10) / 10
+
+rosc = hlDiff != 0
+         ? 100 * (src - average) / hlDiff
+         : 0
+
+band = hlDiff != 0
+         ? 100 * (maMax - maMin) / hlDiff
+         : 0
+
+roscColor = rosc > 0 ? green : red
+
+roscPlot = plot(rosc, title="ROSC", style=histogram, linewidth=3, color=roscColor, transp=0)
+
+upperBandColor = drawBg ? gray : green
+upperBandPlot = plot(band, title="Upper", color=upperBandColor)
+
+middlePlot = plot(0, title="Middle", color=gray)
+
+lowerBandColor = drawBg ? gray : red
+lowerBandPlot = plot(-1 * band, title="Lower", color=lowerBandColor)
+
+transparentColor = color(white, 100)
+upperFillColor = drawBg ? green : transparentColor
+lowerFillColor = drawBg ? red : transparentColor
+
+fill(middlePlot, upperBandPlot, color=upperFillColor)
+fill(middlePlot, lowerBandPlot, color=lowerFillColor)

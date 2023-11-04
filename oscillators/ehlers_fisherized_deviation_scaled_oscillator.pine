@@ -1,0 +1,81 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ehlers Fisherized Deviation-Scaled Oscillator script may be freely distributed under the terms of the GPL-3.0 license.
+study("Ehlers Fisherized Deviation-Scaled Oscillator", shorttitle="EFDSO")
+
+length = input(title="Length", type=integer, defval=40, minval=1)
+ssfLength = input(title="Super Smoother Filter Length", type=integer, defval=20, minval=1)
+numberOfPoles = input(title="Number of Poles", type=integer, defval=2, options=[2, 3])
+obLevel = input(title="Overbought Level", type=float, step=0.1, defval=2)
+osLevel = input(title="Oversold Level", type=float, step=0.1, defval=-2)
+maxLevel = input(title="Max Level", type=float, step=0.1, defval=4.0)
+minLevel = input(title="Min Level", type=float, step=0.1, defval=-4.0)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+PI = 2 * asin(1)
+
+get2PoleSSF(src, length) =>
+    arg = sqrt(2) * PI / length
+    a1 = exp(-arg)
+    b1 = 2 * a1 * cos(arg)
+    c2 = b1
+    c3 = -pow(a1, 2)
+    c1 = 1 - c2 - c3
+
+    ssf = 0.0
+    ssf := c1 * src + c2 * nz(ssf[1]) + c3 * nz(ssf[2])
+
+get3PoleSSF(src, length) =>
+    arg = PI / length
+    a1 = exp(-arg)
+    b1 = 2 * a1 * cos(1.738 * arg)
+    c1 = pow(a1, 2)
+
+    coef2 = b1 + c1
+    coef3 = -(c1 + b1 * c1)
+    coef4 = pow(c1, 2)
+    coef1 = 1 - coef2 - coef3 - coef4
+
+    ssf = 0.0
+    ssf := coef1 * src + coef2 * nz(ssf[1]) + coef3 * nz(ssf[2]) + coef4 * nz(ssf[3])
+
+zeros = src - nz(src[2])
+arg = avg(zeros, zeros[1])
+
+// Ehlers Super Smoother Filter
+essf = numberOfPoles == 2
+     ? get2PoleSSF(arg, ssfLength)
+     : get3PoleSSF(arg, ssfLength)
+
+// Rescale filter in terms of Standard Deviations
+stdev = stdev(essf, length)
+scaledFilter = 0.0
+scaledFilter := stdev != 0
+     ? essf / stdev
+     : nz(scaledFilter[1])
+
+// Apply Fisher Transform to establish real Gaussian Probability Distribution
+efdso = 0.0
+efdso := abs(scaledFilter) < 2
+     ? 0.5 * log((1 + scaledFilter / 2) / (1 - scaledFilter / 2))
+     : nz(efdso[1])
+
+efdsoColor = efdso > obLevel ? #0ebb23 : efdso < osLevel ? #ff0000 : #f4b77d
+plot(efdso, title="EFDSO", linewidth=2, color=efdsoColor, transp=0)
+
+transparent = color(white, 100)
+
+maxLevelPlot = hline(maxLevel, title="Max Level", linestyle=dotted, color=transparent)
+obLevelPlot = hline(obLevel, title="Overbought Level", linestyle=dotted)
+hline(0, title="Zero Level", linestyle=dotted)
+osLevelPlot = hline(osLevel, title="Oversold Level", linestyle=dotted)
+minLevelPlot = hline(minLevel, title="Min Level", linestyle=dotted, color=transparent)
+
+fill(obLevelPlot, osLevelPlot, color=purple, transp=95)
+
+obFillColor = efdso > obLevel and highlightBreakouts ? green : transparent
+osFillColor = efdso < osLevel and highlightBreakouts ? red : transparent
+
+fill(maxLevelPlot, obLevelPlot, color=obFillColor, transp=90)
+fill(minLevelPlot, osLevelPlot, color=osFillColor, transp=90)

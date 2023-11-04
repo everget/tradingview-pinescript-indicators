@@ -1,0 +1,23 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Dorsey Inertia script may be freely distributed under the terms of GPL-3.0 license.
+study("Dorsey Inertia", shorttitle="Inertia")
+
+stdevLength = input(title="Standard Deviation Length", type=integer, defval=21)
+rviSmoothLength = input(title="RVI Smoothing Length", type=integer, defval=14)
+smoothLength = input(title="Inertia Smoothing Length", type=integer, defval=14)
+
+// Relative Volatility Index (1993)
+rviOriginal(src, stdevLength, smoothLength) =>
+	stdev = stdev(src, stdevLength)
+	upSum = ema(change(src) >= 0 ? stdev : 0, smoothLength)
+	downSum = ema(change(src) >= 0 ? 0 : stdev, smoothLength)
+	100 * upSum / (upSum + downSum)
+
+rvi = avg(rviOriginal(high, stdevLength, rviSmoothLength), rviOriginal(low, stdevLength, rviSmoothLength))
+inertia = linreg(rvi, smoothLength, 0)
+
+inertiaColor = inertia > 50 ? #0ebb23 : red
+
+plot(inertia, title="Inertia", linewidth=2, color=inertiaColor, transp=0)
+hline(50, title="Middle Level", linestyle=dotted)

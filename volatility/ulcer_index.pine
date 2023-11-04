@@ -1,0 +1,36 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ulcer Index script may be freely distributed under the terms of GPL-3.0 license.
+study("Ulcer Index")
+
+length = input(title="Length", type=input.integer, defval=14)
+smoothLength = input(title="Smoothing Length", type=input.integer, defval=14)
+breakout = input(title="Breakout Level", type=input.float, step=0.1, defval=1.5)
+signalType = input(title="Signal Smoothing Type", defval="SMA", options=["EMA", "SMA"])
+signalLength = input(title="Signal Smoothing Length", type=input.integer, defval=52)
+src = input(title="Source", type=input.source, defval=close)
+showSignal = input(title="Show Signal ?", type=input.bool, defval=true)
+highlightCrossovers = input(title="Highlight Signal Crossovers ?", type=input.bool, defval=true)
+applyRibbonFilling = input(title="Apply Ribbon Filling ?", type=input.bool, defval=true)
+
+highest = highest(src, length)
+drawdown = 100 * (src - highest) / highest
+ulcer = sqrt(sma(pow(drawdown, 2), smoothLength))
+signal = signalType == "SMA" ? sma(ulcer, signalLength) : ema(ulcer, signalLength)
+
+trendColor = ulcer > signal ? #0ebb23 : color.red
+ulcerColor = applyRibbonFilling ? trendColor : (ulcer >= ulcer[1] ? #0ebb23 : color.red)
+signalColor = applyRibbonFilling ? trendColor : #1155cc
+
+ulcerPlot = plot(ulcer, title="Ulcer", linewidth=2, color=ulcerColor, transp=0)
+signalPlot = plot(showSignal ? signal : na, title="Signal", color=signalColor, transp=0)
+
+ribbonFillColor = applyRibbonFilling ? trendColor : na
+fill(ulcerPlot, signalPlot, title="Ribbon", color=ribbonFillColor, transp=70)
+
+plotshape(crossover(ulcer, signal) and highlightCrossovers ? signal : na, title="Crossover", location=location.absolute, style=shape.circle, size=size.tiny, color=color.green, transp=0)
+plotshape(crossunder(ulcer, signal) and highlightCrossovers ? signal : na, title="Crossunder", location=location.absolute, style=shape.circle, size=size.tiny, color=color.red, transp=0)
+
+hline(breakout, title="Breakout Level", linestyle=hline.style_dotted, linewidth=2)
+breakoutFillColor = ulcer > breakout ? #ff9800 : na
+bgcolor(breakoutFillColor, transp=90)

@@ -1,0 +1,55 @@
+//@version=4
+// Copyright (c) 2021-present, Alex Orekhov (everget)
+// Money Flow Index script may be freely distributed under the terms of GPL-3.0 license.
+study("Money Flow Index", shorttitle="MFI", precision=2)
+
+length = input(title="Length", type=input.integer, defval=14, minval=1)
+signalLength = input(title="Signal Length", type=input.integer, defval=9, minval=1)
+src = input(title="Source", type=input.source, defval=hlc3)
+obLevel = input(title="Overbought Level", type=input.integer, defval=80)
+osLevel = input(title="Oversold Level", type=input.integer, defval=20)
+maxLevel = input(title="Max Level", type=input.integer, defval=100)
+minLevel = input(title="Min Level", type=input.integer, defval=0)
+showHistogram = input(title="Show Histogram ?", type=input.bool, defval=false)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=input.bool, defval=true)
+highlightCrossovers = input(title="Highlight MFI/Signal Crossovers ?", type=input.bool, defval=true)
+highlightMiddleCrossovers = input(title="Highlight Middle Line Crossovers ?", type=input.bool, defval=true)
+applyRibbonFilling = input(title="Apply Ribbon Filling ?", type=input.bool, defval=true)
+
+mfi = mfi(src, length)
+signal = ema(mfi, signalLength)
+
+trendColor = mfi > signal ? #0ebb23 : color.red
+smiColor = applyRibbonFilling ? trendColor : #ff3e7d
+signalColor = applyRibbonFilling ? trendColor : #3c78d8
+
+mfiPlot = plot(mfi, title="MFI", color=smiColor, transp=0)
+signalPlot = plot(signal, title="Signal", color=signalColor, transp=0)
+
+hist = mfi - signal
+histColor = hist >= 0 ? hist[1] < hist ? #26A69A : #B2DFDB : hist[1] < hist ? #FFCDD2 : #EF5350
+plot(showHistogram ? hist : na, title="Histogram", style=plot.style_columns, color=histColor, transp=0)
+
+var color noneColor = color.new(color.white, 100)
+
+maxLevelPlot = hline(maxLevel, title="Max Level", linestyle=hline.style_dotted, color=noneColor)
+obLevelPlot = hline(obLevel, title="Overbought Level", linestyle=hline.style_dotted, color=#00796b)
+hline(50, title="Middle Level", linestyle=hline.style_dotted, color=#989898)
+osLevelPlot = hline(osLevel, title="Oversold Level", linestyle=hline.style_dotted, color=#f57f17)
+minLevelPlot = hline(minLevel, title="Min Level", linestyle=hline.style_dotted, color=noneColor)
+fill(obLevelPlot, osLevelPlot, title="Middle Zone", color=color.purple, transp=95)
+
+obFillColor = mfi > obLevel and highlightBreakouts ? color.green : noneColor
+osFillColor = mfi < osLevel and highlightBreakouts ? color.red : noneColor
+
+fill(maxLevelPlot, obLevelPlot, title="Overbought Level Breakout", color=obFillColor, transp=85)
+fill(minLevelPlot, osLevelPlot, title="Oversold Level Breakout", color=osFillColor, transp=85)
+
+fillColor = applyRibbonFilling ? trendColor : noneColor
+fill(mfiPlot, signalPlot, title="Ribbon", color=fillColor, transp=70)
+
+middleCrossBgColor = highlightMiddleCrossovers ? mfi > 50 ? color.green : color.red : noneColor
+bgcolor(middleCrossBgColor, title="Middle Line Crossover Background", transp=90)
+
+plotshape(highlightCrossovers and crossover(mfi, signal) ? mfi : na, title="MFI/Signal Crossover", location=location.absolute, style=shape.circle, size=size.tiny, color=color.green, transp=0)
+plotshape(highlightCrossovers and crossunder(mfi, signal) ? mfi : na, title="MFI/Signal Crossunder", location=location.absolute, style=shape.circle, size=size.tiny, color=color.red, transp=0)

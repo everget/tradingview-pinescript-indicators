@@ -1,0 +1,30 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Negative Volume Index script may be freely distributed under the terms of GPL-3.0 license.
+study("Negative Volume Index", shorttitle="NVI")
+
+initial = input(title="Initial Value", type=integer, defval=100)
+signalType = input(title="Signal Smoothing Type", defval="EMA", options=["EMA", "SMA"])
+signalLength = input(title="Signal Length", type=integer, defval=255)
+highlightCrossovers = input(title="Highlight Crossovers", type=bool, defval=false)
+applyFilling = input(title="Apply Ribbon Filling ?", type=bool, defval=true)
+
+nvi = 0.0
+nvi := na(nvi[1]) ? initial : (change(volume) < 0 ? nvi[1] * close / close[1] : nvi[1])
+signal = signalType == "EMA" ? ema(nvi, signalLength) : sma(nvi, signalLength)
+
+trendColor = nvi > signal ? #0ebb23 : red
+
+nviColor = applyFilling ? trendColor : #0094ff
+signalColor = applyFilling ? trendColor : #ff6a00
+
+nviPlot = plot(nvi, title="NVI", color=nviColor, transp=0)
+signalPlot = plot(signal, title="Signal", color=signalColor, transp=0)
+
+transparent = color(white, 100)
+
+fillColor = applyFilling ? trendColor : transparent
+fill(nviPlot, signalPlot, color=fillColor, transp=70)
+
+plotshape(crossover(nvi, signal) and highlightCrossovers ? nvi : na, title="Crossover", location=location.absolute, style=shape.circle, size=size.tiny, color=green, transp=0)
+plotshape(crossunder(nvi, signal) and highlightCrossovers ? nvi : na, title="Crossunder", location=location.absolute, style=shape.circle, size=size.tiny, color=red, transp=0)

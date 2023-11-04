@@ -1,0 +1,44 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Trend Intensity Index script may be freely distributed under the terms of the GPL-3.0 license.
+study("Trend Intensity Index", shorttitle="TII")
+
+majorLength = input(title="Major Length", type=integer, defval=60)
+minorLength = input(title="Minor Length", type=integer, defval=30)
+upperLevel = input(title="Upper Level", type=integer, defval=80)
+lowerLevel = input(title="Lower Level", type=integer, defval=20)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+sma = sma(src, majorLength)
+
+positiveSum = 0.0
+negativeSum = 0.0
+
+for i = 0 to minorLength - 1
+    price = nz(src[i])
+    avg = nz(sma[i])
+    positiveSum := positiveSum + (price > avg ? price - avg : 0)
+    negativeSum := negativeSum + (price > avg ? 0 : avg - price)
+
+tii = 100 * positiveSum / (positiveSum + negativeSum)
+
+tiiColor = tii > upperLevel ? #0ebb23 : tii < lowerLevel ? #ff0000 : #f4b77d
+plot(tii, title="TII", linewidth=2, color=tiiColor, transp=0)
+
+transparent = color(white, 100)
+
+maxLevelPlot = hline(100, title="Max Level", linestyle=dotted, color=transparent)
+upperLevelPlot = hline(upperLevel, title="Upper Level", linestyle=dotted)
+hline(50, title="Middle Level", linestyle=dotted)
+lowerLevelPlot = hline(lowerLevel, title="Lower Level", linestyle=dotted)
+minLevelPlot = hline(0, title="Min Level", linestyle=dotted, color=transparent)
+
+fill(upperLevelPlot, lowerLevelPlot, color=purple, transp=95)
+
+upperFillColor = tii > upperLevel and highlightBreakouts ? green : transparent
+lowerFillColor = tii < lowerLevel and highlightBreakouts ? red : transparent
+
+fill(maxLevelPlot, upperLevelPlot, color=upperFillColor, transp=90)
+fill(minLevelPlot, lowerLevelPlot, color=lowerFillColor, transp=90)
+

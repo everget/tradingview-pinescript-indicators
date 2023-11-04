@@ -1,0 +1,12 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Awesome Oscillator script may be freely distributed under the terms of GPL-3.0 license.
+study("Awesome Oscillator", shorttitle="AO")
+
+fastLength = input(title="Fast Length", type=integer, defval=5)
+slowLength = input(title="Slow Length", type=integer, defval=34)
+
+ao = sma(hl2, fastLength) - sma(hl2, slowLength)
+
+aoColor = ao >= 0 ? (ao[1] < ao ? #26A69A : #B2DFDB) : (ao[1] < ao ? #FFCDD2 : #EF5350)
+plot(ao, title="AO", style=columns, color=aoColor, transp=0)

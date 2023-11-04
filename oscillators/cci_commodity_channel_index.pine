@@ -1,0 +1,108 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Commodity Channel Index (CCI) script may be freely distributed under the terms of the GPL-3.0 license.
+study("Commodity Channel Index", shorttitle="CCI")
+
+length = input(title="Length", type=integer, defval=20)
+obLevel = input(title="Overbought Level", type=integer, defval=100)
+osLevel = input(title="Oversold Level", type=integer, defval=-100)
+maxLevel = input(title="Max Level", type=integer, defval=300)
+minLevel = input(title="Min Level", type=integer, defval=-300)
+highlightBreakouts = input(title="Highlight Breakouts ?", type=bool, defval=true)
+srcInput = input(title="Source", defval="hlc3",
+	 options=["open",
+				 "high",
+				 "low",
+				 "close",
+				 "oo2",
+				 "oh2",
+				 "ol2",
+				 "oc2",
+				 "hh2",
+				 "hl2",
+				 "hc2",
+				 "ll2",
+				 "lc2",
+				 "cc2",
+				 "hlc3",
+				 "ohlc4",
+				 "wc",
+				 "volume",
+				 "acc/dist",
+				 "on balance volume",
+				 "price volume trend"])
+
+getBaseSource(input) =>
+	src = 0.0
+	if input == "open"
+		src := open
+	if input == "high"
+		src := high
+	if input == "low"
+		src := low
+	if input == "close"
+		src := close
+	if input == "oo2"
+		src := (open + nz(open[1])) / 2
+	if input == "oh2"
+		src := (open + high) / 2
+	if input == "ol2"
+		src := (open + low) / 2
+	if input == "oc2"
+		src := (open + close) / 2
+	if input == "hh2"
+		src := (high + nz(high[1])) / 2
+	if input == "hl2" // Median Price
+		src := hl2
+	if input == "hc2"
+		src := (high + close) / 2
+	if input == "ll2"
+		src := (low + nz(low[1])) / 2
+	if input == "lc2"
+		src := (low + close) / 2
+	if input == "cc2"
+		src := (close + nz(close[1])) / 2
+	if input == "hlc3" // Typical Price
+		src := hlc3
+	if input == "ohlc4"
+		src := ohlc4
+	if input == "wc" // Weighted Close
+		src := (2 * close + high + low) / 4
+	if input == "volume"
+		src := volume
+	if input == "acc/dist"
+		src := accdist
+	if input == "on balance volume"
+		src := cum(sign(change(close)) * volume)
+	if input == "price volume trend"
+		src := cum(roc(src, 1) * volume)
+	src
+
+src = getBaseSource(srcInput)
+
+cci = (src - sma(src, length)) / (0.015 * dev(src, length))
+
+cciColor = cci > obLevel ? #0ebb23 : cci < osLevel ? #ff0000 : #f4b77d
+plot(cci, title="CCI", linewidth=2, color=cciColor, transp=0)
+
+transparent = color(white, 100)
+
+maxLevelPlot = hline(maxLevel, title="Max Level", linestyle=dotted, color=transparent)
+obLevelPlot = hline(obLevel, title="Overbought Level", linestyle=dotted)
+hline(0, title="Zero Level", linestyle=dotted)
+osLevelPlot = hline(osLevel, title="Oversold Level", linestyle=dotted)
+minLevelPlot = hline(minLevel, title="Min Level", linestyle=dotted, color=transparent)
+
+fill(obLevelPlot, osLevelPlot, color=purple, transp=95)
+
+obFillColor = cci > obLevel and highlightBreakouts ? green : transparent
+osFillColor = cci < osLevel and highlightBreakouts ? red : transparent
+
+fill(maxLevelPlot, obLevelPlot, color=obFillColor, transp=90)
+fill(minLevelPlot, osLevelPlot, color=osFillColor, transp=90)
+
+co = crossover(cci, obLevel)
+cu = crossunder(cci, osLevel)
+
+alertcondition(co, title="Alert on CCI Overbought", message="CCI Overbought!")
+alertcondition(cu, title="Alert on CCI Oversold", message="CCI Oversold!")

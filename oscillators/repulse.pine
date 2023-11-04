@@ -1,0 +1,17 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Repulse script may be freely distributed under the terms of GPL-3.0 license.
+study("Repulse")
+
+length = input(title="Length", type=integer, minval=1, defval=5)
+
+bullPower = 100 * (3 * close - 2 * lowest(length) - open[length - 1]) / close
+
+bearPower = 100 * (open[length - 1] + 2 * highest(length) - 3 * close) / close
+
+repulse = ema(bullPower, 5 * length) - ema(bearPower, 5 * length)
+
+repulseColor = repulse >= repulse[1] ? #0ebb23 : red
+plot(repulse, title="Repulse", linewidth=2, color=repulseColor, transp=0)
+
+hline(0, title="Zero Level", linestyle=dotted)

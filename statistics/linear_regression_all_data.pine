@@ -1,0 +1,86 @@
+//@version=4
+// Copyright (c) 2020-present, Alex Orekhov (everget)
+// Linear Regression (All Data) script may be freely distributed under the terms of the GPL-3.0 license.
+var int MAX_BARS_BACK = 5000
+study("Linear Regression (All Data)", overlay=true, max_bars_back=MAX_BARS_BACK)
+
+n = bar_index + 1
+
+X = n
+Y = input(title="Source", defval=close)
+
+sumX = cum(X)
+sumY = cum(Y)
+sumX2 = cum(pow(X, 2))
+sumY2 = cum(pow(Y, 2))
+sumXY = cum(X * Y)
+
+// Pearson correlation coefficient
+r = (n * sumXY - sumX * sumY) / sqrt((n * sumY2 - pow(sumY, 2)) * (n * sumX2 - pow(sumX, 2)))
+
+// Coefficient of determination
+r2 = pow(r, 2)
+
+meanX = sumX / n
+meanY = sumY / n
+
+slope = (n * sumXY - sumX * sumY) / (n * sumX2 - pow(sumX, 2))
+intercept = meanY - slope * meanX
+
+int startIndex = n > MAX_BARS_BACK ? int(n - MAX_BARS_BACK) : 0
+startY = slope * startIndex + intercept
+endY = slope * (n - 1) + intercept
+
+var line regLine = na
+if barstate.islast
+    if na(regLine)
+        regLine := line.new(startIndex, startY, bar_index, endY, width=2, extend=extend.none, color=color.orange)
+    else
+        line.set_xy1(regLine, startIndex, startY)
+        line.set_xy2(regLine, bar_index, endY)
+        na
+
+//------------------------------------------------------------------------
+
+// Formatter
+_format(value, decimals) =>
+	out = tostring(value, "#.#")
+	out :=
+		 decimals == 2 ? tostring(value, "#.##") :
+		 decimals == 3 ? tostring(value, "#.###") :
+		 decimals == 4 ? tostring(value, "#.####") :
+		 decimals == 5 ? tostring(value, "#.#####") :
+		 decimals == 6 ? tostring(value, "#.######") :
+		 decimals == 7 ? tostring(value, "#.#######") :
+		 decimals == 8 ? tostring(value, "#.########") :
+		 decimals == 9 ? tostring(value, "#.#########") :
+		 decimals == 10 ? tostring(value, "#.##########") :
+		 decimals == 11 ? tostring(value, "#.###########") :
+		 decimals == 12 ? tostring(value, "#.############") :
+		 decimals == 13 ? tostring(value, "#.#############") :
+		 decimals == 14 ? tostring(value, "#.##############") :
+		 decimals == 15 ? tostring(value, "#.###############") :
+		 decimals == 16 ? tostring(value, "#.################") :
+		 out
+	out
+
+summaryText =
+     " Slope: " + _format(slope, 6) +
+     "\n Intercept: " + _format(intercept, 6) +
+     "\n r: " + _format(r, 3) +
+     "\n r2: " + _format(r2, 3)
+
+var label summaryLabel = label.new(
+	 x=time,
+	 y=na,
+	 xloc=xloc.bar_time,
+	 text="",
+	 textalign=text.align_left,
+	 textcolor=color.white,
+	 color=#1e90ff,
+	 style=label.style_label_left,
+	 size=size.small
+	 )
+
+label.set_text(summaryLabel, summaryText)
+label.set_xy(summaryLabel, time + 10 * (time - time[1]), endY)

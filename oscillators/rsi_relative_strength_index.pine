@@ -1,0 +1,96 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Relative Strength Index (RSI) script may be freely distributed under the terms of GPL-3.0 license.
+study(title="Relative Strength Index", shorttitle="RSI")
+
+length = input(title="Length", type=integer, defval=14)
+obLevel = input(title="Overbought Level", type=integer, defval=70)
+osLevel = input(title="Oversold Level", type=integer, defval=30)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=bool, defval=true)
+srcInput = input(title="Source", defval="close",
+	 options=["open",
+				 "high",
+				 "low",
+				 "close",
+				 "oo2",
+				 "oh2",
+				 "ol2",
+				 "oc2",
+				 "hh2",
+				 "hl2",
+				 "hc2",
+				 "ll2",
+				 "lc2",
+				 "cc2",
+				 "hlc3",
+				 "ohlc4",
+				 "wc",
+				 "acc/dist",
+				 "on balance volume",
+				 "price volume trend"])
+
+getBaseSource(input) =>
+	src = 0.0
+	if input == "open"
+		src := open
+	if input == "high"
+		src := high
+	if input == "low"
+		src := low
+	if input == "close"
+		src := close
+	if input == "oo2"
+		src := (open + nz(open[1])) / 2
+	if input == "oh2"
+		src := (open + high) / 2
+	if input == "ol2"
+		src := (open + low) / 2
+	if input == "oc2"
+		src := (open + close) / 2
+	if input == "hh2"
+		src := (high + nz(high[1])) / 2
+	if input == "hl2" // Median Price
+		src := hl2
+	if input == "hc2"
+		src := (high + close) / 2
+	if input == "ll2"
+		src := (low + nz(low[1])) / 2
+	if input == "lc2"
+		src := (low + close) / 2
+	if input == "cc2"
+		src := (close + nz(close[1])) / 2
+	if input == "hlc3" // Typical Price
+		src := hlc3
+	if input == "ohlc4"
+		src := ohlc4
+	if input == "wc" // Weighted Close
+		src := (2 * close + high + low) / 4
+	if input == "acc/dist"
+		src := accdist
+	if input == "on balance volume"
+		src := cum(sign(change(close)) * volume)
+	if input == "price volume trend"
+		src := cum(change(close) / close[1] * volume)
+	src
+
+src = getBaseSource(srcInput)
+
+rsi = rsi(src, length)
+
+rsiColor = rsi > obLevel ? #0ebb23 : rsi < osLevel ? red : #f4b77d
+plot(rsi, title="RSI", linewidth=2, color=rsiColor, transp=0)
+
+transparent = color(white, 100)
+
+maxLevelPlot = hline(100, title="Max Level", linestyle=dotted, color=transparent)
+obLevelPlot = hline(obLevel, title="Overbought Level", linestyle=dotted)
+hline(50, title="Middle Level", linestyle=dotted)
+osLevelPlot = hline(osLevel, title="Oversold Level", linestyle=dotted)
+minLevelPlot = hline(0, title="Min Level", linestyle=dotted, color=transparent)
+fill(obLevelPlot, osLevelPlot, color=purple, transp=95)
+
+obFillColor = rsi > obLevel and highlightBreakouts ? green : transparent
+osFillColor = rsi < osLevel and highlightBreakouts ? red : transparent
+
+fill(maxLevelPlot, obLevelPlot, color=obFillColor, transp=90)
+fill(minLevelPlot, osLevelPlot, color=osFillColor, transp=90)

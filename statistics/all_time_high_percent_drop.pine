@@ -1,0 +1,44 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// All-Time High % Drop script may be freely distributed under the terms of GPL-3.0 license.
+study("All-Time High % Drop", shorttitle="ATH % Drop", precision=2)
+
+ath = high
+ath := na(ath[1]) ? ath : (high > ath[1] ? high : ath[1])
+
+percent = 100 * (close - ath) / ath
+
+plot(percent, title="ATH %", color=#351c75, transp=0)
+
+plot(0, title="", style=circles, linewidth=0, color=gray)
+hline(0, linestyle=dotted, color=gray)
+
+plot(-10, title="", style=circles, linewidth=0, color=#F9CE02)
+hline(-10, linestyle=dotted, color=#F9CE02)
+
+plot(-20, title="", style=circles, linewidth=0, color=#F7BA05)
+hline(-20, linestyle=dotted, color=#F7BA05)
+
+plot(-30, title="", style=circles, linewidth=0, color=#F4A608)
+hline(-30, linestyle=dotted, color=#F4A608)
+
+plot(-40, title="", style=circles, linewidth=0, color=#F2920B)
+hline(-40, linestyle=dotted, color=#F2920B)
+
+plot(-50, title="", style=circles, linewidth=0, color=#F07E0E)
+hline(-50, linestyle=dotted, color=#F07E0E)
+
+plot(-60, title="", style=circles, linewidth=0, color=#ED6A10)
+hline(-60, linestyle=dotted, color=#ED6A10)
+
+plot(-70, title="", style=circles, linewidth=0, color=#EB5613)
+hline(-70, linestyle=dotted, color=#EB5613)
+
+plot(-80, title="", style=circles, linewidth=0, color=#E84216)
+hline(-80, linestyle=dotted, color=#E84216)
+
+plot(-90, title="", style=circles, linewidth=0, color=#E62E19)
+hline(-90, linestyle=dotted, color=#E62E19)
+
+plot(-100, title="", style=circles, linewidth=0, color=#E41A1C)
+hline(-100, linestyle=dotted, color=#E41A1C)

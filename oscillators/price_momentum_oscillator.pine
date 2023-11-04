@@ -1,0 +1,27 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Price Momentum Oscillator script may be freely distributed under the terms of the GPL-3.0 license.
+study("Price Momentum Oscillator", shorttitle="PMO")
+
+firstLength = input(title="1st Smoothing Length", type=integer, minval=1, defval=35)
+secondLength = input(title="2nd Smoothing Length", type=integer, minval=1, defval=20)
+signalLength = input(title="Signal Length", type=integer, minval=1, defval=10)
+applyFilling = input(title="Apply Filling ?", type=bool, defval=false)
+src = input(title="Source", type=source, defval=close)
+
+rocMA = 0.0
+rocMA := (nz(rocMA[1]) + (roc(src, 1) - nz(rocMA[1])) * (2 / firstLength))
+
+pmo = 0.0
+pmo := nz(pmo[1]) + (10 * rocMA - nz(pmo[1])) * (2 / secondLength)
+
+pmoSignal = 0.0
+pmoSignal := (2 / signalLength) * (pmo - nz(pmoSignal[1])) + nz(pmoSignal[1])
+
+pmoPlot = plot(pmo, title="PMO", color=#1155cc, transp=0)
+pmoSignalPlot = plot(pmoSignal, title="Signal", color=red, transp=0)
+
+fillColor = applyFilling ? (pmo > pmoSignal ? #0ebb23 : #cc0000) : color(white, 100)
+fill(pmoPlot, pmoSignalPlot, color=fillColor, transp=0)
+
+hline(0, title="Zero Level", linestyle=dotted)

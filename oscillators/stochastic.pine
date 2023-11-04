@@ -1,0 +1,57 @@
+//@version=4
+// Copyright (c) 2021-present, Alex Orekhov (everget)
+// Stochastic script may be freely distributed under the terms of GPL-3.0 license.
+study("Stochastic", shorttitle="Stoch", precision=2)
+
+periodK = input(title="K", minval=1, defval=14)
+periodD = input(title="D", minval=1, defval=3)
+smoothK = input(title="Smooth", minval=1, defval=3)
+src = input(title="Source", type=input.source, defval=close)
+
+obLevel = input(title="Overbought Level", type=input.integer, defval=80)
+osLevel = input(title="Oversold Level", type=input.integer, defval=20)
+maxLevel = input(title="Max Level", type=input.integer, defval=100)
+minLevel = input(title="Min Level", type=input.integer, defval=0)
+showHistogram = input(title="Show Histogram ?", type=input.bool, defval=false)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=input.bool, defval=true)
+highlightCrossovers = input(title="Highlight K/D Crossovers ?", type=input.bool, defval=true)
+highlightMiddleCrossovers = input(title="Highlight Middle Line Crossovers ?", type=input.bool, defval=true)
+applyRibbonFilling = input(title="Apply Ribbon Filling ?", type=input.bool, defval=true)
+
+k = sma(stoch(src, high, low, periodK), smoothK)
+d = sma(k, periodD)
+
+trendColor = k > d ? #0ebb23 : color.red
+kColor = applyRibbonFilling ? trendColor : #ff3e7d
+dColor = applyRibbonFilling? trendColor : #3c78d8
+
+kPlot = plot(k, title="%K", color=kColor, transp=0)
+dPlot = plot(d, title="%D", color=dColor, transp=0)
+
+hist = k - d
+histColor = hist >= 0 ? hist[1] < hist ? #26A69A : #B2DFDB : hist[1] < hist ? #FFCDD2 : #EF5350
+plot(showHistogram ? hist : na, title="Histogram", style=plot.style_columns, color=histColor, transp=0)
+
+var color noneColor = color.new(color.white, 100)
+
+maxLevelPlot = hline(maxLevel, title="Max Level", linestyle=hline.style_dotted, color=noneColor)
+obLevelPlot = hline(obLevel, title="Overbought Level", linestyle=hline.style_dotted, color=#00796b)
+hline(50, title="Middle Level", linestyle=hline.style_dotted, color=#989898)
+osLevelPlot = hline(osLevel, title="Oversold Level", linestyle=hline.style_dotted, color=#f57f17)
+minLevelPlot = hline(minLevel, title="Min Level", linestyle=hline.style_dotted, color=noneColor)
+fill(obLevelPlot, osLevelPlot, title="Middle Zone", color=color.purple, transp=95)
+
+obFillColor = k > obLevel and highlightBreakouts ? color.green : na
+osFillColor = k < osLevel and highlightBreakouts ? color.red : na
+
+fill(maxLevelPlot, obLevelPlot, title="Upper Band Breakout", color=obFillColor, transp=85)
+fill(minLevelPlot, osLevelPlot, title="Lower Band Breakout", color=osFillColor, transp=85)
+
+fillColor = applyRibbonFilling ? trendColor : na
+fill(kPlot, dPlot, title="Ribbon", color=fillColor, transp=70)
+
+middleCrossBgColor = highlightMiddleCrossovers ? (k > 50 ? color.green : color.red) : na
+bgcolor(middleCrossBgColor, transp=90)
+
+plotshape(highlightCrossovers and crossover(k, d) ? k : na, title="K/D Crossover", location=location.absolute, style=shape.circle, size=size.tiny, color=color.green, transp=0)
+plotshape(highlightCrossovers and crossunder(k, d) ? k : na, title="K/D Crossunder", location=location.absolute, style=shape.circle, size=size.tiny, color=color.red, transp=0)

@@ -1,0 +1,50 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Self-Adjusting RSI script may be freely distributed under the terms of GPL-3.0 license.
+study("Self-Adjusting RSI", shorttitle="SARSI")
+
+rsiLength = input(title="RSI Length", type=integer, defval=14, minval=1)
+adjusting = input(title="Method of Adjusting OB/OS Levels", defval="Standard Deviation", options=["Standard Deviation", "SMA"])
+mult = input(title="Adjustment Multiplier", type=float, defval=2, step=0.1)
+smoothingType = input(title="Smoothing Type", defval="SMA", options=["EMA", "SMA"])
+smoothingLength = input(title="Smoothing Length", type=integer, defval=21, minval=1)
+highlightMovements = input(title="Highlight Smoothing ?", type=bool, defval=false)
+src = input(title="Source", type=source, defval=close)
+
+rsi = rsi(src, rsiLength)
+
+_adjusting() =>
+    adjusting == "Standard Deviation" ? mult * stdev(rsi, rsiLength) :
+     adjusting == "SMA" ? mult * sma(abs(rsi - sma(rsi, rsiLength)), rsiLength) :
+     na
+
+adjust = _adjusting()
+obLevel = 50 + adjust
+osLevel = 50 - adjust
+
+hline(50, title="Middle Level", linestyle=dotted)
+transparent = color(white, 100)
+
+rsiColor = rsi > obLevel ? #0ebb23 : rsi < osLevel ? red : #f4b77d
+rsiPlot = plot(rsi, title="SARSI", linewidth=1, color=rsiColor, transp=0)
+
+smooth = smoothingType == "EMA" ? ema(rsi, smoothingLength) : sma(rsi, smoothingLength)
+smoothColor = highlightMovements ? (smooth > smooth[1] ? #0ebb23 : red) : #6d1e7f
+plot(smooth, title="Smooth", linewidth=1, color=smoothColor, transp=0)
+
+obosColor = #f1bc05 //#7b1fa2
+obLevelPlot = plot(obLevel, title="OB", color=obosColor, transp=100)
+osLevelPlot = plot(osLevel, title="OS", color=obosColor, transp=100)
+fill(obLevelPlot, osLevelPlot, title="OB/OS Filling", color=#f1bc05, transp=80)
+
+obFillColor = rsi > obLevel ? green : transparent
+fill(rsiPlot, obLevelPlot, title="SARSI/OB Filling", color=obFillColor, transp=85)
+
+osFillColor = rsi < osLevel ? red : transparent
+fill(rsiPlot, osLevelPlot, title="SARSI/OS Filling", color=osFillColor, transp=85)
+
+co = crossover(rsi, obLevel)
+cu = crossunder(rsi, osLevel)
+
+alertcondition(co, title="Alert on SARSI Overbought", message="SARSI Overbought!")
+alertcondition(cu, title="Alert on SARSI Oversold", message="SARSI Oversold!")

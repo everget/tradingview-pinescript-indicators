@@ -1,0 +1,18 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Volatility Ratio script may be freely distributed under the terms of the GPL-3.0 license.
+study("Volatility Ratio", shorttitle="VR")
+
+length = input(title="Length", type=integer, minval=1, defval=14)
+breakoutLevel = input(title="Breakout Level", type=float, step=0.1, defval=0.5)
+
+max = max(highest(high, length), close[length + 1])
+min = min(lowest(low, length), close[length + 1])
+
+vr = tr(true) / (max - min)
+
+vrColor = vr >= breakoutLevel ? #39b361 : #cc4125
+
+plot(vr, title="VR", linewidth=2, color=vrColor, transp=0)
+
+hline(title="Breakout Level", price=breakoutLevel, linestyle=dotted, color=gray)

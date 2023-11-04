@@ -1,0 +1,68 @@
+//@version=4
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Year-to-Date (YTD) % Return script may be freely distributed under the terms of GPL-3.0 license.
+study("Year-to-Date (YTD) % Return", shorttitle="YTD % Return", precision=2)
+
+level1 = input(title="Level #1", type=input.integer, defval=0)
+level2 = input(title="Level #2", type=input.integer, defval=0)
+level3 = input(title="Level #3", type=input.integer, defval=0)
+level4 = input(title="Level #4", type=input.integer, defval=0)
+level5 = input(title="Level #5", type=input.integer, defval=0)
+level6 = input(title="Level #6", type=input.integer, defval=0)
+
+_ytd(yearTarget) =>
+    yearCond = year != year[1]
+    yearOpen = valuewhen(yearCond, open, yearTarget)
+    ytd = 100 * (close - yearOpen) / yearOpen
+    ytd
+
+labelColor = #f9ce02
+levelColor = #674ea7
+transparent = color.new(color.white, 100)
+
+ytd = _ytd(0)
+ytdColor = ytd < 0 ? color.red : #09b71e
+ytdPlot = plot(ytd, title="YTD, %", color=color.black)
+
+zeroPlot = plot(0, title="", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(0, title="Zero Level", linestyle=hline.style_dotted, color=levelColor)
+
+fill(ytdPlot, zeroPlot, color=ytdColor, transp=80)
+
+plot(level1, title="", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(level1, title="Level #1", linestyle=hline.style_dotted, color=levelColor)
+
+plot(level2, title="", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(level2, title="Level #2", linestyle=hline.style_dotted, color=levelColor)
+
+plot(level3, title="", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(level3, title="Level #3", linestyle=hline.style_dotted, color=levelColor)
+
+plot(level4, title="", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(level4, title="Level #4", linestyle=hline.style_dotted, color=levelColor)
+
+plot(level5, title="", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(level5, title="Level #5", linestyle=hline.style_dotted, color=levelColor)
+
+plot(level6, title="", style=plot.style_circles, linewidth=0, color=labelColor, editable=false)
+hline(level6, title="Level #6", linestyle=hline.style_dotted, color=levelColor)
+
+bgcolor(year != year[1] ? #f57f17 : transparent, title="Year Separator", transp=60)
+
+alertcondition(crossover(ytd, level1), title="Level #1 Crossover", message="Level #1 Crossover!")
+alertcondition(crossunder(ytd, level1), title="Level #1 Crossunder", message="Level #1 Crossunder!")
+
+alertcondition(crossover(ytd, level2), title="Level #2 Crossover", message="Level #2 Crossover!")
+alertcondition(crossunder(ytd, level2), title="Level #2 Crossunder", message="Level #2 Crossunder!")
+
+alertcondition(crossover(ytd, level3), title="Level #3 Crossover", message="Level #3 Crossover!")
+alertcondition(crossunder(ytd, level3), title="Level #3 Crossunder", message="Level #3 Crossunder!")
+
+alertcondition(crossover(ytd, level4), title="Level #4 Crossover", message="Level #4 Crossover!")
+alertcondition(crossunder(ytd, level4), title="Level #4 Crossunder", message="Level #4 Crossunder!")
+
+alertcondition(crossover(ytd, level5), title="Level #5 Crossover", message="Level #5 Crossover!")
+alertcondition(crossunder(ytd, level5), title="Level #5 Crossunder", message="Level #5 Crossunder!")
+
+alertcondition(crossover(ytd, level6), title="Level #6 Crossover", message="Level #6 Crossover!")
+alertcondition(crossunder(ytd, level6), title="Level #6 Crossunder", message="Level #6 Crossunder!")

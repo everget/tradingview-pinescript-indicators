@@ -1,0 +1,32 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Recursive Median Oscillator script may be freely distributed under the terms of the GPL-3.0 license.
+study("Recursive Median Oscillator", shorttitle="RMO")
+
+medianLength = input(title="Length", type=integer, minval=1, defval=5)
+lowpassLength = input(title="Lowpass Length", type=integer, minval=1, defval=12)
+highpassLength = input(title="Highpass Length", type=integer, minval=1, defval=30)
+src = input(title="Source", type=source, defval=close)
+
+median(src, length) =>
+	percentile_nearest_rank(src, length, 50)
+
+PI = 2 * asin(1)
+
+alpha1Arg = 2 * PI / lowpassLength
+alpha1 = (cos(alpha1Arg) + sin(alpha1Arg) - 1) / cos(alpha1Arg)
+
+rm = 0.0
+rm := alpha1 * median(src, medianLength) + (1 - alpha1) * nz(rm[1])
+
+alpha2Arg = 1 / sqrt(2) * 2 * PI / highpassLength
+alpha2 = (cos(alpha2Arg) + sin(alpha2Arg) - 1) / cos(alpha2Arg)
+
+rmo = 0.0
+rmo := pow(1 - alpha2 / 2, 2) * (rm - 2 * nz(rm[1]) + nz(rm[2])) + 2 * (1 - alpha2) * nz(rmo[1]) - pow(1 - alpha2, 2) * nz(rmo[2])
+
+rmoColor = rmo >= 0.0 ? #0ebb23 : #ff0000
+
+plot(rmo, title="RMO", linewidth=2, color=rmoColor, transp=0)
+
+hline(0, title="Zero Level", linestyle=dashed, color=#3c78d8)

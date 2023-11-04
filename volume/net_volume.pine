@@ -1,0 +1,12 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Net Volume script may be freely distributed under the terms of GPL-3.0 license.
+study("Net Volume", precision=0)
+
+src = input(title="Source", type=source, defval=close)
+
+nv = sign(change(src)) * volume
+
+nvColor = nv >= 0 ? (nv[1] < nv ? #26A69A : #B2DFDB) : (nv[1] < nv ? #FFCDD2 : #EF5350)
+
+plot(nv, title="Net Volume", style=columns, linewidth=2, color=nvColor, transp=0)

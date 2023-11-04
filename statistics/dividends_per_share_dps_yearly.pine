@@ -1,0 +1,164 @@
+//@version=4
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// Dividends per Share (DPS, Yearly) script may be freely distributed under the terms of GPL-3.0 license.
+study("Dividends per Share (DPS, Yearly)")
+
+width = input(title="Columns Width", defval=12)
+space = input(title="Space Between Columns", defval=8)
+
+esdColor = #ffb74d
+estimateColor = color.new(color.blue, 85)
+labelColor = #1e90ff
+whiteColor = color.white
+
+_id(type) =>
+    out = "ESD_FACTSET:" + syminfo.prefix + ";" + syminfo.ticker + ";" + type
+    out
+
+id = _id("DIVIDENDS")
+estimate = security(id, "D", open, true, lookahead=true)
+esd = security(id, "D", close, true, lookahead=true)
+
+_count(src, yearTarget) =>
+	var float counter = na
+	counter := year != year[1] and year == yearTarget ? 0 : counter[1]
+	counter := year == yearTarget ? counter + (na(src) ? 0 : src) : counter
+
+_countESD(yearTarget) =>
+	esdCount = _count(esd, yearTarget)
+	estimateCount = _count(estimate, yearTarget)
+	[esdCount, estimateCount]
+
+[esd1990, est1990] = _countESD(1990)
+[esd1991, est1991] = _countESD(1991)
+[esd1992, est1992] = _countESD(1992)
+[esd1993, est1993] = _countESD(1993)
+[esd1994, est1994] = _countESD(1994)
+[esd1995, est1995] = _countESD(1995)
+[esd1996, est1996] = _countESD(1996)
+[esd1997, est1997] = _countESD(1997)
+[esd1998, est1998] = _countESD(1998)
+[esd1999, est1999] = _countESD(1999)
+[esd2000, est2000] = _countESD(2000)
+[esd2001, est2001] = _countESD(2001)
+[esd2002, est2002] = _countESD(2002)
+[esd2003, est2003] = _countESD(2003)
+[esd2004, est2004] = _countESD(2004)
+[esd2005, est2005] = _countESD(2005)
+[esd2006, est2006] = _countESD(2006)
+[esd2007, est2007] = _countESD(2007)
+[esd2008, est2008] = _countESD(2008)
+[esd2009, est2009] = _countESD(2009)
+[esd2010, est2010] = _countESD(2010)
+[esd2011, est2011] = _countESD(2011)
+[esd2012, est2012] = _countESD(2012)
+[esd2013, est2013] = _countESD(2013)
+[esd2014, est2014] = _countESD(2014)
+[esd2015, est2015] = _countESD(2015)
+[esd2016, est2016] = _countESD(2016)
+[esd2017, est2017] = _countESD(2017)
+[esd2018, est2018] = _countESD(2018)
+[esd2019, est2019] = _countESD(2019)
+[esd2020, est2020] = _countESD(2020)
+[esd2021, est2021] = _countESD(2021)
+[esd2022, est2022] = _countESD(2022)
+[esd2023, est2023] = _countESD(2023)
+[esd2024, est2024] = _countESD(2024)
+[esd2025, est2025] = _countESD(2025)
+[esd2026, est2026] = _countESD(2026)
+[esd2027, est2027] = _countESD(2027)
+[esd2028, est2028] = _countESD(2028)
+[esd2029, est2029] = _countESD(2029)
+[esd2030, est2030] = _countESD(2030)
+
+_getCounter(mode, yearTarget) =>
+	out = mode == "esd" ? esd2019 : est2019
+	out := yearTarget == 2030 ? (mode == "esd" ? esd2030 : est2030) : out
+	out := yearTarget == 2029 ? (mode == "esd" ? esd2029 : est2029) : out
+	out := yearTarget == 2028 ? (mode == "esd" ? esd2028 : est2028) : out
+	out := yearTarget == 2027 ? (mode == "esd" ? esd2027 : est2027) : out
+	out := yearTarget == 2026 ? (mode == "esd" ? esd2026 : est2026) : out
+	out := yearTarget == 2025 ? (mode == "esd" ? esd2025 : est2025) : out
+	out := yearTarget == 2024 ? (mode == "esd" ? esd2024 : est2024) : out
+	out := yearTarget == 2023 ? (mode == "esd" ? esd2023 : est2023) : out
+	out := yearTarget == 2022 ? (mode == "esd" ? esd2022 : est2022) : out
+	out := yearTarget == 2021 ? (mode == "esd" ? esd2021 : est2021) : out
+	out := yearTarget == 2020 ? (mode == "esd" ? esd2020 : est2020) : out
+	out := yearTarget == 2019 ? (mode == "esd" ? esd2019 : est2019) : out
+	out := yearTarget == 2018 ? (mode == "esd" ? esd2018 : est2018) : out
+	out := yearTarget == 2017 ? (mode == "esd" ? esd2017 : est2017) : out
+	out := yearTarget == 2016 ? (mode == "esd" ? esd2016 : est2016) : out
+	out := yearTarget == 2015 ? (mode == "esd" ? esd2015 : est2015) : out
+	out := yearTarget == 2014 ? (mode == "esd" ? esd2014 : est2014) : out
+	out := yearTarget == 2013 ? (mode == "esd" ? esd2013 : est2013) : out
+	out := yearTarget == 2012 ? (mode == "esd" ? esd2012 : est2012) : out
+	out := yearTarget == 2011 ? (mode == "esd" ? esd2011 : est2011) : out
+	out := yearTarget == 2010 ? (mode == "esd" ? esd2010 : est2010) : out
+	out := yearTarget == 2009 ? (mode == "esd" ? esd2009 : est2009) : out
+	out := yearTarget == 2008 ? (mode == "esd" ? esd2008 : est2008) : out
+	out := yearTarget == 2007 ? (mode == "esd" ? esd2007 : est2007) : out
+	out := yearTarget == 2006 ? (mode == "esd" ? esd2006 : est2006) : out
+	out := yearTarget == 2005 ? (mode == "esd" ? esd2005 : est2005) : out
+	out := yearTarget == 2004 ? (mode == "esd" ? esd2004 : est2004) : out
+	out := yearTarget == 2003 ? (mode == "esd" ? esd2003 : est2003) : out
+	out := yearTarget == 2002 ? (mode == "esd" ? esd2002 : est2002) : out
+	out := yearTarget == 2001 ? (mode == "esd" ? esd2001 : est2001) : out
+	out := yearTarget == 2000 ? (mode == "esd" ? esd2000 : est2000) : out
+	out := yearTarget == 1999 ? (mode == "esd" ? esd1999 : est1999) : out
+	out := yearTarget == 1998 ? (mode == "esd" ? esd1998 : est1998) : out
+	out := yearTarget == 1997 ? (mode == "esd" ? esd1997 : est1997) : out
+	out := yearTarget == 1996 ? (mode == "esd" ? esd1996 : est1996) : out
+	out := yearTarget == 1995 ? (mode == "esd" ? esd1995 : est1995) : out
+	out := yearTarget == 1994 ? (mode == "esd" ? esd1994 : est1994) : out
+	out := yearTarget == 1993 ? (mode == "esd" ? esd1993 : est1993) : out
+	out := yearTarget == 1992 ? (mode == "esd" ? esd1992 : est1992) : out
+	out := yearTarget == 1991 ? (mode == "esd" ? esd1991 : est1991) : out
+	out := yearTarget == 1990 ? (mode == "esd" ? esd1990 : est1990) : out
+	out
+
+// var end = 20
+// var res = '';
+// var shapePos = [0, 3, 5, 10, 15, 20];
+
+// for (var i = 0; i <= end; i++) {
+// 	var title = i == 0 ? 'Current' : `${ i }Y ago`;
+// 	res = res.concat(`plot(_getCounter("esd", year - ${ i }), offset=(-${ i } * space), title="${ title }", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)\n`);
+// 	res = res.concat(`plot(_getCounter("estimate", year - ${ i }), offset=(-${ i } * space), title="", style=plot.style_histogram, linewidth=width, color=estimateColor, show_last=1, transp=0, editable=false)\n\n`);
+
+// 	if (shapePos.includes(i)) {
+// 		res = res.concat(`plotshape(0, offset=(-${ i } * space), title="${ title }", text=" ${ i == 0 ? title : title.slice(0, -4) } ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)\n`)
+// 	}
+// }
+
+plot(_getCounter("esd", year - 0), offset=(-0 * space), title="Current", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-0 * space), title="Current", text=" Current ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(_getCounter("esd", year - 1), offset=(-1 * space), title="1Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 2), offset=(-2 * space), title="2Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 3), offset=(-3 * space), title="3Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-3 * space), title="3Y ago", text=" 3Y ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(_getCounter("esd", year - 4), offset=(-4 * space), title="4Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 5), offset=(-5 * space), title="5Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-5 * space), title="5Y ago", text=" 5Y ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(_getCounter("esd", year - 6), offset=(-6 * space), title="6Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 7), offset=(-7 * space), title="7Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 8), offset=(-8 * space), title="8Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 9), offset=(-9 * space), title="9Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 10), offset=(-10 * space), title="10Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-10 * space), title="10Y ago", text=" 10Y ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(_getCounter("esd", year - 11), offset=(-11 * space), title="11Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 12), offset=(-12 * space), title="12Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 13), offset=(-13 * space), title="13Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 14), offset=(-14 * space), title="14Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 15), offset=(-15 * space), title="15Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-15 * space), title="15Y ago", text=" 15Y ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(_getCounter("esd", year - 16), offset=(-16 * space), title="16Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 17), offset=(-17 * space), title="17Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 18), offset=(-18 * space), title="18Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 19), offset=(-19 * space), title="19Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plot(_getCounter("esd", year - 20), offset=(-20 * space), title="20Y ago", style=plot.style_histogram, linewidth=width, color=esdColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-20 * space), title="20Y ago", text=" 20Y ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)

@@ -1,0 +1,16 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Coppock Curve script may be freely distributed under the terms of GPL-3.0 license.
+study("Coppock Curve")
+
+length = input(title="Smoothing Length", type=integer, defval=10)
+longRocLength = input(title="Long ROC Length", type=integer, defval=14)
+shortRocLength = input(title="Short ROC Length", type=integer, defval=11)
+src = input(title="Source", type=source, defval=close)
+
+coppock = wma(roc(src, longRocLength) + roc(src, shortRocLength), length)
+
+coppockColor = coppock > 0 ? #0ebb23 : red
+
+plot(coppock, title="Coppock", linewidth=2, color=coppockColor, transp=0)
+hline(0, title="Zero Level", linestyle=dotted)

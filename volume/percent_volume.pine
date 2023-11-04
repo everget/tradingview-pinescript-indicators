@@ -1,0 +1,39 @@
+//@version=3
+// Copyright (c) 2019-present, Alex Orekhov (everget)
+// % Volume script may be freely distributed under the terms of GPL-3.0 license.
+study("% Volume", precision=2)
+
+length = input(title="SMA Length", type=integer, defval=21)
+
+pv = 100 * volume / sma(volume, length)
+
+pvColor = close > open ? #92df8bff : #fe9695ff
+plot(pv, title="%V", style=columns, linewidth=2, color=pvColor, transp=0)
+
+// purple = #674ea7
+// yellow = #f9ce02
+
+labelColor = #f9ce02
+levelColor = #674ea7
+
+plot(50, title="", style=circles, linewidth=0, color=labelColor)
+hline(50, title="50% Level", linestyle=dotted, color=levelColor)
+
+plot(100, title="", style=circles, linewidth=0, color=labelColor)
+hline(100, title="100% Level", linestyle=dotted, color=levelColor)
+
+plot(150, title="", style=circles, linewidth=0, color=labelColor)
+hline(150, title="150% Level", linestyle=dotted, color=levelColor)
+
+plot(200, title="", style=circles, linewidth=0, color=labelColor)
+hline(200, title="200% Level", linestyle=dotted, color=levelColor)
+
+plot(250, title="", style=circles, linewidth=0, color=labelColor)
+hline(250, title="250% Level", linestyle=dotted, color=levelColor)
+
+plot(300, title="", style=circles, linewidth=0, color=labelColor)
+hline(300, title="300% Level", linestyle=dotted, color=levelColor)
+
+// show300 = input(title="Show 300% Level ?", type=bool, defval=false)
+// plot(show300 ? 300 : na, title="", style=circles, linewidth=0, color=#F9CE02)
+// hline(show300 ? 300 : na, title="300% Level", linestyle=dotted, color=#F9CE02)

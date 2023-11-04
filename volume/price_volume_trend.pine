@@ -1,0 +1,34 @@
+//@version=4
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Price Volume Trend script may be freely distributed under the terms of GPL-3.0 license.
+study("Price Volume Trend", shorttitle="PVT", format=format.volume)
+
+showSignal = input(title="Show Signal ?", type=input.bool, defval=true)
+signalType = input(title="Signal Smoothing Type", defval="SMA", options=["EMA", "SMA"])
+signalLength = input(title="Signal Smoothing Length", type=input.integer, defval=21)
+src = input(title="Source", type=input.source, defval=close)
+highlightCrossovers = input(title="Highlight Crossovers ?", type=input.bool, defval=false)
+applyFilling = input(title="Apply Ribbon Filling ?", type=input.bool, defval=true)
+
+signal = signalType == "EMA" ? ema(pvt, signalLength) : sma(pvt, signalLength)
+
+trendColor = pvt > signal ? #0ebb23 : color.red
+pvtColor = applyFilling ? trendColor : #0094ff
+signalColor = applyFilling ? trendColor : #ff6a00
+
+pvtPlot = plot(pvt, title="PVT", linewidth=2, color=pvtColor, transp=0)
+signalPlot = plot(showSignal ? signal : na, title="Signal", color=signalColor, transp=0)
+
+transparent = color.new(color.white, 100)
+
+fillColor = applyFilling ? trendColor : transparent
+fill(pvtPlot, signalPlot, color=fillColor, transp=70)
+
+buyAlert = crossover(pvt, signal)
+sellAlert = crossunder(pvt, signal)
+
+plotshape(buyAlert and highlightCrossovers ? pvt : na, title="Crossover", location=location.absolute, style=shape.circle, size=size.tiny, color=color.green, transp=0)
+plotshape(sellAlert and highlightCrossovers ? pvt : na, title="Crossunder", location=location.absolute, style=shape.circle, size=size.tiny, color=color.red, transp=0)
+
+alertcondition(buyAlert, title="Alert: Buy", message="Buy\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}")
+alertcondition(sellAlert, title="Alert: Sell", message="Sell\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}")

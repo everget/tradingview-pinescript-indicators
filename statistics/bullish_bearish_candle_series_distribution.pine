@@ -1,0 +1,240 @@
+//@version=4
+// Copyright (c) 2020-present, Alex Orekhov (everget)
+// Bullish/Bearish Candle Series Distribution script may be freely distributed under the terms of GPL-3.0 license.
+study("Bullish/Bearish Candle Series Distribution")
+
+reboot = input(title="Reboot ?", defval=false)
+mode = input(title="Mode", defval="Bullish", options=["Strict Bullish", "Bullish", "Strict Bearish", "Bearish"])
+width = input(title="Columns Width", defval=10)
+space = input(title="Space Between Columns", defval=5)
+hide2 = input(title="Hide 2-Series ?", defval=false)
+
+columnColor = #ffb74d
+labelColor = #1e90ff
+whiteColor = color.white
+
+cond =
+     mode == "Bullish" ? close >= open :
+     mode == "Strict Bullish" ? close > open :
+     mode == "Bearish" ? close <= open :
+     mode == "Strict Bearish" ? close < open :
+     false
+
+var int count = 0
+count := na(count[1]) ? count : (cond ? count[1] + 1 : 0)
+
+// var res = '';
+// var len = 60;
+
+// for (let i = 0; i < len; i++) {
+// 	res = res.concat(`var int serie${ i + 2 } = 0\n`);
+// }
+
+// res = res.concat(`\n`);
+// res = res.concat(`len = nz(count[1]) + 1\n`)
+// res = res.concat(`if count == 0\n`);
+
+// for (let i = 0; i < len; i++) {
+// 	res = res.concat(`	serie${ i + 2 } := len == ${ i + 2 } ? serie${ i + 2 } + 1 : serie${ i + 2 }\n`);
+// }
+
+// res = res.concat(`\n`);
+
+// res = res.concat(
+//     Array.from({ length: len })
+//     .reduce((acc, _, idx) => {
+//     	return acc
+//     		.concat(`plot(serie${ idx + 2 }, offset=(${ -idx } * space), title="${ idx + 2 }", style=plot.style_histogram, linewidth=width, color=color.black, show_last=1)\n`);
+//     }, '')
+// );
+
+var int serie2 = 0
+var int serie3 = 0
+var int serie4 = 0
+var int serie5 = 0
+var int serie6 = 0
+var int serie7 = 0
+var int serie8 = 0
+var int serie9 = 0
+var int serie10 = 0
+var int serie11 = 0
+var int serie12 = 0
+var int serie13 = 0
+var int serie14 = 0
+var int serie15 = 0
+var int serie16 = 0
+var int serie17 = 0
+var int serie18 = 0
+var int serie19 = 0
+var int serie20 = 0
+var int serie21 = 0
+var int serie22 = 0
+var int serie23 = 0
+var int serie24 = 0
+var int serie25 = 0
+var int serie26 = 0
+var int serie27 = 0
+var int serie28 = 0
+var int serie29 = 0
+var int serie30 = 0
+var int serie31 = 0
+var int serie32 = 0
+var int serie33 = 0
+var int serie34 = 0
+var int serie35 = 0
+var int serie36 = 0
+var int serie37 = 0
+var int serie38 = 0
+var int serie39 = 0
+var int serie40 = 0
+var int serie41 = 0
+var int serie42 = 0
+var int serie43 = 0
+var int serie44 = 0
+var int serie45 = 0
+var int serie46 = 0
+var int serie47 = 0
+var int serie48 = 0
+var int serie49 = 0
+var int serie50 = 0
+var int serie51 = 0
+var int serie52 = 0
+var int serie53 = 0
+var int serie54 = 0
+var int serie55 = 0
+var int serie56 = 0
+var int serie57 = 0
+var int serie58 = 0
+var int serie59 = 0
+
+len = nz(count[1]) + 1
+if count == 0
+	serie2 := len == 2 ? serie2 + 1 : serie2
+	serie3 := len == 3 ? serie3 + 1 : serie3
+	serie4 := len == 4 ? serie4 + 1 : serie4
+	serie5 := len == 5 ? serie5 + 1 : serie5
+	serie6 := len == 6 ? serie6 + 1 : serie6
+	serie7 := len == 7 ? serie7 + 1 : serie7
+	serie8 := len == 8 ? serie8 + 1 : serie8
+	serie9 := len == 9 ? serie9 + 1 : serie9
+	serie10 := len == 10 ? serie10 + 1 : serie10
+	serie11 := len == 11 ? serie11 + 1 : serie11
+	serie12 := len == 12 ? serie12 + 1 : serie12
+	serie13 := len == 13 ? serie13 + 1 : serie13
+	serie14 := len == 14 ? serie14 + 1 : serie14
+	serie15 := len == 15 ? serie15 + 1 : serie15
+	serie16 := len == 16 ? serie16 + 1 : serie16
+	serie17 := len == 17 ? serie17 + 1 : serie17
+	serie18 := len == 18 ? serie18 + 1 : serie18
+	serie19 := len == 19 ? serie19 + 1 : serie19
+	serie20 := len == 20 ? serie20 + 1 : serie20
+	serie21 := len == 21 ? serie21 + 1 : serie21
+	serie22 := len == 22 ? serie22 + 1 : serie22
+	serie23 := len == 23 ? serie23 + 1 : serie23
+	serie24 := len == 24 ? serie24 + 1 : serie24
+	serie25 := len == 25 ? serie25 + 1 : serie25
+	serie26 := len == 26 ? serie26 + 1 : serie26
+	serie27 := len == 27 ? serie27 + 1 : serie27
+	serie28 := len == 28 ? serie28 + 1 : serie28
+	serie29 := len == 29 ? serie29 + 1 : serie29
+	serie30 := len == 30 ? serie30 + 1 : serie30
+	serie31 := len == 31 ? serie31 + 1 : serie31
+	serie32 := len == 32 ? serie32 + 1 : serie32
+	serie33 := len == 33 ? serie33 + 1 : serie33
+	serie34 := len == 34 ? serie34 + 1 : serie34
+	serie35 := len == 35 ? serie35 + 1 : serie35
+	serie36 := len == 36 ? serie36 + 1 : serie36
+	serie37 := len == 37 ? serie37 + 1 : serie37
+	serie38 := len == 38 ? serie38 + 1 : serie38
+	serie39 := len == 39 ? serie39 + 1 : serie39
+	serie40 := len == 40 ? serie40 + 1 : serie40
+	serie41 := len == 41 ? serie41 + 1 : serie41
+	serie42 := len == 42 ? serie42 + 1 : serie42
+	serie43 := len == 43 ? serie43 + 1 : serie43
+	serie44 := len == 44 ? serie44 + 1 : serie44
+	serie45 := len == 45 ? serie45 + 1 : serie45
+	serie46 := len == 46 ? serie46 + 1 : serie46
+	serie47 := len == 47 ? serie47 + 1 : serie47
+	serie48 := len == 48 ? serie48 + 1 : serie48
+	serie49 := len == 49 ? serie49 + 1 : serie49
+	serie50 := len == 50 ? serie50 + 1 : serie50
+	serie51 := len == 51 ? serie51 + 1 : serie51
+	serie52 := len == 52 ? serie52 + 1 : serie52
+	serie53 := len == 53 ? serie53 + 1 : serie53
+	serie54 := len == 54 ? serie54 + 1 : serie54
+	serie55 := len == 55 ? serie55 + 1 : serie55
+	serie56 := len == 56 ? serie56 + 1 : serie56
+	serie57 := len == 57 ? serie57 + 1 : serie57
+	serie58 := len == 58 ? serie58 + 1 : serie58
+	serie59 := len == 59 ? serie59 + 1 : serie59
+
+plot(hide2 ? na : serie2, offset=(0 * space), title="2", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(hide2 ? na : 0, offset=(0 * space), title="2", text=" 2 ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(serie3, offset=(-1 * space), title="3", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie4, offset=(-2 * space), title="4", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie5, offset=(-3 * space), title="5", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie6, offset=(-4 * space), title="6", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie7, offset=(-5 * space), title="7", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie8, offset=(-6 * space), title="8", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie9, offset=(-7 * space), title="9", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie10, offset=(-8 * space), title="10", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-8 * space), title="10", text=" 10 ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(serie11, offset=(-9 * space), title="11", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie12, offset=(-10 * space), title="12", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie13, offset=(-11 * space), title="13", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie14, offset=(-12 * space), title="14", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie15, offset=(-13 * space), title="15", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie16, offset=(-14 * space), title="16", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie17, offset=(-15 * space), title="17", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie18, offset=(-16 * space), title="18", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie19, offset=(-17 * space), title="19", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie20, offset=(-18 * space), title="20", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-18 * space), title="20", text=" 20 ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(serie21, offset=(-19 * space), title="21", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie22, offset=(-20 * space), title="22", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie23, offset=(-21 * space), title="23", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie24, offset=(-22 * space), title="24", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie25, offset=(-23 * space), title="25", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie26, offset=(-24 * space), title="26", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie27, offset=(-25 * space), title="27", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie28, offset=(-26 * space), title="28", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie29, offset=(-27 * space), title="29", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie30, offset=(-28 * space), title="30", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-28 * space), title="30", text=" 30 ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(serie31, offset=(-29 * space), title="31", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie32, offset=(-30 * space), title="32", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie33, offset=(-31 * space), title="33", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie34, offset=(-32 * space), title="34", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie35, offset=(-33 * space), title="35", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie36, offset=(-34 * space), title="36", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie37, offset=(-35 * space), title="37", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie38, offset=(-36 * space), title="38", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie39, offset=(-37 * space), title="39", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie40, offset=(-38 * space), title="40", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-38 * space), title="40", text=" 40 ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(serie41, offset=(-39 * space), title="41", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie42, offset=(-40 * space), title="42", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie43, offset=(-41 * space), title="43", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie44, offset=(-42 * space), title="44", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie45, offset=(-43 * space), title="45", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie46, offset=(-44 * space), title="46", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie47, offset=(-45 * space), title="47", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie48, offset=(-46 * space), title="48", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie49, offset=(-47 * space), title="49", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie50, offset=(-48 * space), title="50", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plotshape(0, offset=(-48 * space), title="50", text=" 50 ", color=labelColor, textcolor=whiteColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0, editable=false)
+
+plot(serie51, offset=(-49 * space), title="51", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie52, offset=(-50 * space), title="52", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie53, offset=(-51 * space), title="53", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie54, offset=(-52 * space), title="54", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie55, offset=(-53 * space), title="55", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie56, offset=(-54 * space), title="56", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie57, offset=(-55 * space), title="57", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie58, offset=(-56 * space), title="58", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)
+plot(serie59, offset=(-57 * space), title="59", style=plot.style_histogram, linewidth=width, color=columnColor, show_last=1, transp=0, editable=false)

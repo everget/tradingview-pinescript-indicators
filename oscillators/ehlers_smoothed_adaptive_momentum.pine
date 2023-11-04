@@ -1,0 +1,103 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ehlers Smoothed Adaptive Momentum script may be freely distributed under the terms of GPL-3.0 license.
+study("Ehlers Smoothed Adaptive Momentum", shorttitle="ESAM")
+
+length = input(title="Cutoff", type=integer, defval=8)
+alpha = input(title="Alpha", type=float, minval=0, step=0.1, defval=0.7)
+poles = input(title="Super Smoother Filter Poles", type=integer, defval=3, options=[2, 3])
+src = input(title="Source", type=source, defval=close)
+
+median(src, length) =>
+    percentile_nearest_rank(src, length, 50)
+
+PI = 2 * asin(1)
+
+get2PoleSSF(src, length) =>
+    arg = sqrt(2) * PI / length
+    a1 = exp(-arg)
+    b1 = 2 * a1 * cos(arg)
+    c2 = b1
+    c3 = -pow(a1, 2)
+    c1 = 1 - c2 - c3
+    
+    ssf = 0.0
+    ssf := c1 * src + c2 * nz(ssf[1]) + c3 * nz(ssf[2])
+
+get3PoleSSF(src, length) =>
+    arg = PI / length
+    a1 = exp(-arg)
+    b1 = 2 * a1 * cos(1.738 * arg)
+    c1 = pow(a1, 2)
+
+    coef2 = b1 + c1
+    coef3 = -(c1 + b1 * c1)
+    coef4 = pow(c1, 2)
+    coef1 = 1 - coef2 - coef3 - coef4
+
+    ssf = 0.0
+    ssf := coef1 * src + coef2 * nz(ssf[1]) + coef3 * nz(ssf[2]) + coef4 * nz(ssf[3])
+
+hilbertTransform(src) =>
+    0.0962 * src + 0.5769 * nz(src[2]) - 0.5769 * nz(src[4]) - 0.0962 * nz(src[6])
+
+computeComponent(src, periodMult) =>
+    hilbertTransform(src) * periodMult
+
+getESAM(src, length, alpha, poles) =>
+    smooth = (src + 2 * nz(src[1]) + 2 * nz(src[2]) + nz(src[3])) / 6
+
+    cycle = 0.0
+    cycle := pow(1 - alpha / 2, 2) * (smooth - 2 * nz(smooth[1]) + nz(smooth[2])) + 2 * (1 - alpha) * nz(cycle[1]) - pow(1 - alpha, 2) * nz(cycle[2])
+
+    if n < 7
+        cycle := (src - 2 * nz(src[1]) + nz(src[2])) / 4
+    
+    instPeriod = 0.0
+    instPeriodMult = 0.8 * nz(instPeriod[1]) + 0.5
+    
+    I1 = 0.0
+    Q1 = 0.0
+    
+    // Compute InPhase and Quadrature Components
+    I1 := nz(cycle[3])
+    Q1 := computeComponent(src, instPeriodMult)
+    
+    deltaPhase = 0.0
+    
+    if Q1 != 0 and Q1[1] != 0
+        deltaPhase := (I1 / Q1 - I1[1] / Q1[1]) / (1 + I1 * I1[1] / (Q1 * Q1[1]))
+    
+    if deltaPhase < 0.1
+        deltaPhase := 0.1
+    
+    if deltaPhase > 1.1
+        deltaPhase := 1.1
+
+    medianDelta = median(deltaPhase, 5)
+
+    // Dominant Cycle
+    dc = 0.0
+
+    if medianDelta == 0
+        dc := 15
+    else
+        dc := 2 * PI / medianDelta + 0.5
+
+    instPeriod := 0.33 * dc + 0.67 * nz(instPeriod[1])
+
+    lookback = 0.0
+    lookback := 0.15 * instPeriod + 0.85 * nz(lookback[1])
+    
+    mom = src - src[floor(lookback - 1)]
+    
+    esam = poles == 3
+         ? get3PoleSSF(mom, length)
+         : get2PoleSSF(mom, length)
+    esam
+
+esam = getESAM(src, length, alpha, poles)
+esamColor = esam > 0 ? #0ebb23 : red
+
+plot(esam, title="ESAM", linewidth=2, color=esamColor, transp=0)
+hline(0, title="Zero Level", linestyle=dotted)

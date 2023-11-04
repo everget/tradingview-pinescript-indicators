@@ -1,0 +1,33 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Pretty Good Oscillator script may be freely distributed under the terms of the GPL-3.0 license.
+study("Pretty Good Oscillator", shorttitle="PGO")
+
+length = input(title="Length", type=integer, defval=14, minval=1)
+upperLevel = input(title="Upper Level", type=float, step=0.1, defval=2.0)
+lowerLevel = input(title="Lower Level", type=float, step=0.1, defval=-2.0)
+maxLevel = input(title="Max Level", type=float, step=0.1, defval=4.0)
+minLevel = input(title="Min Level", type=float, step=0.1, defval=-4.0)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+pgo = (src - sma(src, length)) / atr(length)
+
+pgoColor = pgo > upperLevel ? #0ebb23 : pgo < lowerLevel ? #ff0000 : #f4b77d
+plot(pgo, title="PGO", linewidth=2, color=pgoColor, transp=0)
+
+transparent = color(white, 100)
+
+maxLevelPlot = hline(maxLevel, title="Max Level", linestyle=dotted, color=transparent)
+upperLevelPlot = hline(upperLevel, title="Upper Level", linestyle=dotted)
+hline(0, title="Zero Level", linestyle=dotted)
+lowerLevelPlot = hline(lowerLevel, title="Lower Level", linestyle=dotted)
+minLevelPlot = hline(minLevel, title="Min Level", linestyle=dotted, color=transparent)
+
+fill(upperLevelPlot, lowerLevelPlot, color=purple, transp=95)
+
+upperFillColor = pgo > upperLevel and highlightBreakouts ? green : transparent
+lowerFillColor = pgo < lowerLevel and highlightBreakouts ? red : transparent
+
+fill(maxLevelPlot, upperLevelPlot, color=upperFillColor, transp=90)
+fill(minLevelPlot, lowerLevelPlot, color=lowerFillColor, transp=90)

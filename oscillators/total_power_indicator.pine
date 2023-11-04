@@ -1,0 +1,30 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Total Power Indicator script may be freely distributed under the terms of GPL-3.0 license.
+study("Total Power Indicator", shorttitle="TPI")
+
+length = input(title="Length", type=integer, defval=45)
+powersLength = input(title="Elder Powers Length", type=integer, defval=10)
+adjustableLevel = input(title="Adjustable Entry Level", type=integer, defval=75)
+applyFilling = input(title="Apply Powers Filling ?", type=bool, defval=false)
+
+elderBullPower = high - ema(close, powersLength)
+elderBearPower = low - ema(close, powersLength)
+
+adjust(value) => 100 * value / length
+
+bullCount = sum(elderBullPower > 0 ? 1 : 0, length)
+bearCount = sum(elderBearPower < 0 ? 1 : 0, length)
+total = adjust(abs(bullCount - bearCount))
+bull = adjust(bullCount)
+bear = adjust(bearCount)
+
+bullPlot = plot(bull, title="Bull", linewidth=2, color=#0ebb23, transp=0)
+bearPlot = plot(bear, title="Bear", linewidth=2, color=red, transp=0)
+plot(total, title="Total", linewidth=2, color=#3c78d8, transp=0)
+
+fillColor = applyFilling ? (bull > bear ? #0ebb23 : red) : color(white, 100) 
+fill(bullPlot, bearPlot, color=fillColor, transp=80)
+
+hline(adjustableLevel, title="Adjustable Entry Level", linestyle=dotted)
+hline(50, title="Middle Level", linestyle=dotted, color=#f49517)

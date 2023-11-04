@@ -1,0 +1,21 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Gator Oscillator script may be freely distributed under the terms of GPL-3.0 license.
+study("Gator Oscillator", shorttitle="Gator")
+
+jawLength = input(title="Jaw Length", type=integer, defval=13)
+teethLength = input(title="Teeth Length", type=integer, defval=8)
+lipsLength = input(title="Lips Length", type=integer, defval=5)
+
+jaw = offset(rma(hl2, jawLength), 8)
+teeth = offset(rma(hl2, teethLength), 5)
+lips = offset(rma(hl2, lipsLength), 3)
+
+upper = abs(jaw - teeth)
+lower = -abs(teeth - lips)
+
+upperColor = (upper[1] < upper ? #26A69A : #EF5350)
+lowerColor = (lower[1] > lower ? #26A69A : #EF5350)
+
+plot(upper, title="Upper", style=columns, color=upperColor, transp=0)
+plot(lower, title="Lower", style=columns, color=lowerColor, transp=0)

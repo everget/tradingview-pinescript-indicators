@@ -1,0 +1,42 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// DeMarker script may be freely distributed under the terms of the GPL-3.0 license.
+study("DeMarker", shorttitle="DeMarker")
+
+length = input(title="Length", type=integer, defval=14)
+maType = input(title="Smoothing Type", defval="SMA", options=["EMA", "SMA", "VWMA", "WMA"])
+obLevel = input(title="Overbought Level", type=float, step=0.1, defval=0.7)
+osLevel = input(title="Oversold Level", type=float, step=0.1, defval=0.3)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+getMA(type, src, length) =>
+    type == "SMA" ? sma(src, length) :
+     type == "EMA" ? ema(src, length) :
+     type == "VWMA" ? vwma(src, length) :
+     type == "WMA" ? wma(src, length) :
+     na
+
+demax = max(change(high), 0)
+demin = -min(change(low), 0)
+
+demarker = getMA(maType, demax, length) / (getMA(maType, demax, length) + getMA(maType, demin, length))
+
+demarkerColor = demarker > obLevel ? #0ebb23 : demarker < osLevel ? #ff0000 : #f4b77d
+plot(demarker, title="DeMarker", linewidth=2, color=demarkerColor, transp=0)
+
+transparent = color(white, 100)
+
+maxLevelPlot = hline(1, title="Max Level", linestyle=dotted, color=transparent)
+obLevelPlot = hline(obLevel, title="Overbought Level", linestyle=dotted)
+hline(0.5, title="Middle Level", linestyle=dotted)
+osLevelPlot = hline(osLevel, title="Oversold Level", linestyle=dotted)
+minLevelPlot = hline(0, title="Min Level", linestyle=dotted, color=transparent)
+
+fill(obLevelPlot, osLevelPlot, color=purple, transp=95)
+
+obFillColor = demarker > obLevel and highlightBreakouts ? green : transparent
+osFillColor = demarker < osLevel and highlightBreakouts ? red : transparent
+
+fill(maxLevelPlot, obLevelPlot, color=obFillColor, transp=90)
+fill(minLevelPlot, osLevelPlot, color=osFillColor, transp=90)

@@ -1,0 +1,76 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Ehlers Stochastic script may be freely distributed under the terms of the GPL-3.0 license.
+study("Ehlers Stochastic", shorttitle="EStoch")
+
+highpassLength = input(title="HighPass Length", type=integer, minval=1, defval=48)
+ssfLength = input(title="Super Smoother Filter Length", type=integer, minval=1, defval=10)
+stochLength = input(title="Stochastic Length", type=integer, minval=1, defval=20)
+numberOfPoles = input(title="Number of Poles", type=integer, defval=2, options=[2, 3])
+overboughtLevel = input(title="Overbought Level", type=float, step=0.1, defval=0.8)
+oversoldLevel = input(title="Oversold Level", type=float, step=0.1, defval=0.2)
+src = input(title="Source", type=source, defval=close)
+
+PI = 2 * asin(1)
+
+twoPoleSuperSmootherFilter(src, length) =>
+	arg = sqrt(2) * PI / length
+	a1 = exp(-arg)
+	b1 = 2 * a1 * cos(arg)
+	c2 = b1
+	c3 = -pow(a1, 2)
+	c1 = 1 - c2 - c3
+
+	ssf = 0.0
+	ssf := c1 * src + c2 * nz(ssf[1]) + c3 * nz(ssf[2])
+
+threePoleSuperSmootherFilter(src, length) =>
+	arg = PI / length
+	a1 = exp(-arg)
+	b1 = 2 * a1 * cos(1.738 * arg)
+	c1 = pow(a1, 2)
+
+	coef2 = b1 + c1
+	coef3 = -(c1 + b1 * c1)
+	coef4 = pow(c1, 2)
+	coef1 = 1 - coef2 - coef3 - coef4
+
+	ssf = 0.0
+	ssf := coef1 * src + coef2 * nz(ssf[1]) + coef3 * nz(ssf[2]) + coef4 * nz(ssf[3])
+
+roofingFilter(src, highpassLength, ssfLength, numberOfPoles) =>
+	alphaArg = 2 * PI / (highpassLength * sqrt(2))
+
+	alpha = 0.0
+	alpha := cos(alphaArg) != 0
+		 ? (cos(alphaArg) + sin(alphaArg) - 1) / cos(alphaArg)
+		 : nz(alpha[1])
+
+	highpass = 0.0
+	highpass := pow(1 - (alpha / 2), 2) * (src - 2 * nz(src[1]) + nz(src[2])) + 2 * (1 - alpha) * nz(highpass[1]) - pow(1 - alpha, 2) * nz(highpass[2])
+
+	numberOfPoles == 2
+		 ? twoPoleSuperSmootherFilter((highpass + nz(highpass[1])) / 2, ssfLength)
+		 : threePoleSuperSmootherFilter((highpass + nz(highpass[1])) / 2, ssfLength)
+
+ehlersStochastic(roofingFilter, stochLength, ssfLength, numberOfPoles) =>
+	rfHighest = highest(roofingFilter, stochLength)
+	rfLowest = lowest(roofingFilter, stochLength)
+
+	stoch = rfHighest - rfLowest != 0
+		 ? (roofingFilter - rfLowest) / (rfHighest - rfLowest)
+		 : 0
+
+	numberOfPoles == 2
+		 ? twoPoleSuperSmootherFilter((stoch + nz(stoch[1])) / 2, ssfLength)
+		 : threePoleSuperSmootherFilter((stoch + nz(stoch[1])) / 2, ssfLength)
+
+erf = roofingFilter(src, highpassLength, ssfLength, numberOfPoles)
+estoch = ehlersStochastic(erf, stochLength, ssfLength, numberOfPoles)
+
+estochColor = estoch > overboughtLevel ? #0ebb23 : estoch < oversoldLevel ? #cc0000 : #674ea7
+plot(estoch, title="EStoch", linewidth=2, color=estochColor, transp=0)
+
+hline(overboughtLevel, title="Overbought Level", linestyle=dotted, color=#e69138)
+hline(0.5, title="Middle Level", linestyle=dotted, color=#989898)
+hline(oversoldLevel, title="Oversold Level", linestyle=dotted, color=#e69138)

@@ -1,0 +1,37 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Trend Trigger Factor script may be freely distributed under the terms of the GPL-3.0 license.
+study("Trend Trigger Factor", shorttitle="TTF")
+
+length = input(title="Lookback Length", type=integer, defval=15)
+upperLevel = input(title="Upper Trigger Level", type=integer, defval=100, minval=1)
+lowerLevel = input(title="Lower Trigger Level", type=integer, defval=-100, maxval=-1)
+highlightBreakouts = input(title="Highlight Overbought/Oversold Breakouts ?", type=bool, defval=true)
+src = input(title="Source", type=source, defval=close)
+
+hh = highest(length)
+ll = lowest(length)
+
+buyPower = hh - nz(ll[length])
+sellPower = nz(hh[length]) - ll
+
+ttf = 200 * (buyPower - sellPower) / (buyPower + sellPower)
+
+ttfColor = ttf > upperLevel ? #0ebb23 : ttf < lowerLevel ? #ff0000 : #f4b77d
+plot(ttf, title="TTF", linewidth=2, color=ttfColor, transp=0)
+
+transparent = color(white, 100)
+
+maxLevelPlot = hline(200, title="Max Level", linestyle=dotted, color=transparent)
+upperLevelPlot = hline(upperLevel, title="Upper Trigger Level", linestyle=dotted)
+hline(0, title="Zero Level", linestyle=dotted)
+lowerLevelPlot = hline(lowerLevel, title="Lower Trigger Level", linestyle=dotted)
+minLevelPlot = hline(-200, title="Min Level", linestyle=dotted, color=transparent)
+
+fill(upperLevelPlot, lowerLevelPlot, color=purple, transp=95)
+
+upperFillColor = ttf > upperLevel and highlightBreakouts ? green : transparent
+lowerFillColor = ttf < lowerLevel and highlightBreakouts ? red : transparent
+
+fill(maxLevelPlot, upperLevelPlot, color=upperFillColor, transp=90)
+fill(minLevelPlot, lowerLevelPlot, color=lowerFillColor, transp=90)

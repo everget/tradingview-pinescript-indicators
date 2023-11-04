@@ -1,0 +1,118 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Candles History script may be freely distributed under the terms of GPL-3.0 license.
+study("Candles History", shorttitle="CH", precision=1)
+
+copyright = input(title="Author", defval="@everget", options=["@everget"])
+
+mode = input(title="Display Mode", defval="Starting Year",
+	 options=["Starting Year",
+				 "Starting Month",
+				 "Starting Day",
+				 "Starting Weekday",
+				 "Starting Hour",
+				 "Starting Minute",
+				 "Highest Volume",
+				 "Lowest Volume",
+				 "Longest Candle Range",
+				 "Longest Candle Range in Pips",
+				 "Average Candle Range",
+				 "Average Candle Range in Pips",
+				 "Longest Candle Body Range",
+				 "Longest Candle Body Range in Pips",
+				 "Average Candle Body Range",
+				 "Average Candle Body Range in Pips",
+				 "All-Time High",
+				 "All-Time Low",
+				 "Available Candles",
+				 "Bullish Candles",
+				 "Bullish Trend Candles",
+				 "Bearish Candles",
+				 "Bearish Trend Candles",
+				 "Doji Candles",
+				 "Bullish Marubozu Candles",
+				 "Bearish Marubozu Candles",
+				 "Longest Bullish Serie",
+				 "Longest Bearish Serie"])
+
+range = high - low
+body = abs(open - close)
+
+averageRange = cum(range) / (n + 1)
+averageBody = cum(body) / (n + 1)
+
+longestRange = range
+longestRange := na(longestRange[1]) ? longestRange : (range > longestRange[1] ? range : longestRange[1]) 
+
+longestBody = body
+longestBody := na(longestBody[1]) ? longestBody : (body > longestBody[1] ? body : longestBody[1])
+
+bullMax = 0
+bullMax := na(bullMax[1]) ? bullMax : bullMax[1]
+
+bullCount = 0
+bullCount := na(bullCount[1]) ? bullCount : (close >= open ? bullCount[1] + 1 : 0)
+
+if bullCount == 0 and nz(bullCount[1]) + 1 > bullMax
+    bullMax := bullCount[1] + 1
+
+bearMax = 0
+bearMax := na(bearMax[1]) ? bearMax : bearMax[1]
+
+bearCount = 0
+bearCount := na(bearCount[1]) ? bearCount : (close <= open ? bearCount[1] + 1 : 0)
+
+if bearCount == 0 and nz(bearCount[1]) + 1 > bearMax
+    bearMax := bearCount[1] + 1
+
+bullSum = cum(close > open ? 1 : 0)
+bearSum = cum(close < open ? 1 : 0)
+
+bulltrendSum = cum(close > open and body >= 0.5 * range ? 1 : 0)
+beartrendSum = cum(close < open and body >= 0.5 * range ? 1 : 0)
+
+highestVolume = volume
+highestVolume := na(highestVolume[1]) ? highestVolume : (volume > highestVolume[1] ? volume : highestVolume[1])
+
+lowestVolume = pow(10, 10)
+lowestVolume := na(lowestVolume[1]) ? lowestVolume : (volume < lowestVolume[1] and volume != 0 ? volume : lowestVolume[1])
+
+ath = high
+ath := na(ath[1]) ? ath : (high > ath[1] ? high : ath[1])
+
+atl = low
+atl := na(atl[1]) ? atl : (low < atl[1] ? low : atl[1])
+
+out = 0.0
+out := mode == "Available Candles" ? n + 1 : out
+out := mode == "Bullish Candles" ? bullSum : out
+out := mode == "Bullish Trend Candles" ? bulltrendSum : out
+out := mode == "Bearish Candles" ? bearSum : out
+out := mode == "Bearish Trend Candles" ? beartrendSum : out
+out := mode == "Doji Candles" ? cum(open == close ? 1 : 0) : out
+out := mode == "Bullish Marubozu Candles" ? cum(high == close and low == open ? 1 : 0) : out
+out := mode == "Bearish Marubozu Candles" ? cum(high == open and low == close ? 1 : 0) : out
+
+out := mode == "Longest Candle Range" ? longestRange : out
+out := mode == "Longest Candle Range in Pips" ? longestRange / syminfo.mintick : out
+out := mode == "Average Candle Range" ? averageRange : out
+out := mode == "Average Candle Range in Pips" ? averageRange / syminfo.mintick : out
+out := mode == "Longest Candle Body Range" ? longestBody : out
+out := mode == "Longest Candle Body Range in Pips" ? longestBody / syminfo.mintick : out
+out := mode == "Average Candle Body Range" ? averageBody : out
+out := mode == "Average Candle Body Range in Pips" ? averageBody / syminfo.mintick : out
+
+out := mode == "Longest Bullish Serie" ? floor(bullMax) : out
+out := mode == "Longest Bearish Serie" ? floor(bearMax) : out
+out := mode == "Highest Volume" ? highestVolume : out
+out := mode == "Lowest Volume" ? lowestVolume : out
+out := mode == "All-Time High" ? ath : out
+out := mode == "All-Time Low" ? atl : out
+out := mode == "Starting Year" ? valuewhen(n == 0, year, 0) : out
+out := mode == "Starting Month" ? valuewhen(n == 0, month, 0) : out
+out := mode == "Starting Day" ? valuewhen(n == 0, dayofmonth, 0) : out
+out := mode == "Starting Weekday" ? valuewhen(n == 0, dayofweek, 0) : out
+out := mode == "Starting Hour" ? valuewhen(n == 0, hour, 0) : out
+out := mode == "Starting Minute" ? valuewhen(n == 0, minute, 0) : out
+
+plot(out, title="Metric", color=red)

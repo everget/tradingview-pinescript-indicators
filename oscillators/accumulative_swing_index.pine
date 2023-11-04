@@ -1,0 +1,24 @@
+//@version=3
+// Copyright (c) 2017-present, Alex Orekhov (everget)
+// Accumulative Swing Index script may be freely distributed under the terms of GPL-3.0 license.
+study("Accumulative Swing Index", shorttitle="ASI")
+
+limit = input(title="Limit Move Value", type=float, defval=10000)
+
+// Swing Index
+getSI(limit) =>
+    H_C1 = abs(high - close[1])
+    L_C1 = abs(low - close[1])
+    H_L = abs(high - low)
+    C1_O1 = abs(close[1] - open[1])
+    K = max(H_C1, L_C1)
+    R = iff(H_C1 >= max(L_C1, H_L), H_C1 - 0.5 * L_C1 + 0.25 * C1_O1, iff(L_C1 >= max(H_C1, H_L), L_C1 - 0.5 * H_C1 + 0.25 * C1_O1, H_L + 0.25 * C1_O1))
+    result = 50 * ((close - close[1] + 0.5 * (close - open) + 0.25 * (close[1] - open[1])) / R) * K / limit
+    result
+
+// Accumulative Swing Index
+asi = cum(getSI(limit))
+
+asiColor = asi >= asi[1] ? #0ebb23 : red
+
+plot(asi, title="ASI", color=asiColor, transp=0)

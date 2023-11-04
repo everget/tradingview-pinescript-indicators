@@ -1,0 +1,25 @@
+//@version=3
+// Copyright (c) 2018-present, Alex Orekhov (everget)
+// Didi Index script may be freely distributed under the terms of GPL-3.0 license.
+study("Didi Index")
+
+curtaLength = input(title="Curta (Short) Length", type=integer, defval=3)
+mediaLength = input(title="Media (Medium) Length", type=integer, defval=8)
+longaLength = input(title="Longa (Long) Length", type=integer, defval=20)
+src = input(title="Source", type=source, defval=close)
+applyFilling = input(title="Apply Ribbon Filling ?", type=bool, defval=true)
+highlightCrossovers = input(title="Highlight Crossovers ?", type=bool, defval=true)
+
+media = sma(src, mediaLength)
+curta = sma(src, curtaLength) / media
+longa = sma(src, longaLength) / media
+
+curtaPlot = plot(curta, title="Curta", color=green)
+plot(1, title="Media", color=black, transp=0)
+longaPlot = plot(longa, title="Longa", color=red)
+
+fillColor = applyFilling ? (curta > longa ? #0ebb23 : red) : color(white, 100) 
+fill(curtaPlot, longaPlot, color=fillColor, transp=80)
+
+plotshape(crossover(curta, longa) and highlightCrossovers ? avg(longa, longa[1]) : na, title="Crossover", location=location.absolute, style=shape.circle, size=size.tiny, color=green, transp=20)
+plotshape(crossunder(curta, longa) and highlightCrossovers ? avg(longa, longa[1]) : na, title="Crossunder", location=location.absolute, style=shape.circle, size=size.tiny, color=red, transp=20)
