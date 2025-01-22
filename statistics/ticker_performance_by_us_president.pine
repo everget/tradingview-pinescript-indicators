@@ -1,230 +1,243 @@
-//@version=4
+//@version=6
 // Copyright (c) 2020-present, Alex Orekhov (everget)
-// Ticker Performance by US President script may be freely distributed under the terms of GPL-3.0 license.
-study("Presidents Performance")
+indicator('Presidents Performance')
 
-int width = input(title="Columns Width", type=input.integer, defval=15)
-int space = input(title="Space Between Columns", type=input.integer, defval=150)
+width = input.int(title = 'Columns Width', minval = 1, defval = 15)
+space = input.int(title = 'Space Between Columns', minval = 0, defval = 150)
 
-var color labelColor = #1e90ff
-var color textColor = color.white
-int t = time(timeframe.period)
+var labelColor = #1e90ff
+var labelTextColor = color.white
+var labelStyle = shape.labelup
+var labelLocation = location.absolute
+var labelSize = size.small
 
-_ts(y, m, d, h, min, s) =>
-	out = timestamp(y, m, d, h, min, s)
-	out
+t = time(timeframe.period)
+
+_ts(y, m, d, h = 0, min = 0, s = 0) =>
+    out = timestamp(y, m, d, h, min, s)
+    out
 
 _perf(presidency) =>
-	var float start = na
-	var float out = na
-	start := na(start) and presidency ? open : start
-	out := not na(start) and presidency ? 100 * (close - start) / start : out
-	out
+    var float start = na
+    var float out = na
+    start := na(start) and presidency ? open : start
+    out := not na(start) and presidency ? 100 * (close - start) / start : out
+    out
 
-//------------------------------------------------------------------------------
-// Joe Biden
-
-float biden = _perf(t >= _ts(2021, 1, 20, 0, 0, 0))
-int bidenOffset = 0
-
-plot(biden, offset=bidenOffset, title="Joe Biden", color=#9966cc, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(biden, 0), offset=bidenOffset, title="Joe Biden", text="Biden", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+hline(0.0, title = 'Zero Level', linestyle = hline.style_dotted, color = #674ea7)
 
 //------------------------------------------------------------------------------
 // Donald Trump
 
-float trump = _perf(_ts(2017, 1, 20, 0, 0, 0) <= t and t <= _ts(2021, 1, 20, 0, 0, 0))
-int trumpOffset = bidenOffset - space
+trump2 = _perf(t > _ts(2025, 1, 20))
+trump2Offset = 0
 
-plot(trump, offset=trumpOffset, title="Donald Trump", color=#f1625e, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(trump, 0), offset=trumpOffset, title="Donald Trump", text="Trump", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(trump2, offset = trump2Offset, title = 'Donald Trump', color = #f1625e, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(trump2, 0), offset = trump2Offset, title = 'Donald Trump', text = 'Trump', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
+
+//------------------------------------------------------------------------------
+// Joe Biden
+
+biden = _perf(_ts(2021, 1, 20) <= t and t <= _ts(2025, 1, 20))
+bidenOffset = trump2Offset - space
+
+plot(biden, offset = bidenOffset, title = 'Joe Biden', color = #9966cc, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(biden, 0), offset = bidenOffset, title = 'Joe Biden', text = 'Biden', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
+
+//------------------------------------------------------------------------------
+// Donald Trump
+
+trump = _perf(_ts(2017, 1, 20) <= t and t <= _ts(2021, 1, 20))
+trumpOffset = bidenOffset - space
+
+plot(trump, offset = trumpOffset, title = 'Donald Trump', color = #f1625e, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(trump, 0), offset = trumpOffset, title = 'Donald Trump', text = 'Trump', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Barack Obama
 
-float obama = _perf(_ts(2009, 1, 20, 0, 0, 0) <= t and t <= _ts(2017, 1, 20, 0, 0, 0))
-int obamaOffset = trumpOffset - space
+obama = _perf(_ts(2009, 1, 20) <= t and t <= _ts(2017, 1, 20))
+obamaOffset = trumpOffset - space
 
-plot(obama, offset=obamaOffset, title="Barack Obama", color=#9ace73, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(obama, 0), offset=obamaOffset, title="Barack Obama", text="Obama", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(obama, offset = obamaOffset, title = 'Barack Obama', color = #9ace73, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(obama, 0), offset = obamaOffset, title = 'Barack Obama', text = 'Obama', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // George W. Bush
 
-float gw_bush = _perf(_ts(2001, 1, 20, 0, 0, 0) <= t and t <= _ts(2009, 1, 20, 0, 0, 0))
-int gw_bushOffset = obamaOffset - space
+gw_bush = _perf(_ts(2001, 1, 20) <= t and t <= _ts(2009, 1, 20))
+gw_bushOffset = obamaOffset - space
 
-plot(gw_bush, offset=gw_bushOffset, title="George W. Bush", color=#ffdf82, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(gw_bush, 0), offset=gw_bushOffset, title="George W. Bush", text="G. Bush", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(gw_bush, offset = gw_bushOffset, title = 'George W. Bush', color = #ffdf82, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(gw_bush, 0), offset = gw_bushOffset, title = 'George W. Bush', text = 'G. Bush', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
+// Bill Clinton
 
-float clinton = _perf(_ts(1993, 1, 20, 0, 0, 0) <= t and t <= _ts(2001, 1, 20, 0, 0, 0))
-int clintonOffset = gw_bushOffset - space
+clinton = _perf(_ts(1993, 1, 20) <= t and t <= _ts(2001, 1, 20))
+clintonOffset = gw_bushOffset - space
 
-plot(clinton, offset=clintonOffset, title="Bill Clinton", color=#bb8954, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(clinton, 0), offset=clintonOffset, title="Bill Clinton", text="Clinton", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(clinton, offset = clintonOffset, title = 'Bill Clinton', color = #bb8954, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(clinton, 0), offset = clintonOffset, title = 'Bill Clinton', text = 'Clinton', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // George H. W. Bush
 
-float ghw_bush = _perf(_ts(1989, 1, 20, 0, 0, 0) <= t and t <= _ts(1993, 1, 20, 0, 0, 0))
-int ghw_bushOffset = clintonOffset - space
+ghw_bush = _perf(_ts(1989, 1, 20) <= t and t <= _ts(1993, 1, 20))
+ghw_bushOffset = clintonOffset - space
 
-plot(ghw_bush, offset=ghw_bushOffset, title="George H. W. Bush", color=#4363d8, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(ghw_bush, 0), offset=ghw_bushOffset, title="George H. W. Bush", text="G. H. Bush", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(ghw_bush, offset = ghw_bushOffset, title = 'George H. W. Bush', color = #4363d8, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(ghw_bush, 0), offset = ghw_bushOffset, title = 'George H. W. Bush', text = 'G. H. Bush', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Ronald Reagan
 
-float reagan = _perf(_ts(1981, 1, 20, 0, 0, 0) <= t and t <= _ts(1989, 1, 20, 0, 0, 0))
-int reaganOffset = ghw_bushOffset - space
+reagan = _perf(_ts(1981, 1, 20) <= t and t <= _ts(1989, 1, 20))
+reaganOffset = ghw_bushOffset - space
 
-plot(reagan, offset=reaganOffset, title="Ronald Reagan", color=#c46c54, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(reagan, 0), offset=reaganOffset, title="Ronald Reagan", text="Reagan", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(reagan, offset = reaganOffset, title = 'Ronald Reagan', color = #c46c54, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(reagan, 0), offset = reaganOffset, title = 'Ronald Reagan', text = 'Reagan', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Jimmy Carter
 
-float carter = _perf(_ts(1977, 1, 20, 0, 0, 0) <= t and t <= _ts(1981, 1, 20, 0, 0, 0))
-int carterOffset = reaganOffset - space
+carter = _perf(_ts(1977, 1, 20) <= t and t <= _ts(1981, 1, 20))
+carterOffset = reaganOffset - space
 
-plot(carter, offset=carterOffset, title="Jimmy Carter", color=#5ec27c, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(carter, 0), offset=carterOffset, title="Jimmy Carter", text="Carter", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(carter, offset = carterOffset, title = 'Jimmy Carter', color = #5ec27c, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(carter, 0), offset = carterOffset, title = 'Jimmy Carter', text = 'Carter', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Gerald Ford
 
-float ford = _perf(_ts(1974, 8, 9, 0, 0, 0) <= t and t <= _ts(1977, 1, 20, 0, 0, 0))
-int fordOffset = carterOffset - space
+ford = _perf(_ts(1974, 8, 9) <= t and t <= _ts(1977, 1, 20))
+fordOffset = carterOffset - space
 
-plot(ford, offset=fordOffset, title="Gerald Ford", color=#e6194b, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(ford, 0), offset=fordOffset, title="Gerald Ford", text="Ford", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(ford, offset = fordOffset, title = 'Gerald Ford', color = #e6194b, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(ford, 0), offset = fordOffset, title = 'Gerald Ford', text = 'Ford', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Richard Nixon
 
-float nixon = _perf(_ts(1969, 1, 20, 0, 0, 0) <= t and t <= _ts(1974, 8, 9, 0, 0, 0))
-int nixonOffset = fordOffset - space
+nixon = _perf(_ts(1969, 1, 20) <= t and t <= _ts(1974, 8, 9))
+nixonOffset = fordOffset - space
 
-plot(nixon, offset=nixonOffset, title="Richard Nixon", color=#3cb44b, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(nixon, 0), offset=nixonOffset, title="Richard Nixon", text="Nixon", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(nixon, offset = nixonOffset, title = 'Richard Nixon', color = #3cb44b, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(nixon, 0), offset = nixonOffset, title = 'Richard Nixon', text = 'Nixon', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Lyndon B. Johnson
 
-float johnson = _perf(_ts(1963, 11, 22, 0, 0, 0) <= t and t <= _ts(1969, 1, 20, 0, 0, 0))
-int johnsonOffset = nixonOffset - space
+johnson = _perf(_ts(1963, 11, 22) <= t and t <= _ts(1969, 1, 20))
+johnsonOffset = nixonOffset - space
 
-plot(johnson, offset=johnsonOffset, title="Lyndon B. Johnson", color=#ffe119, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(johnson, 0), offset=johnsonOffset, title="Lyndon B. Johnson", text="Johnson", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(johnson, offset = johnsonOffset, title = 'Lyndon B. Johnson', color = #ffe119, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(johnson, 0), offset = johnsonOffset, title = 'Lyndon B. Johnson', text = 'Johnson', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // John F. Kennedy
 
-float kennedy = _perf(_ts(1961, 1, 20, 0, 0, 0) <= t and t <= _ts(1963, 11, 22, 0, 0, 0))
-int kennedyOffset = johnsonOffset - space
+kennedy = _perf(_ts(1961, 1, 20) <= t and t <= _ts(1963, 11, 22))
+kennedyOffset = johnsonOffset - space
 
-plot(kennedy, offset=kennedyOffset, title="John F. Kennedy", color=#f58231, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(kennedy, 0), offset=kennedyOffset, title="John F. Kennedy", text="Kennedy", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(kennedy, offset = kennedyOffset, title = 'John F. Kennedy', color = #f58231, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(kennedy, 0), offset = kennedyOffset, title = 'John F. Kennedy', text = 'Kennedy', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Dwight D. Eisenhower
 
-float eisenhower = _perf(_ts(1953, 1, 20, 0, 0, 0) <= t and t <= _ts(1961, 1, 20, 0, 0, 0))
-int eisenhowerOffset = kennedyOffset - space
+eisenhower = _perf(_ts(1953, 1, 20) <= t and t <= _ts(1961, 1, 20))
+eisenhowerOffset = kennedyOffset - space
 
-plot(eisenhower, offset=eisenhowerOffset, title="Dwight D. Eisenhower", color=#008b8b, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(eisenhower, 0), offset=eisenhowerOffset, title="Dwight D. Eisenhower", text="Eisenhower", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(eisenhower, offset = eisenhowerOffset, title = 'Dwight D. Eisenhower', color = #008b8b, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(eisenhower, 0), offset = eisenhowerOffset, title = 'Dwight D. Eisenhower', text = 'Eisenhower', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Harry S. Truman
 
-float truman = _perf(_ts(1945, 4, 12, 0, 0, 0) <= t and t <= _ts(1953, 1, 20, 0, 0, 0))
-int trumanOffset = eisenhowerOffset - space
+truman = _perf(_ts(1945, 4, 12) <= t and t <= _ts(1953, 1, 20))
+trumanOffset = eisenhowerOffset - space
 
-plot(truman, offset=trumanOffset, title="Harry S. Truman", color=#5059a5, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(truman, 0), offset=trumanOffset, title="Harry S. Truman", text="Truman", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(truman, offset = trumanOffset, title = 'Harry S. Truman', color = #5059a5, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(truman, 0), offset = trumanOffset, title = 'Harry S. Truman', text = 'Truman', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Franklin D. Roosevelt
 
-float f_roosevelt = _perf(_ts(1933, 3, 4, 0, 0, 0) <= t and t <= _ts(1945, 4, 12, 0, 0, 0))
-int f_rooseveltOffset = trumanOffset - space
+f_roosevelt = _perf(_ts(1933, 3, 4) <= t and t <= _ts(1945, 4, 12))
+f_rooseveltOffset = trumanOffset - space
 
-plot(f_roosevelt, offset=f_rooseveltOffset, title="Franklin D. Roosevelt", color=#b22222, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(f_roosevelt, 0), offset=f_rooseveltOffset, title="Franklin D. Roosevelt", text="F. Roosevelt", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(f_roosevelt, offset = f_rooseveltOffset, title = 'Franklin D. Roosevelt', color = #b22222, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(f_roosevelt, 0), offset = f_rooseveltOffset, title = 'Franklin D. Roosevelt', text = 'F. Roosevelt', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Herbert Hoover
 
-float hoover = _perf(_ts(1929, 3, 4, 0, 0, 0) <= t and t <= _ts(1933, 3, 4, 0, 0, 0))
-int hooverOffset = f_rooseveltOffset - space
+hoover = _perf(_ts(1929, 3, 4) <= t and t <= _ts(1933, 3, 4))
+hooverOffset = f_rooseveltOffset - space
 
-plot(hoover, offset=hooverOffset, title="Herbert Hoover", color=#ffd700, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(hoover, 0), offset=hooverOffset, title="Herbert Hoover", text="Hoover", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(hoover, offset = hooverOffset, title = 'Herbert Hoover', color = #ffd700, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(hoover, 0), offset = hooverOffset, title = 'Herbert Hoover', text = 'Hoover', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Calvin Coolidge
 
-float coolidge = _perf(_ts(1923, 8, 2, 0, 0, 0) <= t and t <= _ts(1929, 3, 4, 0, 0, 0))
-int coolidgeOffset = hooverOffset - space
+coolidge = _perf(_ts(1923, 8, 2) <= t and t <= _ts(1929, 3, 4))
+coolidgeOffset = hooverOffset - space
 
-plot(coolidge, offset=coolidgeOffset, title="Calvin Coolidge", color=#4b0082, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(coolidge, 0), offset=coolidgeOffset, title="Calvin Coolidge", text="Coolidge", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(coolidge, offset = coolidgeOffset, title = 'Calvin Coolidge', color = #4b0082, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(coolidge, 0), offset = coolidgeOffset, title = 'Calvin Coolidge', text = 'Coolidge', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Warren G. Harding
 
-float harding = _perf(_ts(1921, 3, 4, 0, 0, 0) <= t and t <= _ts(1923, 8, 2, 0, 0, 0))
-int hardingOffset = coolidgeOffset - space
+harding = _perf(_ts(1921, 3, 4) <= t and t <= _ts(1923, 8, 2))
+hardingOffset = coolidgeOffset - space
 
-plot(harding, offset=hardingOffset, title="Warren G. Harding", color=#c71585, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(harding, 0), offset=hardingOffset, title="Warren G. Harding", text="Harding", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(harding, offset = hardingOffset, title = 'Warren G. Harding', color = #c71585, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(harding, 0), offset = hardingOffset, title = 'Warren G. Harding', text = 'Harding', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Woodrow Wilson
 
-float wilson = _perf(_ts(1913, 3, 4, 0, 0, 0) <= t and t <= _ts(1921, 3, 4, 0, 0, 0))
-int wilsonOffset = hardingOffset - space
+wilson = _perf(_ts(1913, 3, 4) <= t and t <= _ts(1921, 3, 4))
+wilsonOffset = hardingOffset - space
 
-plot(wilson, offset=wilsonOffset, title="Woodrow Wilson", color=#5f9ea0, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(wilson, 0), offset=wilsonOffset, title="Woodrow Wilson", text="Wilson", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(wilson, offset = wilsonOffset, title = 'Woodrow Wilson', color = #5f9ea0, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(wilson, 0), offset = wilsonOffset, title = 'Woodrow Wilson', text = 'Wilson', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // William Howard Taft
 
-float taft = _perf(_ts(1909, 3, 4, 0, 0, 0) <= t and t <= _ts(1913, 3, 4, 0, 0, 0))
-int taftOffset = wilsonOffset - space
+taft = _perf(_ts(1909, 3, 4) <= t and t <= _ts(1913, 3, 4))
+taftOffset = wilsonOffset - space
 
-plot(taft, offset=taftOffset, title="William Howard Taft", color=#b8860b, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(taft, 0), offset=taftOffset, title="William Howard Taft", text="Taft", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(taft, offset = taftOffset, title = 'William Howard Taft', color = #b8860b, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(taft, 0), offset = taftOffset, title = 'William Howard Taft', text = 'Taft', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Theodore Roosevelt
 
-float t_roosevelt = _perf(_ts(1901, 9, 14, 0, 0, 0) <= t and t <= _ts(1909, 3, 4, 0, 0, 0))
-int t_rooseveltOffset = taftOffset - space
+t_roosevelt = _perf(_ts(1901, 9, 14) <= t and t <= _ts(1909, 3, 4))
+t_rooseveltOffset = taftOffset - space
 
-plot(t_roosevelt, offset=t_rooseveltOffset, title="Theodore Roosevelt", color=#7e5233, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(t_roosevelt, 0), offset=t_rooseveltOffset, title="Theodore Roosevelt", text="T. Roosevelt", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(t_roosevelt, offset = t_rooseveltOffset, title = 'Theodore Roosevelt', color = #7e5233, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(t_roosevelt, 0), offset = t_rooseveltOffset, title = 'Theodore Roosevelt', text = 'T. Roosevelt', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // William McKinley
 
-float mckinley = _perf(_ts(1897, 3, 4, 0, 0, 0) <= t and t <= _ts(1901, 9, 14, 0, 0, 0))
-int mckinleyOffset = t_rooseveltOffset - space
+mckinley = _perf(_ts(1897, 3, 4) <= t and t <= _ts(1901, 9, 14))
+mckinleyOffset = t_rooseveltOffset - space
 
-plot(mckinley, offset=mckinleyOffset, title="William McKinley", color=#3d986a, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(mckinley, 0), offset=mckinleyOffset, title="William McKinley", text="McKinley", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
+plot(mckinley, offset = mckinleyOffset, title = 'William McKinley', color = #3d986a, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(mckinley, 0), offset = mckinleyOffset, title = 'William McKinley', text = 'McKinley', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
 
 //------------------------------------------------------------------------------
 // Grover Cleveland
 
-float cleveland = _perf(_ts(1893, 3, 4, 0, 0, 0) <= t and t <= _ts(1897, 3, 4, 0, 0, 0))
-int clevelandOffset = mckinleyOffset - space
+cleveland = _perf(_ts(1893, 3, 4) <= t and t <= _ts(1897, 3, 4))
+clevelandOffset = mckinleyOffset - space
 
-plot(cleveland, offset=clevelandOffset, title="Grover Cleveland", color=#f45b10, style=plot.style_histogram, linewidth=width, show_last=1)
-plotshape(min(cleveland, 0), offset=clevelandOffset, title="Grover Cleveland", text="Cleveland", color=labelColor, textcolor=textColor, style=shape.labelup, location=location.absolute, size=size.small, show_last=1, transp=0)
-
-hline(0.0, title="Zero Level", linestyle=hline.style_dotted, color=#674ea7)
+plot(cleveland, offset = clevelandOffset, title = 'Grover Cleveland', color = #f45b10, style = plot.style_histogram, linewidth = width, show_last = 1)
+plotshape(math.min(cleveland, 0), offset = clevelandOffset, title = 'Grover Cleveland', text = 'Cleveland', color = labelColor, textcolor = labelTextColor, style = labelStyle, location = labelLocation, size = labelSize, show_last = 1)
