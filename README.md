@@ -1,7 +1,10 @@
 # tradingview-pinescript-indicators
 
-A collection of various technical indicators implemented in the Pine Script language for the TradingView platform.
+A collection of various technical indicators implemented in Pine Script for the TradingView platform.
 
-My referral links:
-- [Join TradingView and earn $15!](https://www.tradingview.com/pricing/?share_your_love=everget)
-- [Join Bybit and get up to $6,045 in bonuses!](https://www.bybit.com/invite?ref=56ZLQ0Z)
+👨🏻‍💻 Coding services -> Telegram: [@alex_everget](https://t.me/alex_everget), TradingView: [@everget](https://www.tradingview.com/u/everget/)
+
+[🆓 List of my FREE indicators](https://bit.ly/2S7EPuN)<br>
+[💰 List of my PREMIUM indicators](https://bit.ly/33MA81f)
+
+[Join Bybit and get up to $6,045 in bonuses!](https://bybit.com/invite?ref=56ZLQ0Z)
