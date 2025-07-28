@@ -1,12 +1,18 @@
-//@version=4
+//@version=6
 // Copyright (c) 2021-present, Alex Orekhov (everget)
 // HalfTrend script may be freely distributed under the terms of the GPL-3.0 license.
-study("HalfTrend", overlay=true)
+indicator('HalfTrend', overlay = true)
 
-amplitude = input(title="Amplitude", defval=2)
-channelDeviation = input(title="Channel Deviation", defval=2)
-showArrows = input(title="Show Arrows", defval=true)
-showChannels = input(title="Show Channels", defval=true)
+const string calcGroup = 'Calculation'
+amplitude = input.int(2, title = 'Amplitude', group = calcGroup)
+channelDeviation = input.int(2, title = 'Channel Deviation', group = calcGroup)
+
+const string visualGroup = 'Visuals'
+showArrows = input.bool(true, title = 'Show Arrows', group = visualGroup)
+showChannels = input.bool(true, title = 'Show Channels', group = visualGroup)
+showLabels = input.bool(true, title = 'Show Buy/Sell Labels', group = visualGroup)
+
+//---
 
 var int trend = 0
 var int nextTrend = 0
@@ -20,65 +26,79 @@ float atrLow = 0.0
 float arrowUp = na
 float arrowDown = na
 
-atr2 = atr(100) / 2
+atr2 = ta.atr(100) / 2
 dev = channelDeviation * atr2
 
-highPrice = high[abs(highestbars(amplitude))]
-lowPrice = low[abs(lowestbars(amplitude))]
-highma = sma(high, amplitude)
-lowma = sma(low, amplitude)
+highPrice = high[math.abs(ta.highestbars(amplitude))]
+lowPrice = low[math.abs(ta.lowestbars(amplitude))]
+highma = ta.sma(high, amplitude)
+lowma = ta.sma(low, amplitude)
 
 if nextTrend == 1
-	maxLowPrice := max(lowPrice, maxLowPrice)
+    maxLowPrice := math.max(lowPrice, maxLowPrice)
 
-	if highma < maxLowPrice and close < nz(low[1], low)
-		trend := 1
-		nextTrend := 0
-		minHighPrice := highPrice
+    if highma < maxLowPrice and close < nz(low[1], low)
+        trend := 1
+        nextTrend := 0
+        minHighPrice := highPrice
+        minHighPrice
 else
-	minHighPrice := min(highPrice, minHighPrice)
+    minHighPrice := math.min(highPrice, minHighPrice)
 
-	if lowma > minHighPrice and close > nz(high[1], high)
-		trend := 0
-		nextTrend := 1
-		maxLowPrice := lowPrice
+    if lowma > minHighPrice and close > nz(high[1], high)
+        trend := 0
+        nextTrend := 1
+        maxLowPrice := lowPrice
+        maxLowPrice
 
 if trend == 0
-	if not na(trend[1]) and trend[1] != 0
-		up := na(down[1]) ? down : down[1]
-		arrowUp := up - atr2
-	else
-		up := na(up[1]) ? maxLowPrice : max(maxLowPrice, up[1])
-	atrHigh := up + dev
-	atrLow := up - dev
+    if not na(trend[1]) and trend[1] != 0
+        up := na(down[1]) ? down : down[1]
+        arrowUp := up - atr2
+        arrowUp
+    else
+        up := na(up[1]) ? maxLowPrice : math.max(maxLowPrice, up[1])
+        up
+    atrHigh := up + dev
+    atrLow := up - dev
+    atrLow
 else
-	if not na(trend[1]) and trend[1] != 1 
-		down := na(up[1]) ? up : up[1]
-		arrowDown := down + atr2
-	else
-		down := na(down[1]) ? minHighPrice : min(minHighPrice, down[1])
-	atrHigh := down + dev
-	atrLow := down - dev
+    if not na(trend[1]) and trend[1] != 1
+        down := na(up[1]) ? up : up[1]
+        arrowDown := down + atr2
+        arrowDown
+    else
+        down := na(down[1]) ? minHighPrice : math.min(minHighPrice, down[1])
+        down
+    atrHigh := down + dev
+    atrLow := down - dev
+    atrLow
 
 ht = trend == 0 ? up : down
 
-var color buyColor = color.blue
-var color sellColor = color.red
+const color buyColor = color.blue
+const color sellColor = color.red
+const color textColor = color.white
+const color buyFillColor = color.new(buyColor, 85)
+const color sellFillColor = color.new(sellColor, 85)
 
 htColor = trend == 0 ? buyColor : sellColor
-htPlot = plot(ht, title="HalfTrend", linewidth=2, color=htColor)
+htPlot = plot(ht, title = 'HalfTrend', linewidth = 2, color = htColor)
 
-atrHighPlot = plot(showChannels ? atrHigh : na, title="ATR High", style=plot.style_circles, color=sellColor)
-atrLowPlot = plot(showChannels ? atrLow : na, title="ATR Low", style=plot.style_circles, color=buyColor)
+atrHighPlot = plot(showChannels ? atrHigh : na, title = 'ATR High', style = plot.style_circles, color = sellColor)
+atrLowPlot = plot(showChannels ? atrLow : na, title = 'ATR Low', style = plot.style_circles, color = buyColor)
 
-fill(htPlot, atrHighPlot, title="ATR High Ribbon", color=sellColor)
-fill(htPlot, atrLowPlot, title="ATR Low Ribbon", color=buyColor)
+fill(htPlot, atrHighPlot, title = 'ATR High Ribbon', color = sellFillColor)
+fill(htPlot, atrLowPlot, title = 'ATR Low Ribbon', color = buyFillColor)
 
-buySignal = not na(arrowUp) and (trend == 0 and trend[1] == 1)
-sellSignal = not na(arrowDown) and (trend == 1 and trend[1] == 0)
+buySignal = not na(arrowUp) and trend == 0 and trend[1] == 1
+sellSignal = not na(arrowDown) and trend == 1 and trend[1] == 0
 
-plotshape(showArrows and buySignal ? atrLow : na, title="Arrow Up", style=shape.triangleup, location=location.absolute, size=size.tiny, color=buyColor)
-plotshape(showArrows and sellSignal ? atrHigh : na, title="Arrow Down", style=shape.triangledown, location=location.absolute, size=size.tiny, color=sellColor)
+plotshape(showArrows and buySignal ? atrLow : na, title = 'Arrow Up', style = shape.triangleup, location = location.absolute, size = size.tiny, color = buyColor)
+plotshape(showArrows and sellSignal ? atrHigh : na, title = 'Arrow Down', style = shape.triangledown, location = location.absolute, size = size.tiny, color = sellColor)
 
-alertcondition(buySignal, title="Alert: HalfTrend Buy", message="HalfTrend Buy")
-alertcondition(sellSignal, title="Alert: HalfTrend Sell", message="HalfTrend Sell")
+plotshape(showLabels and buySignal ? atrLow : na, title = 'Buy Label', text = 'Buy', location = location.absolute, style = shape.labelup, size = size.tiny, color = buyColor, textcolor = textColor)
+plotshape(showLabels and sellSignal ? atrHigh : na, title = 'Sell Label', text = 'Sell', location = location.absolute, style = shape.labeldown, size = size.tiny, color = sellColor, textcolor = textColor)
+
+alertcondition(buySignal, title = 'HalfTrend Buy', message = 'HalfTrend Buy, {{exchange}}:{{ticker}}')
+alertcondition(sellSignal, title = 'HalfTrend Sell', message = 'HalfTrend Sell, {{exchange}}:{{ticker}}')
