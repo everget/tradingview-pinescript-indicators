@@ -52,7 +52,7 @@ maColor = highlightDirection
      ? (isBullishSlope ? bullishColor : bearishColor)
      : #512da8
 
-plot(ma, title = 'SHMMA', linewidth = 2, color = maColor)
+plot(ma, title = MA_SHORT_TITLE, linewidth = 2, color = maColor)
 
 maBarColor = applyBarColors ? (isBullishSlope ? bullishBarColor : bearishBarColor) : na
 maWickColor = applyBarColors ? (isBullishSlope ? bullishWickColor : bearishWickColor) : na
