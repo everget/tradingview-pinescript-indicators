@@ -1,20 +1,73 @@
-//@version=4
+//@version=6
 // Copyright (c) 2018-present, Alex Orekhov (everget)
 // Sharp Modified Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
-study("Sharp Modified Moving Average", shorttitle="SHMMA", overlay=true)
+const string MA_SHORT_TITLE = 'SHMMA'
+indicator('Sharp Modified Moving Average', shorttitle = MA_SHORT_TITLE, overlay = true, behind_chart = false)
 
-length = input(title="Length", type=input.integer, defval=14)
-src = input(title="Source", type=input.source, defval=close)
-highlight = input(title="Highlight ?", type=input.bool, defval=true)
+length = input.int(14, minval = 1, title = 'Length')
+src = input.source(close, title = 'Source')
 
-factor = 0.0
-slope = 0.0
+var highlightDirectionTooltip = 'Colors the ' + MA_SHORT_TITLE + ' according to its direction:\n• Green = rising\n• Pink = falling'
+highlightDirection = input.bool(
+     true
+     , title = 'Highlight Direction'
+     , tooltip = highlightDirectionTooltip
+     )
 
-for i = 1 to length
-	factor := 1 + 2 * (i - 1)
-	slope := slope + src[i - 1] * (length - factor) / 2
+var applyBarColorsTooltip = 'Colors price bars according to the ' + MA_SHORT_TITLE + ' direction:\n• Bullish color = rising ' + MA_SHORT_TITLE + '\n• Bearish color = falling ' + MA_SHORT_TITLE
+applyBarColors = input.bool(
+     true
+     , title = 'Apply Bar Colors'
+     , tooltip = applyBarColorsTooltip
+     )
 
-shmma = sma(src, length) + 6 * slope / ((length + 1) * length)
+var applyBgColorsTooltip = 'Colors the chart background according to the ' + MA_SHORT_TITLE + ' direction:\n• Bullish color = rising ' + MA_SHORT_TITLE + '\n• Bearish color = falling ' + MA_SHORT_TITLE
+applyBgColors = input.bool(
+     false
+     , title = 'Apply Background Colors'
+     , tooltip = applyBgColorsTooltip
+     )
 
-shmmaColor = highlight ? shmma > shmma[1] ? color.green : color.red : #6d1e7f
-plot(shmma, title="SHMMA", linewidth=2, color=shmmaColor, transp=0)
+//---
+
+ma = 3 * ta.wma(src, length) - 2 * ta.sma(src, length)
+
+//---
+
+const color bullishColor = #09b71e
+const color bearishColor = #e91e63
+
+const color bullishBarColor = color.new(bullishColor, 50)
+const color bearishBarColor = color.new(bearishColor, 50)
+
+const color bullishWickColor = bullishColor
+const color bearishWickColor = bearishColor
+
+const color bullishBgColor = color.new(bullishColor, 88)
+const color bearishBgColor = color.new(bearishColor, 88)
+
+isBullishSlope = ma > ma[1]
+
+maColor = highlightDirection
+     ? (isBullishSlope ? bullishColor : bearishColor)
+     : #512da8
+
+plot(ma, title = 'SHMMA', linewidth = 2, color = maColor)
+
+maBarColor = applyBarColors ? (isBullishSlope ? bullishBarColor : bearishBarColor) : na
+maWickColor = applyBarColors ? (isBullishSlope ? bullishWickColor : bearishWickColor) : na
+maBgColor = applyBgColors ? (isBullishSlope ? bullishBgColor : bearishBgColor) : na
+
+barcolor(title = 'Bar Color', color = maBarColor)
+plotcandle(open, high, low, close, title = 'Bar Color', color = na, wickcolor = maWickColor, bordercolor = na, display = display.pane)
+bgcolor(title = 'Background Color', color = maBgColor)
+
+//---
+
+bullishColorChangeAlert = maColor[1] != bullishColor and maColor == bullishColor
+bearishColorChangeAlert = maColor[1] != bearishColor and maColor == bearishColor
+anyColorChangeAlert = maColor != maColor[1]
+
+alertcondition(bullishColorChangeAlert, title = 'Bullish Color Change', message = MA_SHORT_TITLE + ' - Bullish Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
+alertcondition(bearishColorChangeAlert, title = 'Bearish Color Change', message = MA_SHORT_TITLE + ' - Bearish Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
+alertcondition(anyColorChangeAlert, title = 'Any Color Change', message = MA_SHORT_TITLE + ' - Any Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
