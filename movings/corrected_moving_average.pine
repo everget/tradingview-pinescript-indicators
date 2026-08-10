@@ -1,44 +1,44 @@
-//@version=4
+//@version=6
 // Copyright (c) 2020-present, Alex Orekhov (everget)
 // Corrected Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
-study("Corrected Moving Average", shorttitle="CMA", overlay=true)
+const string MA_SHORT_TITLE = 'CMA'
+indicator('Corrected Moving Average', shorttitle = MA_SHORT_TITLE, overlay = true, behind_chart = false)
 
-length = input(title="Length", type=input.integer, defval=35)
-src = input(title="Source", type=input.source, defval=close)
-highlight = input(title="Highlight CMA ?", type=input.bool, defval=false)
-applyFilling = input(title="Apply Ribbon Filling ?", type=input.bool, defval=true)
+length = input.int(35, minval = 1, title = 'Length')
+src = input.source(close, title = 'Source')
+highlightDirection = input.bool(false, title = 'Highlight CMA')
+applyRibbonFilling = input.bool(true, title = 'Apply Ribbon Filling')
 
-sma = sma(src, length)
+//---
+
+sma = ta.sma(src, length)
 cma = sma
 
-v1 = variance(src, length)
-v2 = pow(nz(cma[1], cma) - sma, 2)
+cmaPrev = nz(cma[1], sma)
+v1 = ta.variance(src, length)
+dev = cmaPrev - sma
+v2 = dev * dev
 v3 = v1 == 0 or v2 == 0 ? 1 : v2 / (v1 + v2)
+// Closed form of the original fixed-point iteration k <- v3 * k * (2 - k) seeded at k = 1.
+// Its nonzero root is k = 2 - 1/v3, which goes negative for v3 <= 0.5 (there the iteration collapses toward 0), so clamp at 0.
+// Replaces a 1001-pass loop with one division.
+k = math.max(0.0, 2 - 1 / v3)
+cma := cmaPrev + k * (sma - cmaPrev)
 
-var tolerance = pow(10, -5)
-float err = 1
+//---
 
-// Gain Factor
-float kPrev = 1
-float k = 1
+cmaColor = highlightDirection ? cma > cma[1] ? color.green : color.red : color.orange
+cmaPlot = plot(cma, title = MA_SHORT_TITLE, linewidth = 2, color = cmaColor)
+smaPlot = plot(sma, title = 'SMA', linewidth = 2, color = color.blue)
 
-for i = 0 to 5000
-    if err > tolerance
-        k := v3 * kPrev * (2 - kPrev)
-        err := kPrev - k
-        kPrev := k
+var bullishFillColor = color.new(#0ebb23, 75)
+var bearishFillColor = color.new(#cc0000, 75)
 
-cma := nz(cma[1], src) + k * (sma - nz(cma[1], src))
+fillColor = applyRibbonFilling ? (sma > cma ? bullishFillColor : bearishFillColor) : #ffffff00
+fill(smaPlot, cmaPlot, color = fillColor)
 
-cmaColor = highlight ? (cma > cma[1] ? color.green : color.red) : color.orange
-cmaPlot = plot(cma, title="CMA", linewidth=2, color=cmaColor)
-smaPlot = plot(sma, title="SMA", linewidth=2, color=color.blue)
+longSignal = ta.crossover(sma, cma)
+shortSignal = ta.crossunder(sma, cma)
 
-fillColor = applyFilling ? (sma > cma ? #0ebb23 : #cc0000) : color.new(color.white, 100) 
-fill(smaPlot, cmaPlot, color=fillColor, transp=80)
-
-long = crossover(sma, cma)
-short = crossunder(sma, cma)
-
-alertcondition(long, title="Long", message="Long")
-alertcondition(short, title="Short", message="Short")
+alertcondition(longSignal, title = 'Long Signal', message = 'Enter Long\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
+alertcondition(shortSignal, title = 'Short Signal', message = 'Enter Short\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
