@@ -1,41 +1,106 @@
-//@version=4
+//@version=6
 // Copyright (c) 2018-present, Alex Orekhov (everget)
 // Henderson Weighted Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
-study("Henderson Weighted Moving Average", shorttitle="HWMA", overlay=true)
+const string MA_SHORT_TITLE = 'HWMA'
+indicator('Henderson Weighted Moving Average', shorttitle = MA_SHORT_TITLE, overlay = true, behind_chart = false)
 
-termsNumber = input(title="Terms Number", type=input.integer, minval=1, defval=7)
-src = input(title="Source", type=input.source, defval=close)
-highlight = input(title="Highlight ?", type=input.bool, defval=true)
+length = input.int(7, minval = 1, title = 'Length')
+src = input.source(close, title = 'Source')
+
+var highlightDirectionTooltip = 'Colors the ' + MA_SHORT_TITLE + ' according to its direction:\n• Green = rising\n• Pink = falling'
+highlightDirection = input.bool(
+     true
+     , title = 'Highlight Direction'
+     , tooltip = highlightDirectionTooltip
+     )
+
+var applyBarColorsTooltip = 'Colors price bars according to the ' + MA_SHORT_TITLE + ' direction:\n• Bullish color = rising ' + MA_SHORT_TITLE + '\n• Bearish color = falling ' + MA_SHORT_TITLE
+applyBarColors = input.bool(
+     true
+     , title = 'Apply Bar Colors'
+     , tooltip = applyBarColorsTooltip
+     )
+
+var applyBgColorsTooltip = 'Colors the chart background according to the ' + MA_SHORT_TITLE + ' direction:\n• Bullish color = rising ' + MA_SHORT_TITLE + '\n• Bearish color = falling ' + MA_SHORT_TITLE
+applyBgColors = input.bool(
+     false
+     , title = 'Apply Background Colors'
+     , tooltip = applyBgColorsTooltip
+     )
+
+//---
 
 // The general form of the weights of the (2m + 1)-term Henderson Weighted Moving Average
-_weight(m, j) =>
-	powj2 = pow(j, 2)
-	powm22 = pow(m + 2, 2)
+_hwmaWeight(float m, float j) =>
+    m1 = m + 1
+    m2 = m + 2
+    m3 = m + 3
+    powj2 = j * j
+    powm22 = m2 * m2
 
-	numerator =
-		 315 * (pow(m + 1, 2) - powj2) *
-		 (powm22 - powj2) *
-		 (pow(m + 3, 2) - powj2) *
-		 (3 * powm22 - 11 * powj2 - 16)
-	denominator =
-		 8 * (m + 2) * (powm22 - 1) *
-		 (4 * powm22 - 1) *
-		 (4 * powm22 - 9) *
-		 (4 * powm22 - 25)
-	out = denominator != 0 ? numerator / denominator : 0
-	out
+    numerator =
+         315 * (m1 * m1 - powj2) *
+         (powm22 - powj2) *
+         (m3 * m3 - powj2) *
+         (3 * powm22 - 11 * powj2 - 16)
+    denominator =
+         8 * m2 * (powm22 - 1) *
+         (4 * powm22 - 1) *
+         (4 * powm22 - 9) *
+         (4 * powm22 - 25)
+    denominator != 0 ? numerator / denominator : 0
+
+// The kernel depends only on `length`, so build it once instead of running the eight-term weight formula for every tap on every bar
+var array<float> weights = array.new_float(0)
+var float weightSum = 0.0
+if array.size(weights) == 0
+    termMult = (length - 1) / 2
+    for i = 0 to length - 1
+        weight = _hwmaWeight(termMult, i - termMult)
+        array.push(weights, weight)
+        weightSum += weight
 
 sum = 0.0
-weightSum = 0.0
+for i = 0 to length - 1
+    sum += nz(src[i], src) * array.get(weights, i)
+ma = weightSum != 0 ? sum / weightSum : src
 
-termMult = floor((termsNumber - 1) / 2)
+//---
 
-for i = 0 to termsNumber - 1
-	weight = _weight(termMult, i - termMult)
-	sum := sum + nz(src[i]) * weight
-	weightSum := weightSum + weight
+const color bullishColor = #09b71e
+const color bearishColor = #e91e63
 
-hwma = sum / weightSum
+const color bullishBarColor = color.new(bullishColor, 50)
+const color bearishBarColor = color.new(bearishColor, 50)
 
-hwmaColor = highlight ? hwma > hwma[1] ? color.green : color.red : #6d1e7f
-plot(hwma, title="HWMA", linewidth=2, color=hwmaColor, transp=0)
+const color bullishWickColor = bullishColor
+const color bearishWickColor = bearishColor
+
+const color bullishBgColor = color.new(bullishColor, 88)
+const color bearishBgColor = color.new(bearishColor, 88)
+
+isBullishSlope = ma > ma[1]
+
+maColor = highlightDirection
+     ? (isBullishSlope ? bullishColor : bearishColor)
+     : #512da8
+
+plot(ma, title = MA_SHORT_TITLE, linewidth = 2, color = maColor)
+
+maBarColor = applyBarColors ? (isBullishSlope ? bullishBarColor : bearishBarColor) : na
+maWickColor = applyBarColors ? (isBullishSlope ? bullishWickColor : bearishWickColor) : na
+maBgColor = applyBgColors ? (isBullishSlope ? bullishBgColor : bearishBgColor) : na
+
+barcolor(title = 'Bar Color', color = maBarColor)
+plotcandle(open, high, low, close, title = 'Bar Color', color = na, wickcolor = maWickColor, bordercolor = na, display = display.pane)
+bgcolor(title = 'Background Color', color = maBgColor)
+
+//---
+
+bullishColorChangeAlert = maColor[1] != bullishColor and maColor == bullishColor
+bearishColorChangeAlert = maColor[1] != bearishColor and maColor == bearishColor
+anyColorChangeAlert = maColor != maColor[1]
+
+alertcondition(bullishColorChangeAlert, title = 'Bullish Color Change', message = MA_SHORT_TITLE + ' - Bullish Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
+alertcondition(bearishColorChangeAlert, title = 'Bearish Color Change', message = MA_SHORT_TITLE + ' - Bearish Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
+alertcondition(anyColorChangeAlert, title = 'Any Color Change', message = MA_SHORT_TITLE + ' - Any Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
