@@ -1,27 +1,94 @@
-//@version=3
+//@version=6
 // Copyright (c) 2019-present, Alex Orekhov (everget)
-// Inverse Distance Weighted Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
-study("Inverse Distance Weighted Moving Average", shorttitle="IDWMA", overlay=true)
+// Inverse Distance Weighted Moving Average script may be freely distributed under the GPL-3.0 license.
+const string MA_SHORT_TITLE = 'IDWMA'
+indicator('Inverse Distance Weighted Moving Average', shorttitle = MA_SHORT_TITLE, overlay = true, behind_chart = false)
 
-length = input(title="Length", type=integer, defval=14)
-highlightMovements = input(title="Highlight Movements ?", type=bool, defval=true)
-src = input(title="Source", type=source, defval=close)
+length = input.int(14, minval = 1, title = 'Length')
+src = input.source(close, title = 'Source')
+
+var highlightDirectionTooltip = 'Colors the ' + MA_SHORT_TITLE + ' according to its direction:\n• Green = rising\n• Pink = falling'
+highlightDirection = input.bool(
+     true
+     , title = 'Highlight Direction'
+     , tooltip = highlightDirectionTooltip
+     )
+
+var applyBarColorsTooltip = 'Colors price bars according to the ' + MA_SHORT_TITLE + ' direction:\n• Bullish color = rising ' + MA_SHORT_TITLE + '\n• Bearish color = falling ' + MA_SHORT_TITLE
+applyBarColors = input.bool(
+     true
+     , title = 'Apply Bar Colors'
+     , tooltip = applyBarColorsTooltip
+     )
+
+var applyBgColorsTooltip = 'Colors the chart background according to the ' + MA_SHORT_TITLE + ' direction:\n• Bullish color = rising ' + MA_SHORT_TITLE + '\n• Bearish color = falling ' + MA_SHORT_TITLE
+applyBgColors = input.bool(
+     false
+     , title = 'Apply Background Colors'
+     , tooltip = applyBgColorsTooltip
+     )
+
+//---
+
+// |src[i] - src[j]| is symmetric, so walk each unordered pair once and credit the distance
+// to both taps - half the work of computing every tap's weight independently
+var array<float> weights = array.new_float(length, 0.0)
+for i = 0 to length - 1
+    array.set(weights, i, 0.0)
+// Guarded: at length == 1 the bounds would invert and Pine's auto-reversing for-loop
+// would index the array out of range
+if length > 1
+    for i = 0 to length - 2
+        for j = i + 1 to length - 1
+            d = math.abs(nz(src[i], src) - nz(src[j], src))
+            array.set(weights, i, array.get(weights, i) + d)
+            array.set(weights, j, array.get(weights, j) + d)
 
 sum = 0.0
 weightSum = 0.0
-
-calcWeight(src, length, i) =>
-    distanceSum = 0.0
-    for j = 0 to length - 1
-        distanceSum := distanceSum + abs(nz(src[i]) - nz(src[j]))
-    distanceSum
-
 for i = 0 to length - 1
-    weight = calcWeight(src, length, i)
-    sum := sum + nz(src[i]) * weight
-    weightSum := weightSum + weight
+    weight = array.get(weights, i)
+    sum += nz(src[i], src) * weight
+    weightSum += weight
+// A perfectly flat window makes every distance - and therefore every weight - zero
+ma = weightSum != 0 ? sum / weightSum : src
 
-idwma = sum / weightSum
+//---
 
-idwmaColor = highlightMovements ? (idwma > idwma[1] ? green : red) : #6d1e7f
-plot(idwma, title="IDWMA", linewidth=2, color=idwmaColor, transp=0)
+const color bullishColor = #09b71e
+const color bearishColor = #e91e63
+
+const color bullishBarColor = color.new(bullishColor, 50)
+const color bearishBarColor = color.new(bearishColor, 50)
+
+const color bullishWickColor = bullishColor
+const color bearishWickColor = bearishColor
+
+const color bullishBgColor = color.new(bullishColor, 88)
+const color bearishBgColor = color.new(bearishColor, 88)
+
+isBullishSlope = ma > ma[1]
+
+maColor = highlightDirection
+     ? (isBullishSlope ? bullishColor : bearishColor)
+     : #512da8
+
+plot(ma, title = MA_SHORT_TITLE, linewidth = 2, color = maColor)
+
+maBarColor = applyBarColors ? (isBullishSlope ? bullishBarColor : bearishBarColor) : na
+maWickColor = applyBarColors ? (isBullishSlope ? bullishWickColor : bearishWickColor) : na
+maBgColor = applyBgColors ? (isBullishSlope ? bullishBgColor : bearishBgColor) : na
+
+barcolor(title = 'Bar Color', color = maBarColor)
+plotcandle(open, high, low, close, title = 'Bar Color', color = na, wickcolor = maWickColor, bordercolor = na, display = display.pane)
+bgcolor(title = 'Background Color', color = maBgColor)
+
+//---
+
+bullishColorChangeAlert = maColor[1] != bullishColor and maColor == bullishColor
+bearishColorChangeAlert = maColor[1] != bearishColor and maColor == bearishColor
+anyColorChangeAlert = maColor != maColor[1]
+
+alertcondition(bullishColorChangeAlert, title = 'Bullish Color Change', message = MA_SHORT_TITLE + ' - Bullish Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
+alertcondition(bearishColorChangeAlert, title = 'Bearish Color Change', message = MA_SHORT_TITLE + ' - Bearish Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
+alertcondition(anyColorChangeAlert, title = 'Any Color Change', message = MA_SHORT_TITLE + ' - Any Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
