@@ -1,27 +1,89 @@
-//@version=3
+//@version=6
 // Copyright (c) 2008-present, John McCormick
 // Copyright (c) 2019-present, Alex Orekhov (everget)
 // Quick Moving Average script may be freely distributed under the terms of the GPL-3.0 license.
-study("Quick Moving Average", shorttitle="QMA", overlay=true)
+const string MA_SHORT_TITLE = 'QMA'
+indicator('Quick Moving Average', shorttitle = MA_SHORT_TITLE, overlay = true, behind_chart = false)
 
-length = input(title="Length", type=integer, minval=1, defval=14)
-src = input(title="Source", type=source, defval=close)
-highlightMovements = input(title="Highlight Movements ?", type=bool, defval=false)
+length = input.int(14, minval = 1, title = 'Length')
+src = input.source(close, title = 'Source')
+
+var highlightDirectionTooltip = 'Colors the ' + MA_SHORT_TITLE + ' according to its direction:\n• Green = rising\n• Pink = falling'
+highlightDirection = input.bool(
+     true
+     , title = 'Highlight Direction'
+     , tooltip = highlightDirectionTooltip
+     )
+
+var applyBarColorsTooltip = 'Colors price bars according to the ' + MA_SHORT_TITLE + ' direction:\n• Bullish color = rising ' + MA_SHORT_TITLE + '\n• Bearish color = falling ' + MA_SHORT_TITLE
+applyBarColors = input.bool(
+     true
+     , title = 'Apply Bar Colors'
+     , tooltip = applyBarColorsTooltip
+     )
+
+var applyBgColorsTooltip = 'Colors the chart background according to the ' + MA_SHORT_TITLE + ' direction:\n• Bullish color = rising ' + MA_SHORT_TITLE + '\n• Bearish color = falling ' + MA_SHORT_TITLE
+applyBgColors = input.bool(
+     false
+     , title = 'Apply Background Colors'
+     , tooltip = applyBgColorsTooltip
+     )
+
+//---
 
 peak = length / 3
 num = 0.0
 denom = 0.0
+for i = 1 to length by 1
+    mult = 0.0
+    if i <= peak
+        mult := i / peak
+        mult
+    else
+        mult := (length + 1 - i) / (length + 1 - peak)
+        mult
+    num := num + nz(src[i - 1], src) * mult
+    denom := denom + mult
+    denom
 
-for i = 1 to length + 1
-	mult = 0.0
-	if i <= peak
-		mult := i / peak
-	else
-		mult := (length + 1 - i) / (length + 1 - peak)
-	num := num + src[i - 1] * mult
-	denom := denom + mult
+ma = denom != 0.0 ? num / denom : src
 
-qma = denom != 0.0 ? num / denom : src
+//---
 
-qmaColor = highlightMovements ? (qma > qma[1] ? green : red) : #6d1e7f
-plot(qma, title="QMA", linewidth=2, color=qmaColor, transp=0)
+const color bullishColor = #09b71e
+const color bearishColor = #e91e63
+
+const color bullishBarColor = color.new(bullishColor, 50)
+const color bearishBarColor = color.new(bearishColor, 50)
+
+const color bullishWickColor = bullishColor
+const color bearishWickColor = bearishColor
+
+const color bullishBgColor = color.new(bullishColor, 88)
+const color bearishBgColor = color.new(bearishColor, 88)
+
+isBullishSlope = ma > ma[1]
+
+maColor = highlightDirection
+     ? (isBullishSlope ? bullishColor : bearishColor)
+     : #512da8
+
+plot(ma, title = MA_SHORT_TITLE, linewidth = 2, color = maColor)
+
+maBarColor = applyBarColors ? (isBullishSlope ? bullishBarColor : bearishBarColor) : na
+maWickColor = applyBarColors ? (isBullishSlope ? bullishWickColor : bearishWickColor) : na
+maBgColor = applyBgColors ? (isBullishSlope ? bullishBgColor : bearishBgColor) : na
+
+barcolor(title = 'Bar Color', color = maBarColor)
+plotcandle(open, high, low, close, title = 'Bar Color', color = na, wickcolor = maWickColor, bordercolor = na, display = display.pane)
+bgcolor(title = 'Background Color', color = maBgColor)
+
+//---
+
+bullishColorChangeAlert = maColor[1] != bullishColor and maColor == bullishColor
+bearishColorChangeAlert = maColor[1] != bearishColor and maColor == bearishColor
+anyColorChangeAlert = maColor != maColor[1]
+
+alertcondition(bullishColorChangeAlert, title = 'Bullish Color Change', message = MA_SHORT_TITLE + ' - Bullish Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
+alertcondition(bearishColorChangeAlert, title = 'Bearish Color Change', message = MA_SHORT_TITLE + ' - Bearish Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
+alertcondition(anyColorChangeAlert, title = 'Any Color Change', message = MA_SHORT_TITLE + ' - Any Color Change\nSymbol: {{exchange}}:{{ticker}}\nPrice: {{close}}')
